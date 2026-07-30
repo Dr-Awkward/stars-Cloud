@@ -1,0 +1,19 @@
+{
+  "_comment": "Auto-update feed for the Galaxies desktop client. Served at /downloads/appcast.json and pointed at by the _WEB_UPDATE_FEED_URL substitution. On launch the client fetches this, compares its own build to version, and offers an upgrade.",
+  "_comment_soft_versus_hard": "This feed is the SOFT prompt. It asks. The HARD gate is minClientVersion on the API: galaxies-api answers 426 Upgrade Required on any call from a build below its own floor, and the client will not send orders after a 426. That is what stops a stale client from PUTing orders the server can no longer parse. If this feed is unreachable, stale, or wrong, nothing unsafe happens, the player just does not get asked nicely. The minClientVersion published here is a copy of the API's floor for display purposes; the API's copy is the one that decides. When they disagree, the API wins and this file is the thing that is out of date.",
+  "_comment_placeholder": "CAUTION. Everything below is a placeholder. The host REPLACE-ME.invalid does not resolve, on purpose, because .invalid is reserved and can never be registered. Version 0.0.0 and the all-zero hash are equally fake. The build refuses to deploy with _WEB_DOWNLOAD_ENABLED true while this placeholder is still here. Replace the whole entry when the first signed installer is published, and publish the GPL client source alongside the binary at the same time (see the galaxies-web spec, section 5.6).",
+  "_comment_verify": "sha256 is the hash of the file at url, so a player (or the updater) can verify the download before running it. Generate it with: sha256sum Galaxies-Setup-<version>.exe, or on Windows: certutil -hashfile Galaxies-Setup-<version>.exe SHA256. A signed installer does not remove the need for this; the hash is what makes the mirror-and-tamper case checkable by hand.",
+  "_comment_shape": "One platform ships today (Windows x64), so the current release sits at the top level. When a second platform lands, this grows a releases array keyed by platform rather than reshaping these field names, because the desktop client already reads them.",
+
+  "feedVersion": 1,
+  "platform": "windows-x64",
+  "version": "0.0.0",
+  "url": "https://REPLACE-ME.invalid/downloads/Galaxies-Setup-0.0.0.exe",
+  "releaseNotes": "No client has been published yet. This is a placeholder entry so the feed is well formed and the updater has something valid to parse while downloads are off. The first real release will carry its own notes here, in plain language, saying what changed and whether the turn wire format moved.",
+  "pubDate": "1970-01-01T00:00:00Z",
+  "minClientVersion": "0.0.0",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+
+  "sourceUrl": "https://github.com/farehard/galaxies",
+  "_comment_source": "The client is GPL v2, so the corresponding source for the published binary is public and linked from the same place as the download. This is not a courtesy; it is the license. Point sourceUrl at the tag that built the installer, not at the default branch."
+}

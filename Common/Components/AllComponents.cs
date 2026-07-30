@@ -42,6 +42,14 @@ namespace Nova.Common.Components
         private static string saveFilePath;
         private static string graphicsFilePath;
         private static bool isLoaded = false;
+
+        /// <summary>
+        /// An explicit path to the component definition file (components.xml). The
+        /// headless host sets this once from configuration, so component loading
+        /// needs no dialog and no registry lookup (design Section A.2). When null,
+        /// the legacy FileSearcher resolution is used.
+        /// </summary>
+        public static string ComponentFilePathOverride { get; set; }
         
         /// <summary>
         /// Returns an IDictionary (Compatible with Dictionary and ConcurrentDictionary)
@@ -153,28 +161,30 @@ namespace Nova.Common.Components
                 return;
             }
             
-            // Ensure we have the component definition file before starting the worker thread, or die.
+            // Ensure we have the component definition file, or die. Prefer the
+            // host-supplied path; fall back to the legacy FileSearcher resolution.
+            if (string.IsNullOrEmpty(saveFilePath))
+            {
+                saveFilePath = ComponentFilePathOverride;
+            }
             if (string.IsNullOrEmpty(saveFilePath))
             {
                 saveFilePath = FileSearcher.GetComponentFile();
-                if (string.IsNullOrEmpty(saveFilePath))
-                {
-                    Report.FatalError("Unable to locate component definition file.");
-                }
             }
-            else
+            if (string.IsNullOrEmpty(saveFilePath))
             {
-                // Report.Debug("Components file to be loaded: \"" + saveFilePath + "\"");
+                Report.FatalError("Unable to locate component definition file.");
             }
-            
-            ProgressDialog progress = new ProgressDialog();
-            progress.Text = "Loading Components";
-            ThreadPool.QueueUserWorkItem(new WaitCallback(LoadComponents), progress);
-            progress.ShowDialog();
-            
+
+            // The desktop game loaded components on a worker thread behind a
+            // ProgressDialog. Headless there is no dialog: load synchronously and
+            // report progress into a no-op sink (design Section A.2).
+            NullProgressCallback progress = new NullProgressCallback();
+            LoadComponents(progress);
+
             if (!progress.Success)
             {
-                Report.FatalError("Failed to load component file: ProgressDialog returned false.");
+                Report.FatalError("Failed to load component file: " + saveFilePath);
                 throw new System.Exception();
             }
             isLoaded = true;

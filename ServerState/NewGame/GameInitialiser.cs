@@ -89,6 +89,15 @@ namespace Nova.Server.NewGame
 
         private void GenerateEmpires(List<PlayerSettings> players, Dictionary<string, Race> knownRaces)
         {
+            // A game that has just been created is in progress. The desktop console
+            // used to be the only thing that set this, because it owned starting and
+            // stopping a game (NovaConsole.cs), and the console is not part of the
+            // server build. Leaving it false here meant every headless game reported
+            // GAME OVER on its first generated turn: the host derives the outcome
+            // from !GameInProgress, so the API would have finished every game after
+            // one turn and sent a game-over summary for it.
+            serverState.GameInProgress = true;
+
             // Copy the player & race data to the ServerState
             serverState.AllPlayers = players;
 

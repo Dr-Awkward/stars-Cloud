@@ -1,0 +1,80 @@
+# Galaxies build and test, on Linux.
+# Replaces the Windows-only Azure Pipelines VSBuild for the ported, headless
+# engine (design Section A.6). It builds and tests the whole solution on
+# ubuntu-latest: Common, ServerState, Nova.Server.Host, and the cloud projects
+# added since (Galaxies.Api, Galaxies.Client, Galaxies.ControlPlane,
+# Galaxies.AiContract, Nova.Ai) plus their test projects. Common and ServerState
+# are SDK-style net10.0 with no WinForms and no System.Drawing on the turn path,
+# so nothing here needs Windows.
+#
+# The solution file is Galaxies.slnx, not Galaxies.sln. Two different files exist
+# in this repo and they are not interchangeable: Nova.sln is the legacy
+# Windows-only desktop solution and will not restore on ubuntu. The .slnx XML
+# format needs the .NET 10 SDK; "dotnet build" on an older SDK reports it as an
+# unrecognized file rather than as an unsupported format, which reads like a
+# missing file and sends people looking for the wrong problem.
+
+name: build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # A project on disk that is missing from Galaxies.slnx is invisible to
+      # every step below: it will not build here and it will not be tested here,
+      # while looking perfectly healthy locally. This warns rather than fails so
+      # a project landing in one commit and its solution entry in the next does
+      # not red-flag an unrelated pull request, but a warning left standing means
+      # a project is genuinely unbuilt in CI.
+      - name: Check for projects missing from Galaxies.slnx
+        run: |
+          missing=0
+          while IFS= read -r proj; do
+            rel="${proj#./}"
+            case "$rel" in
+              Libraries/*|Nova/*|ControlLibrary/*|Graphics/*|TestHarness/*|GameFileInflator/*)
+                continue ;;   # legacy Windows-only desktop projects, deliberately out of the Linux solution
+            esac
+            if ! grep -qF "$rel" Galaxies.slnx; then
+              echo "::warning file=Galaxies.slnx::$rel exists on disk but is not in Galaxies.slnx, so CI never builds or tests it"
+              missing=1
+            fi
+          done < <(find . -name '*.csproj' -not -path './Libraries/*' | sort)
+          if [ "$missing" -eq 0 ]; then echo "All non-legacy projects are in the solution."; fi
+
+      - name: Restore
+        run: dotnet restore Galaxies.slnx
+
+      - name: Build
+        run: dotnet build Galaxies.slnx -c Release --no-restore
+
+      # Covers the NUnit suites across every test project in the solution:
+      # Tests (engine, including the determinism regression, design Section A.4),
+      # Tests.ControlPlane, and the AI suites as they are added to the solution.
+      - name: Test
+        run: >
+          dotnet test Galaxies.slnx -c Release --no-build
+          --verbosity normal
+          --logger "trx;LogFileName=test-results.trx"
+          --results-directory ./TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: ./TestResults/*.trx
+          if-no-files-found: warn

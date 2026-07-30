@@ -1,0 +1,41 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard. GPL v2; see LICENSE.txt at the repository root.
+
+  galaxies-ai (spec Documentation/Cloud/specs/galaxies-ai.md): the M3 dispatch
+  worker that runs one AI seat's turn. It sits on the CLIENT side of the engine
+  boundary, exactly where a human client sits: it reads one seat's fog-of-war
+  intel, asks a participant for orders, and submits them through the same
+  galaxies-api orders pipeline a human uses.
+
+  It references the contract library and the control plane. It deliberately does
+  NOT reference Nova.Server: this process must never be able to link the turn
+  engine or touch ServerData. Nova.Common arrives transitively through
+  Galaxies.AiContract, which is all the engine surface a client needs.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Galaxies.AiService</AssemblyName>
+    <RootNamespace>Galaxies.AiService</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AiContract\Galaxies.AiContract.csproj" />
+    <ProjectReference Include="..\ControlPlane\Galaxies.ControlPlane.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.9.0" />
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.10.0" />
+    <PackageReference Include="Google.Cloud.Tasks.V2" Version="3.6.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
+  </ItemGroup>
+
+</Project>

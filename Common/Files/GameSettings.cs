@@ -21,9 +21,8 @@
 
 namespace Nova.Common
 {
-    using System;    
-    using System.IO;  
-    using System.Windows.Forms;    
+    using System;
+    using System.IO;
     using System.Xml.Serialization;
     
     /// <summary>
@@ -169,19 +168,9 @@ namespace Nova.Common
         {
             if (Data.SettingsPathName == null)
             {
-                // TODO (priority 5) add the nicities. Update the game files location.
-                SaveFileDialog fd = new SaveFileDialog();
-                fd.Title = "Choose a location to save the game settings.";
-
-                DialogResult result = fd.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    Data.SettingsPathName = fd.FileName;
-                }
-                else
-                {
-                    throw new System.IO.IOException("File dialog cancelled.");
-                }
+                // Headless: there is no dialog to choose a location. The host sets
+                // SettingsPathName before saving (design A.2).
+                throw new System.IO.IOException("No game-settings location is available in headless mode.");
             }
             using (Stream stream = new FileStream(Data.SettingsPathName, FileMode.Create))
             {

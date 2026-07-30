@@ -26,9 +26,6 @@ namespace Nova.Common
     using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
-    using System.Windows.Forms;
-
-    using Microsoft.Win32;
 
     /// <summary>
     /// The FileSearcher object is used to find a file that is part of Nova. It uses
@@ -190,22 +187,9 @@ namespace Nova.Common
                     graphicsPath = Path.Combine(novaRoot, Global.GraphicsFolderName);
                 }
 
-                if (!Directory.Exists(graphicsPath))
-                {
-                    // if all else fails, ask the user
-                    FolderBrowserDialog graphicsFolderBrowser = new FolderBrowserDialog();
-
-                    graphicsFolderBrowser.RootFolder = Environment.SpecialFolder.Desktop;
-                    graphicsFolderBrowser.SelectedPath = GetNovaRoot();
-                    graphicsFolderBrowser.Description = "Locate the Stars! Nova \"Graphics\" folder.";
-                    DialogResult gameFolderBrowserResult = graphicsFolderBrowser.ShowDialog();
-
-                    // Check for cancel being pressed (in the new game save file dialog).
-                    if (gameFolderBrowserResult == DialogResult.OK)
-                    {
-                        graphicsPath = graphicsFolderBrowser.SelectedPath;
-                    }
-                }
+                // Headless: no folder-picker dialog. If graphics are not at the
+                // default location the server simply runs without them (they are
+                // client-only assets and never on the turn path).
 
                 // update the config if required
                 if (Directory.Exists(graphicsPath) && updateConf)
@@ -401,20 +385,11 @@ namespace Nova.Common
         /// <returns>The path and filename given or null.</returns>
         private static string AskUserForFile(string fileName)
         {
-            Report.Information("Please locate the file \"" + fileName + "\".");
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.FileName = fileName;
-
-            fileDialog.Title = "Please locate the file \"" + fileName + "\".";
-
-            DialogResult result = fileDialog.ShowDialog();
-
-            if (result == DialogResult.Cancel)
-            {
-                return null;
-            }
-            
-            return fileDialog.FileName;
+            // Headless: there is no user to prompt. The host provides content
+            // paths through configuration (design Section A.2). Callers treat a
+            // null return as "not found" and fail or fall back accordingly.
+            Report.Error("Unable to locate the file \"" + fileName + "\" and cannot prompt for it in headless mode.");
+            return null;
         }
     }
 }

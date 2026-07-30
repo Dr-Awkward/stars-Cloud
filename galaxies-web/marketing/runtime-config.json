@@ -1,0 +1,13 @@
+{
+  "_comment": "The checked-in default: everything off, nothing configured. This is what a local preview reads, so a local preview is always the dark site. cloudbuild.yaml overwrites this file in the build workspace from runtime-config.json.tmpl; it never writes back here. If you find real values in this file in a commit, that is a mistake, not a deploy.",
+  "site": false,
+  "signin": false,
+  "ads": false,
+  "download": false,
+  "browser": false,
+  "push": false,
+  "apiBaseUrl": "",
+  "adsenseClient": "",
+  "cmpId": "",
+  "updateFeedUrl": ""
+}

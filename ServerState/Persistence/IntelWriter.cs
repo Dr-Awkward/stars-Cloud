@@ -88,7 +88,20 @@ namespace Nova.Server
                     turnData.AllScores = new List<ScoreRecord>();
                 }
 
-                serverState.GameFolder = FileSearcher.GetFolder(Global.ServerFolderKey, Global.ServerFolderName);
+                // Resolve the game folder only if nobody has already set one. The
+                // desktop console discovered the shared folder here because nothing
+                // else did, but the cloud host assigns GameFolder to a per-generation
+                // working directory before calling Generate, and a server container
+                // has no Nova root to discover. Reassigning unconditionally wrote
+                // every empire's intel outside the working directory, where the game
+                // store never looked, and it also corrupted CleanupOrders, which runs
+                // after WriteIntel and reads this same field. Neither failed loudly:
+                // FileSearcher.GetFolder creates the folder it cannot find.
+                if (string.IsNullOrEmpty(serverState.GameFolder) || !Directory.Exists(serverState.GameFolder))
+                {
+                    serverState.GameFolder = FileSearcher.GetFolder(Global.ServerFolderKey, Global.ServerFolderName);
+                }
+
                 if (serverState.GameFolder == null)
                 {
                     Report.Error("Intel Writer: WriteIntel() - Unable to create file \"Nova.intel\".");

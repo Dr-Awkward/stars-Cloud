@@ -22,42 +22,19 @@
 namespace Nova.Common
 {
     using System;
-    using System.Drawing;
     using System.Xml;
 
     /// <summary>
-    /// This object defines the class ShipIcon which manages an icon as a paired
-    /// Bitmap and a String holding the image file's path. The Bitmap is for 
-    /// display purposes and the file path is for loading/saving.
+    /// This object identifies a ship icon by the image file's path (Source). The
+    /// engine needs only the identifier; the live Bitmap for display is loaded by
+    /// the client presentation layer from Source (design Section A.2). Headless
+    /// Common carries no System.Drawing.
     /// </summary>
     [Serializable]
     public class ShipIcon : ICloneable
     {
-        private readonly int index;
+        private int index;
         public string Source = string.Empty;
-        private Bitmap image;
-        public Bitmap Image
-        {
-            get
-            {
-                if (image == null)
-                {
-                    // atempt to retrieve image
-                    try
-                    {
-                        image = new Bitmap(Source);
-                    }
-                    catch
-                    {
-                    }
-                }
-                return image;
-            }
-            set
-            {
-                image = value;
-            }
-        }
 
         /// <summary>
         /// Default constructor.
@@ -70,17 +47,31 @@ namespace Nova.Common
         /// Initializing constructor.
         /// </summary>
         /// <param name="source">The path and file name to the icon.</param>
-        /// <param name="image">The loaded image.</param>
-        public ShipIcon(string source, Bitmap image)
+        public ShipIcon(string source)
         {
-            Source = source;
-            Image = image;
+            Source = source ?? string.Empty;
 
             // fi.Name format is <baseHull><iconNumber>.png where the length of <Number> in characters is defined by Global.ShipIconNumberingLength.
             int extensionSeperatorIndex = Source.LastIndexOf('.'); // position of the '.' in the file name
 
-            // get the hull number of this icon
-            index = int.Parse(Source.Substring(extensionSeperatorIndex - Global.ShipIconNumberingLength, Global.ShipIconNumberingLength), System.Globalization.CultureInfo.InvariantCulture);
+            // get the hull number of this icon.
+            //
+            // Headless port (design Section A.2): the identifier now round trips
+            // through the state and intel XML on a server that has no graphics
+            // folder, so a source that does not follow the numbering convention
+            // (including an empty one) reaches this constructor in normal
+            // operation. Parsing it unconditionally used to throw and take the
+            // surrounding design load down with it. A source we cannot number is
+            // still a usable identifier for the client, so keep it and leave the
+            // index at zero; only the icon cycling operators care about the index.
+            if (extensionSeperatorIndex >= Global.ShipIconNumberingLength)
+            {
+                int.TryParse(
+                    Source.Substring(extensionSeperatorIndex - Global.ShipIconNumberingLength, Global.ShipIconNumberingLength),
+                    System.Globalization.NumberStyles.Integer,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out index);
+            }
         }
 
         /// <summary>
@@ -142,7 +133,7 @@ namespace Nova.Common
         /// </summary>
         public object Clone()
         {
-            ShipIcon clone = new ShipIcon(Source, Image);
+            ShipIcon clone = new ShipIcon(Source);
             return clone as object;
         }
 

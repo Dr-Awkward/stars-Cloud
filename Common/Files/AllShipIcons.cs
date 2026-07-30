@@ -117,8 +117,9 @@ namespace Nova.Common
         /// <param name="fi">The file to load.</param>
         private static void LoadIcon(FileInfo fi)
         {
-            Bitmap i = new Bitmap(Path.Combine(fi.DirectoryName, fi.Name));
-            ShipIcon icon = new ShipIcon(fi.Name, i);
+            // Headless: no Bitmap is loaded. The icon carries only its Source
+            // name; the client presentation layer resolves the image (design A.2).
+            ShipIcon icon = new ShipIcon(fi.Name);
             Data.IconList.Add(icon);
 
             // fi.Name format is <baseHull><iconNumber>.png where the length of <Number> in characters is defined by Global.ShipIconNumberingLength.
@@ -152,24 +153,54 @@ namespace Nova.Common
         public ShipIcon GetIconBySource(string iconSource)
         {
             // fi.Name format is <baseHull><iconNumber>.png where the length of <Number> in characters is defined by Global.ShipIconNumberingLength.
-            
-            ShipIcon icon = null;
+            //
+            // Headless port (design Section A.2). This used to end at
+            // Data.IconList[0] whenever the hull was not in the database, on the
+            // assumption that there is always at least one icon to fall back to.
+            // On a server there is not: the graphics folder does not ship in the
+            // container, so Hulls and IconList are both empty and indexing IconList
+            // threw. FleetIntel(XmlNode) calls this while restoring a fleet and
+            // turns any exception into a fatal error, so a saved game containing a
+            // fleet could not be loaded at all, and every game has fleets from the
+            // first turn.
+            //
+            // A ShipIcon built from the source is a complete identifier without an
+            // image, which is exactly what ShipDesign(XmlNode) already does for the
+            // same reason. The client, which has the graphics, still resolves the
+            // shared instance from the database on the branch below.
+            if (string.IsNullOrEmpty(iconSource))
+            {
+                return null;
+            }
 
             string[] fileParts = iconSource.Split(System.IO.Path.DirectorySeparatorChar);
             string iconFileName = fileParts[fileParts.Length - 1];
             int extensionSeperatorIndex = iconFileName.IndexOf('.');
-            string baseHull = iconFileName.Substring(0, extensionSeperatorIndex - Global.ShipIconNumberingLength);
-            int iconIndex = int.Parse(iconFileName.Substring(extensionSeperatorIndex - Global.ShipIconNumberingLength, Global.ShipIconNumberingLength), System.Globalization.CultureInfo.InvariantCulture);
 
-            if (AllShipIcons.Data.Hulls.ContainsKey(baseHull))
+            // A name we cannot decompose is still a usable identifier; do not try to
+            // index the database with a hull we failed to parse out of it.
+            if (extensionSeperatorIndex < Global.ShipIconNumberingLength)
             {
-                icon = Data.Hulls[baseHull][iconIndex];
+                return new ShipIcon(iconSource);
             }
-            else
+
+            string baseHull = iconFileName.Substring(0, extensionSeperatorIndex - Global.ShipIconNumberingLength);
+            if (!int.TryParse(
+                    iconFileName.Substring(extensionSeperatorIndex - Global.ShipIconNumberingLength, Global.ShipIconNumberingLength),
+                    System.Globalization.NumberStyles.Integer,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    out int iconIndex))
             {
-                icon = Data.IconList[0];
+                return new ShipIcon(iconSource);
             }
-            return icon;
+
+            if (Data.Hulls.TryGetValue(baseHull, out Dictionary<int, ShipIcon> hullIcons)
+                && hullIcons.TryGetValue(iconIndex, out ShipIcon found))
+            {
+                return found;
+            }
+
+            return new ShipIcon(iconSource);
         }
     }
 }

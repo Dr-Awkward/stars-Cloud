@@ -89,7 +89,7 @@ namespace Nova.Tests.IntegrationTests
             catch
             {
                 // fail on any exception
-                System.Windows.Forms.MessageBox.Show("Number of stars: " + serverState.AllStars.Count); // keep this line for debugging - Dan 01 Jul 11
+                System.Console.WriteLine("Number of stars: " + serverState.AllStars.Count); // keep this line for debugging - Dan 01 Jul 11
                 Assert.Fail();
             }
         }

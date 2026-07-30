@@ -1,0 +1,31 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard. GPL v2; see LICENSE.txt.
+
+  The control plane (design Sections C and D). Firestore-backed game metadata,
+  membership, and accounts; the exactly-once turn-generation lock; per-game
+  cadence and deadlines; the lifecycle state machine; the missed-turn ladder;
+  Cloud Tasks deadline scheduling; and Pub/Sub turn events. Shared by galaxies-api
+  (M1/M2) and the turn-generation host (M2 commit path).
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Galaxies.ControlPlane</AssemblyName>
+    <RootNamespace>Galaxies.ControlPlane</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.9.0" />
+    <PackageReference Include="Google.Cloud.Tasks.V2" Version="3.6.0" />
+    <PackageReference Include="Google.Cloud.PubSub.V1" Version="3.19.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+</Project>

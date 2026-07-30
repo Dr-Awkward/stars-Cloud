@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<!--
+  Galaxies, marketing landing page.
+
+  Built on the Hearthlight design language (theme "Vigil"). It follows the
+  reader's OS preference, the same as privacy.html, status.html, and
+  support.html, so nobody gets a dark landing page and a light Privacy page one
+  click later. tokens.css carries both mappings; setting data-theme="dark" or
+  data-theme="light" on the root element still forces one, but nothing in this
+  property does that, and if that changes it has to change on all four pages at
+  once.
+
+  House rules that apply to every line in this file (copy, comments, alt text):
+    ... zero em dashes and zero en dashes; use the comma, the parenthesis, the
+        semicolon, or the ellipsis, and write ranges as "10 to 120".
+    ... no emoji and no decorative glyphs. Status is a word plus color plus
+        shape. The one sanctioned glyph in the system is the memorial cross in
+        the fixed dedication, which is copied verbatim in the footer.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Both schemes are real. The order matches tokens.css, where light is the
+       :root default and dark arrives through prefers-color-scheme. The other
+       three pages want this same line. -->
+  <meta name="color-scheme" content="light dark">
+
+  <title>Galaxies: a free play-by-email space strategy game</title>
+  <meta name="description" content="Galaxies is a free, ad-supported, turn-based space strategy game. Design a species, settle the stars, and submit your orders before the deadline. Everyone plans in secret and the galaxy resolves all at once.">
+
+  <!-- Open Graph and Twitter. The absolute URLs assume the production host
+       below; confirm the host before launch and keep these two in sync. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Galaxies">
+  <meta property="og:url" content="https://galaxies.farehard.com/">
+  <meta property="og:title" content="Galaxies: a free play-by-email space strategy game">
+  <meta property="og:description" content="Everyone plans in secret. The galaxy moves all at once. Then you wait. A free, turn-based 4X game that resolves on a deadline, not on your reflexes.">
+  <!-- No og:image or twitter:image yet. assets/og-card.png does not exist and
+       nothing in the build produces it, so declaring it just hands every social
+       card a 404. Draw the card (the word Galaxies over a dark star field, with
+       a small warm lamp mark beside it), commit it to marketing/assets/, then
+       add og:image, og:image:alt, twitter:image, and switch twitter:card back
+       to summary_large_image. Until then this degrades to a text card. -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Galaxies: a free play-by-email space strategy game">
+  <meta name="twitter:description" content="Everyone plans in secret. The galaxy moves all at once. Then you wait.">
+
+  <link rel="canonical" href="https://galaxies.farehard.com/">
+
+  <!-- No font preloads, on purpose. The Vigil faces are not wired up yet:
+       there is no @font-face rule anywhere in styles/, no marketing/assets/
+       directory, and no font-fetch step in cloudbuild.yaml. Preloading three
+       files that nothing declares and nothing ships is three guaranteed 404s
+       and zero rendered glyphs, so the tags are gone until the pipeline is
+       real. Today every page renders in the fallbacks the tokens name:
+       Georgia, system-ui, and ui-monospace.
+
+       To finish the job: add a build step that writes fraunces-variable.woff2,
+       ibm-plex-sans-regular.woff2, and ibm-plex-mono-regular.woff2 into
+       marketing/assets/fonts/, add the matching @font-face rules to
+       styles/site.css with font-display: swap, then put these three preloads
+       back with crossorigin. Fraunces, IBM Plex Sans, and IBM Plex Mono are all
+       licensed under the SIL Open Font License. Note that the hosting CSP sets
+       font-src 'self', so they have to be self-hosted, not pulled from a CDN. -->
+
+  <!-- Tokens first, then the site layer that builds on them. Nothing else. -->
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/site.css">
+
+  <!-- One rule, and it belongs in styles/site.css. It is here because this file
+       is the only one in scope for the change; move it into the site layer the
+       next time site.css is edited, and delete this block.
+
+       tokens.css gives .btn display: inline-flex, and an author-origin
+       declaration outranks the user-agent rule [hidden] { display: none } at
+       equal specificity. Without this guard the gated sign-in button paints on
+       first load and stays visible with the flag off, sitting next to the
+       "Sign-in is not open yet" line that is supposed to replace it, and
+       pointing at /auth/google, which is not open. site.css guards
+       .ad-slot[hidden] for exactly this reason, but only that one component,
+       so the same trap waits for any .card, grid, or flex element gated with
+       the hidden attribute. This makes it general. -->
+  <style>
+    [hidden] { display: none !important; }
+  </style>
+
+  <!-- The lamp mark, inline, because marketing/assets/ does not exist yet and a
+       linked file would 404. Two colors only, matching --bg and --accent. It is
+       a data URI so it costs no request; CSP img-src already allows data:.
+       Replace with assets/favicon.svg once that directory is real. -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230F1620'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='6'%20fill='%23E8933A'/%3E%3C/svg%3E">
+</head>
+
+<body>
+  <!-- First focusable element on the page. -->
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Native header, main, and footer already carry banner, main, and
+       contentinfo. The explicit roles are gone; the house rule is to prefer
+       native HTML and reach for ARIA only where an element cannot say it
+       itself. -->
+  <!-- The sticky bar is .site-header, not the inner .site-nav. Sticking the
+       inner <nav> would pin the links to the viewport while the brand scrolled
+       away underneath them, and it would trap position: sticky inside a
+       wrapper only one nav-height tall, so the bar would scroll off with its
+       parent. site.css sticks .site-header and lays out .site-header-inner as
+       the flex row; this markup is that structure. -->
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="#hero">
+        <span class="lamplight" aria-hidden="true"></span>
+        <span class="brand-name">Galaxies</span>
+      </a>
+
+      <!-- .nav-link is where the 44px target floor lives, so every anchor
+           carries it rather than relying on the descendant selector. -->
+      <nav class="site-nav" aria-label="Sections of this page">
+        <ul class="nav-links">
+          <li><a class="nav-link" href="#how-a-turn-works">How a turn works</a></li>
+          <li><a class="nav-link" href="#depth">Depth</a></li>
+          <li><a class="nav-link" href="#play-with-anyone">Play with anyone</a></li>
+          <li><a class="nav-link" href="#open-ai">Open AI contract</a></li>
+          <li><a class="nav-link" href="#built-on-stars-nova">Stars! Nova</a></li>
+          <li><a class="nav-link" href="#support">Support</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- tabindex="-1" is what makes the skip link actually move focus rather
+       than only the scroll position. .site-main suppresses the ring on that
+       programmatic focus but keeps it on a real keyboard visit. -->
+  <main class="site-main" id="main" tabindex="-1">
+
+    <!-- ==================================================================
+         1. Hero
+    =================================================================== -->
+    <section class="section hero" id="hero" aria-labelledby="hero-title">
+      <div class="container hero-inner">
+        <p class="eyebrow">a turn-based galaxy that moves once a day</p>
+
+        <h1 id="hero-title" class="hero-title">
+          Everyone plans in secret. The galaxy moves all at once. Then you wait.
+        </h1>
+
+        <p class="hero-subhead">
+          Galaxies is a free, play-by-email space strategy game. Design a
+          species, settle the stars, and submit your orders before the deadline.
+          Turns resolve when everyone is in, or when the clock runs out.
+        </p>
+
+        <div class="hero-actions">
+          <!-- The one flame-accent primary action on the whole page. Gated on
+               the runtime flag, so it stays hidden until sign-in is actually
+               open. See the flag script at the end of this document. -->
+          <a class="btn btn-accent tap-target"
+             id="sign-in"
+             data-flag="signin"
+             href="/auth/google"
+             hidden>Sign in with Google to play</a>
+
+          <!-- Shown whenever the sign-in flag is off, including when the config
+               fetch fails and when JavaScript never runs. It sits inside
+               .hero-actions on purpose: site.css sizes it to stand in for the
+               button it replaces, in the same flex row. -->
+          <p class="hero-signin-closed" data-flag-off="signin">
+            Sign-in is not open yet. The lobby opens with the first public game;
+            until then, everything here is the honest version of what it will do.
+          </p>
+
+          <a class="btn tap-target" href="#how-a-turn-works">See how a turn works</a>
+        </div>
+
+        <p class="hero-limits">
+          Slow on purpose. A game runs for in-game decades across real-life
+          weeks. It is ad-supported and free, and it will stay that way.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         2. How a turn works
+    =================================================================== -->
+    <section class="section" id="how-a-turn-works" aria-labelledby="how-a-turn-works-title">
+      <div class="container stack">
+        <p class="eyebrow">plan, submit, wait</p>
+        <h2 id="how-a-turn-works-title">A turn is three moves, and then a deadline.</h2>
+
+        <p class="section-lede">
+          There is no real-time layer and nothing to click faster than anyone
+          else. A turn stays open for a fixed window (a day is typical, and the
+          host sets it when the game is created). You can open your orders as
+          often as you like inside that window, and change your mind until it
+          closes.
+        </p>
+
+        <!-- A real sequence, so the numbered markers are earned.
+
+             .turn-steps and .turn-step are the site.css names; the old .steps
+             and .step matched no rule, so the <ol> kept its native "1. 2. 3."
+             markers right beside the hand-written 01, 02, 03 and numbered every
+             step twice. The number now comes from .turn-step-index::before,
+             which is a decimal-leading-zero counter, so the markup does not
+             carry it and the two can no longer disagree. It stays aria-hidden
+             because the <ol> already carries the order for a screen reader. -->
+        <ol class="turn-steps">
+          <li class="turn-step">
+            <span class="turn-step-index" aria-hidden="true"></span>
+            <h3>Plan your orders</h3>
+            <p>
+              Set production queues, move fleets, lay minefields, redirect
+              research, open or close diplomacy. Nothing you do is visible to
+              anyone else while you do it. You are working from your own
+              intelligence file, which is only as good as what you have scanned.
+            </p>
+          </li>
+          <li class="turn-step">
+            <span class="turn-step-index" aria-hidden="true"></span>
+            <h3>Submit before the deadline</h3>
+            <p>
+              Submitting locks in your orders and tells the server you are
+              ready. If every player submits early, the turn generates early. If
+              someone goes quiet, the clock still runs out and the galaxy moves
+              without them; their standing orders carry on, so a missed turn
+              costs you tempo, not your empire.
+            </p>
+          </li>
+          <li class="turn-step">
+            <span class="turn-step-index" aria-hidden="true"></span>
+            <h3>Read what the galaxy did</h3>
+            <p>
+              Everyone's orders resolve together, in one pass, on the server.
+              You get the new year back as a report: what your scanners picked
+              up, what arrived in your systems, what happened in any battle you
+              were part of, and what it cost. Then the next window opens.
+            </p>
+          </li>
+        </ol>
+
+        <aside class="callout callout-note" role="note">
+          <p class="callout-label">Note</p>
+          <p>
+            Turns are simultaneous, not alternating. Nobody moves first, and
+            nobody waits their turn behind five other people. The order you
+            submit in has no effect on the result.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         3. Depth callouts
+    =================================================================== -->
+    <section class="section" id="depth" aria-labelledby="depth-title">
+      <div class="container stack">
+        <p class="eyebrow">more than it looks</p>
+        <h2 id="depth-title">Four systems doing most of the work.</h2>
+
+        <p class="section-lede">
+          The interface is quiet. What sits under it is a full 4X engine that
+          has been played and argued over for years.
+        </p>
+
+        <!-- .depth-grid and .depth-card are the site.css names, and they carry
+             the grid, the hover lift, and the :focus-within parity that keeps a
+             keyboard visit looking like a mouse visit. .depth-card supplies no
+             surface of its own, so it is paired with .card, which does. The old
+             .depth-list, .depth-item, and .depth-title matched nothing, so
+             these were four stacked bulleted blocks. -->
+        <ul class="depth-grid">
+          <li class="depth-card card">
+            <h3>Design a species</h3>
+            <p>
+              You do not pick a faction off a list. You spend points on
+              primary and lesser racial traits, on the environment your people
+              can survive, on growth rate, on how efficiently you research each
+              of six technology fields, and on what your factories and mines
+              cost. Those choices decide which planets are home to you and which
+              are poison, for the rest of the game.
+            </p>
+          </li>
+          <li class="depth-card card">
+            <h3>Real fog of war</h3>
+            <p>
+              You see what your scanners and your ships have actually seen. The
+              map you play on is your own intelligence file, built from
+              scan reports, and it can be out of date or simply wrong. Planets
+              you surveyed ten years ago still show ten-year-old numbers. Cloaked
+              fleets may not show at all.
+            </p>
+          </li>
+          <li class="depth-card card">
+            <h3>Simultaneous combat</h3>
+            <p>
+              Battles resolve on the server during turn generation, round by
+              round, from the battle orders and the ship designs you committed
+              beforehand. You do not steer anything in the fight. You get the
+              battle report afterward and find out whether your design, your
+              stack sizes, and your initiative held up.
+            </p>
+          </li>
+          <li class="depth-card card">
+            <h3>Victory on your terms</h3>
+            <p>
+              The host sets the victory conditions when the game is created:
+              planets held, technology levels reached, production, score, or a
+              combination, plus how many years must pass before any of it counts.
+              A game can be a race to a tech threshold or a long grind for
+              territory, and you know which one you signed up for.
+            </p>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         Ad slot. One per page, in flow, between two reading sections. It is
+         never placed between a player and an action, and there is none of this
+         anywhere in the active game view (map, orders, combat), which is a
+         permanent ad-free zone.
+
+         Rendered empty and inert. Nothing here loads an ad on its own: the
+         container stays hidden until the runtime flag is on AND the consent
+         platform has resolved. See the CMP insertion point at the end of this
+         document.
+
+         On the hidden attribute and the reserved height. These two pull against
+         each other, so the order matters. .ad-slot-frame carries a min-height
+         so the box is its final size before the network answers, but
+         .ad-slot[hidden] collapses the slot to display: none, which means the
+         reservation does not exist while the slot is hidden. The loader
+         therefore unhides the slot as soon as the flag and the consent answer
+         are both in, before it requests anything, so the empty labelled frame
+         paints at full height and the creative lands in a box that is already
+         the right size. Unhiding on script load, which is what this used to do,
+         made the slot appear after the download and shove this whole lower half
+         of the page down.
+    =================================================================== -->
+    <aside class="ad-slot" id="ad-slot-mid" aria-labelledby="ad-slot-mid-label" hidden>
+      <p class="ad-slot-label" id="ad-slot-mid-label">Advertisement</p>
+      <div class="ad-slot-frame" data-ad-slot-id="marketing-mid"></div>
+    </aside>
+
+    <!-- ==================================================================
+         4. Play with anyone
+    =================================================================== -->
+    <section class="section" id="play-with-anyone" aria-labelledby="play-with-anyone-title">
+      <div class="container stack">
+        <p class="eyebrow">public or private</p>
+        <h2 id="play-with-anyone-title">Join a public game, or bring your own table.</h2>
+
+        <p>
+          Public games sit in the lobby with their settings on the front:
+          galaxy size, player count, victory conditions, and how long a turn
+          stays open. You can read all of that before you commit to spending
+          several weeks in it. Take an open seat and you are in at the next turn
+          generation.
+        </p>
+        <p>
+          For a private game, create one and invite people by Gmail address.
+          They get a mail with the link, sign in with the same Google account,
+          and take their seat. Sign-in is Google only, which is a real limit: no
+          Google account, no game.
+        </p>
+        <p>
+          Because it is asynchronous, time zones stop mattering. Nobody has to
+          be awake at the same hour as anybody else. Your orders are due by a
+          deadline, not at a scheduled session, so a table can be spread across
+          three continents and still play at the same pace.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         5. Bring your own brain (the open participant contract)
+    =================================================================== -->
+    <section class="section" id="open-ai" aria-labelledby="open-ai-title">
+      <div class="container stack">
+        <p class="eyebrow">open AI contract</p>
+        <h2 id="open-ai-title">Bring your own brain.</h2>
+
+        <p class="section-lede">
+          A seat in a Galaxies game is defined by one open participant contract:
+          read the turn file, return orders before the deadline. Whatever
+          satisfies that contract can hold a seat.
+        </p>
+        <p>
+          That is the same door for all three kinds of player. The AIs that ship
+          with the engine, written in C#, go through it. So does a community
+          plug-in you wrote yourself and pointed at the same interface. So does
+          an LLM-driven player that reads the turn report as text and writes
+          orders back. None of them get privileged access, a private hook, or a
+          look at anything a human player could not see; they all get the same
+          intelligence file and the same deadline.
+        </p>
+        <p>
+          The contract is documented and versioned alongside the engine, so a
+          bot you write today keeps working, and you can test it against the
+          built-in AIs before you put it in a game with people in it.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         6. Open and credited
+    =================================================================== -->
+    <section class="section" id="built-on-stars-nova" aria-labelledby="built-on-stars-nova-title">
+      <div class="container stack">
+        <p class="eyebrow">built on Stars! Nova</p>
+        <h2 id="built-on-stars-nova-title">Open, and credited to the people who did the work.</h2>
+
+        <!-- Two things held honest here.
+
+             1. The client source is NOT public yet. Publishing it is an
+                unmet launch-gate item (STATUS-END-OF-M2.md, and
+                CREDITS-AND-LICENSING.md recommendation 4), and the two repo
+                links that used to sit below were marked in this file as
+                placeholders for orgs that do not exist. Shipping a 404 on the
+                one claim GPL v2 actually obliges is worse than saying "not
+                yet". Flip this to the present tense, and add the repo links
+                back, on the day the repos go public.
+             2. The creator names are held. CREDITS-AND-LICENSING.md
+                recommendation 1 names three people, not two, and wraps all of
+                them in an explicit instruction not to publish any of the names
+                until counsel confirms the full list and the current rights
+                holder. Section 6's draft credit block supports the wording used
+                here in the meantime. Do not put names back on this page, or in
+                the footer, or on the other three pages, until that
+                confirmation exists in writing. -->
+        <p>
+          Galaxies is built on the Stars! Nova engine, an open-source (GPL v2)
+          reimagining of the classic Stars!. The engine stays open, and the
+          client source will be published from the same page as the download,
+          with the build instructions and the commit hash it was built from, as
+          GPL v2 requires. It is not published yet. That is a launch gate, not a
+          preference.
+        </p>
+        <p>
+          Stars! itself was made by the original Stars! team, and it is the
+          reason any of this
+          exists. It was commercial software and its source was never released.
+          <strong>Stars! Nova</strong> is a separate, independent, clean-room
+          reimplementation of that design by its own volunteer contributors,
+          written from scratch and licensed under GPL v2. Everything running
+          under Galaxies is Stars! Nova's own code, carrying its own notices.
+          Galaxies is not affiliated with, sponsored by, or endorsed by the
+          authors or publishers of Stars!.
+        </p>
+
+        <!-- The two github.com/farehard/... entries are gone rather than
+             repointed; both orgs are placeholders that do not resolve, and the
+             client source is not published yet. -->
+        <ul class="link-list">
+          <li>
+            <a href="https://sourceforge.net/projects/stars-nova/" rel="external noopener">The upstream Stars! Nova project</a>
+          </li>
+          <li>
+            <!-- There is no LICENSE.txt in marketing/, and nothing in the build
+                 copies one there, so the old relative link 404'd. The engine's
+                 own LICENSE.txt and NOTICE.txt travel with the source, which is
+                 where the GPL actually requires them; this points at the
+                 license text itself. Ship a copy from this host alongside the
+                 client source, then point this and the footer link at it. -->
+            <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" rel="external noopener">The GNU GPL v2, in full</a>
+          </li>
+        </ul>
+
+        <aside class="callout callout-note" role="note">
+          <p class="callout-label">Note</p>
+          <p>
+            Where the GPL boundary falls between the engine and the hosted
+            service, and what may be said about the Stars! name, is an
+            engineering brief written for a lawyer to rule on. It is not a
+            ruling, and nothing on this page should be read as legal advice,
+            including by me.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ==================================================================
+         7. Support the lamp
+    =================================================================== -->
+    <section class="section" id="support" aria-labelledby="support-title">
+      <!-- site.css draws the support panel on #support > .container, so the
+           container is the panel and no extra wrapper is wanted. -->
+      <div class="container container-narrow stack">
+        <p class="eyebrow">keep the lights on</p>
+        <h2 id="support-title">
+          The ads keep the servers on. Donations let me care less about the ads.
+        </h2>
+
+        <p class="support-subline">
+          Galaxies is free and always will be. If it earns a place in your week,
+          you can chip in. If not, play anyway.
+        </p>
+        <p>
+          Here is where the money goes: hosting the turn generator, storing
+          every game's history, sending the deadline mail, and the hours it
+          takes to keep all of it working. Donations are a straight outbound
+          link to somewhere else. There is no subscription, no account to
+          cancel, nothing on this site that takes a payment, and nothing behind
+          a paywall, ever.
+        </p>
+        <p>
+          Ads appear on the marketing site, the lobby, profile pages, and the
+          game-over summary. They never appear in the map, the orders screen, or
+          a battle report. That is a permanent ad-free zone, and no amount of
+          money changes it.
+        </p>
+
+        <!-- Both links leave the site, and the labels say where they go in
+             words, not with an external-link glyph. -->
+        <div class="donate-actions">
+          <a class="btn tap-target" href="https://github.com/sponsors/Dr-Awkward" rel="external noopener">Sponsor on GitHub</a>
+          <a class="btn tap-target" href="https://cash.app/$onassis" rel="external noopener">Cash App</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+
+      <!-- .footer-grid is the site.css name and carries the responsive
+           columns; .footer-cols matched no rule, so these four navs stacked. -->
+      <div class="footer-grid">
+        <nav class="footer-nav" aria-label="Page sections">
+          <h2 class="footer-heading">On this page</h2>
+          <ul>
+            <li><a href="#how-a-turn-works">How a turn works</a></li>
+            <li><a href="#depth">Depth</a></li>
+            <li><a href="#play-with-anyone">Play with anyone</a></li>
+            <li><a href="#open-ai">Open AI contract</a></li>
+            <li><a href="#built-on-stars-nova">Built on Stars! Nova</a></li>
+            <li><a href="#support">Support</a></li>
+          </ul>
+        </nav>
+
+        <nav class="footer-nav" aria-label="Source and status">
+          <h2 class="footer-heading">Source and status</h2>
+          <ul>
+            <!-- The client and engine source links are gone, not repointed.
+                 github.com/farehard/galaxies and github.com/farehard/stars-nova
+                 were placeholders for an org that does not exist, and the
+                 client source is not published yet (see the Stars! Nova
+                 section). Put both back, pointing at real URLs, on the day the
+                 repos go public. -->
+            <li><a href="https://sourceforge.net/projects/stars-nova/" rel="external noopener">The Stars! Nova project</a></li>
+            <li><a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html" rel="external noopener">License (GPL v2)</a></li>
+            <!-- The real status page is status.html in this directory, served
+                 at /status by the rewrite in firebase.json. The old
+                 status.galaxies.farehard.com subdomain is not provisioned. -->
+            <li><a href="/status">Status page</a></li>
+          </ul>
+        </nav>
+
+        <nav class="footer-nav" aria-label="Your account and your data">
+          <h2 class="footer-heading">You and your data</h2>
+          <ul>
+            <li><a href="/privacy">Privacy</a></li>
+            <!-- account-deletion.html has never existed. The deletion section
+                 of the privacy page is the one written account of how it works,
+                 and it links onward to the self-serve route at /account/delete,
+                 which only exists behind sign-in. Point this here until that
+                 route is live. -->
+            <li><a href="/privacy#delete-title">Delete your account</a></li>
+            <li><a href="mailto:coop@farehard.com">Contact</a></li>
+          </ul>
+        </nav>
+
+        <nav class="footer-nav" aria-label="Support this project">
+          <h2 class="footer-heading">Support</h2>
+          <ul>
+            <!-- support.html was orphaned from this page: the other three pages
+                 link it in their nav and this one did not link it at all. -->
+            <li><a href="/support">The support page</a></li>
+            <li><a href="https://github.com/sponsors/Dr-Awkward" rel="noopener">Sponsor on GitHub</a></li>
+            <li><a href="https://cash.app/$onassis" rel="noopener">Cash App</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- The creator names are held here for the same reason they are held in
+           the Stars! Nova section above: the hold in CREDITS-AND-LICENSING.md
+           recommendation 1 covers every place these names appear. This exact
+           sentence is duplicated in the footers of privacy.html, status.html,
+           and support.html, so all four need the same edit together. -->
+      <p class="footer-credit">
+        Galaxies is built on the Stars! Nova engine, GPL v2, with thanks to the
+        original Stars! team for Stars! and to the Stars! Nova contributors for
+        rebuilding it in the open.
+      </p>
+
+      <!-- The signature: the carried light. Decorative, so it is aria-hidden;
+           the wordmark next to it carries the meaning. -->
+      <p class="footer-signature">
+        <span class="lamplight" aria-hidden="true"></span>
+        <span>A Farehard project, kept lit by Marcus Cooper.</span>
+      </p>
+
+<!-- ===========================================================================
+     THE FAREHARD DEDICATION. Fixed and canonical.
+
+     Include this once per property, in the colophon or the footer. Do not
+     paraphrase it, do not translate it, and do not repeat it elsewhere on the
+     same property. It is the one place the salutation appears.
+
+     About the cross: the mark before the names is a memorial cross, a
+     centuries-old typographic convention indicating the departed. It is
+     meaningful, not decorative, and it is the single sanctioned glyph in the
+     whole system. It is not an alert symbol, and the rule against decorative
+     glyphs does not touch it. Leave it in place.
+
+     Accessibility: the cross is aria-hidden so a screen reader does not read it
+     as a word; a visually hidden label supplies the context instead. The prayer
+     is real text, so it is read in full.
+
+     The markup uses Hearthlight semantic tokens (see assets/tokens.css) and
+     inherits the page theme, light or dark.
+
+     One change from assets/dedication.html, and only one: the outer element is
+     a <div> rather than a labelled <section>. A <section> with aria-label is a
+     named region landmark, which put a memorial passage into the page's
+     landmark list as though it were somewhere to navigate to, nested inside
+     contentinfo. The visually hidden "In loving memory of" already supplies the
+     context a screen reader needs, so the landmark bought nothing. The class
+     stays .dedication, which is what site.css styles. Not one character of the
+     text has changed, and the memorial cross stays exactly where it is.
+=========================================================================== -->
+<div class="dedication">
+  <p class="dedication-names">
+    <span class="visually-hidden">In loving memory of</span>
+    <span class="dedication-cross" aria-hidden="true">&#10013;</span>
+    Rhea D&rsquo;Lima &amp; Ryan Leonard
+  </p>
+  <p class="dedication-prayer">
+    May the souls of the faithful departed, through the mercy of God, rest in
+    peace. Amen.
+  </p>
+</div>
+
+<style>
+  .dedication {
+    max-width: var(--container-narrow, 44rem);
+    margin-inline: auto;
+    padding-block: var(--space-6, 2rem);
+    text-align: center;
+    color: var(--text-muted, #55616F);
+  }
+  .dedication-names {
+    font-family: var(--font-mono, monospace);
+    font-size: var(--text-sm, 0.9375rem);
+    letter-spacing: 0.04em;
+    margin: 0 0 var(--space-2, 0.5rem);
+  }
+  .dedication-cross {
+    color: var(--accent-strong, #B4630C);
+    margin-inline-end: 0.35em;
+  }
+  .dedication-prayer {
+    font-family: var(--font-display, Georgia, serif);
+    font-style: italic;
+    font-size: var(--text-lg, 1.25rem);
+    line-height: 1.45;
+    margin: 0 auto;
+    max-width: 34rem;
+    color: var(--text, #0F1620);
+    text-wrap: balance;
+  }
+</style>
+
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       Runtime flags, and the consent gate.
+
+       Two rules this script exists to enforce:
+
+         1. Every flag defaults to OFF. If runtime-config.json is missing, slow,
+            malformed, or blocked, the page stays dark: no sign-in button, no
+            ad slot, no ad script. The same is true with JavaScript disabled,
+            because the gated elements carry the hidden attribute in the markup
+            and only this script removes it.
+
+         2. No ad script may execute before a consent platform has resolved.
+            There is no CMP wired up yet, so nothing loads. The insertion point
+            is marked below.
+
+       Markup contract:
+         [data-flag="name"]      shown only when flags.name is exactly true
+         [data-flag-off="name"]  shown whenever flags.name is not true
+
+       OPEN ISSUE, and it is not a "later" problem. firebase.json already ships
+       a Content Security Policy, and its script-src is
+       'self' plus the Google ad and auth hosts, with no 'unsafe-inline' and no
+       hash. That means this inline block is blocked in production today: the
+       flags never apply, the sign-in button stays hidden, and the ad slot never
+       appears. It works in a bare local preview, which is why it is easy to
+       miss. Fix by moving this block verbatim into a small
+       styles-adjacent file (for example scripts/flags.js), loading it with
+       <script src="scripts/flags.js" defer>, and leaving script-src alone. A
+       hash in the CSP is the alternative, but it has to be recomputed on every
+       edit, so the external file is the one that will still be right in a year.
+       The same applies to the two <style> blocks on this page, except that
+       style-src does allow 'unsafe-inline', so those are only a tidiness
+       problem, not a broken one.
+  ========================================================================== -->
+  <script src="scripts/flags.js" defer></script>
+</body>
+</html>

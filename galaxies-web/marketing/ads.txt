@@ -1,0 +1,28 @@
+# ads.txt for the Galaxies marketing site.
+#
+# This file is the public record of who is authorized to sell ad inventory on
+# this domain. Buyers and crawlers read it; if it disagrees with the AdSense
+# account, the inventory does not fill. It is served from the site root at
+# /ads.txt, per the IAB Tech Lab ads.txt specification.
+#
+# CAUTION. The publisher id below is a placeholder. It is not a real account and
+# it will not fill anything. The real id is the value of the _WEB_ADSENSE_CLIENT
+# build substitution, minus the "ca-" prefix (AdSense writes it as
+# "ca-pub-<digits>" in the ad tag and "pub-<digits>" here).
+#
+# Replace the placeholder before flipping _WEB_ADS_ENABLED to true. The build
+# refuses to deploy with ads on while the placeholder is still here, on purpose,
+# because an ads.txt that names nobody is worse than no ads.txt at all.
+#
+# Format of each record:
+#   <ad system domain>, <publisher id>, <DIRECT or RESELLER>, <certification id>
+#
+# The certification authority id f08c47fec0942fa0 is Google's, and it is the
+# same for every AdSense publisher. It is not a secret and it is not yours; do
+# not change it.
+#
+# When this site moves from AdSense to Google Ad Manager (see the galaxies-web
+# spec, section 5.4), the GAM record is added alongside this one rather than
+# replacing it, and the whole file is re-verified in the AdSense console.
+
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

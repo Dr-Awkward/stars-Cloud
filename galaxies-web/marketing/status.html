@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Galaxies status</title>
+  <meta name="description" content="What is running and what is not, plus the incident log. Nothing is deployed yet, so nothing here is operational. No SLA, and no pretending otherwise.">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/site.css">
+  <style>
+    /* Page-scoped only. Everything structural comes from tokens.css and site.css. */
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--space-5);
+    }
+    .status-table caption {
+      text-align: left;
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      padding-bottom: var(--space-3);
+    }
+    .status-table th,
+    .status-table td {
+      text-align: left;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .status-table th {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: var(--weight-medium);
+    }
+    /* State is carried by the word first. The bar is shape, the color is a
+       reinforcement, and neither is ever the only signal.
+
+       The word stays at --text and does not take the status hue. .state
+       inherits --text-base, which is 17px at narrow viewports, and WCAG counts
+       bold text as large only at 18.66px and above, so the word needs 4.5:1
+       rather than 3:1. Against the light snow background --ok measures 4.01:1
+       and --warn 4.33:1, so both would fail as body-weight text. Carrying the
+       hue on the bar instead keeps the word at 16.9:1 and puts the color where
+       the 3:1 non-text floor applies, which every status hue clears in both
+       themes (light 4.01, 4.33, 5.49; dark 8.33, 7.34, 6.00). */
+    .state {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-weight: var(--weight-strong);
+      color: var(--text);
+    }
+    .state::before {
+      content: "";
+      width: 4px;
+      height: 1.1em;
+      border-radius: var(--radius-round);
+      /* --text-muted rather than --border-strong: this bar carries meaning, so
+         it holds the 3:1 graphic floor (5.88:1 light, 8.95:1 dark).
+         --border-strong is tuned for decoration and manages only 2.77:1. */
+      background: var(--text-muted);
+    }
+    .state-ok::before { background: var(--ok); }
+    .state-warn::before { background: var(--warn); }
+    .state-bad::before { background: var(--bad); }
+
+    .incident-log { margin-top: var(--space-5); }
+    .incident-list { list-style: none; margin: 0; padding: 0; }
+    .incident {
+      border-top: 1px solid var(--border);
+      padding-top: var(--space-5);
+      margin-top: var(--space-5);
+    }
+    .incident-date {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: var(--space-2);
+    }
+    .plain-list {
+      padding-left: var(--space-5);
+      max-width: var(--measure);
+    }
+    .plain-list li { margin-bottom: var(--space-3); }
+    .plain-list li:last-child { margin-bottom: 0; }
+    .meta-line {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+    @media (max-width: 34rem) {
+      .status-table th,
+      .status-table td { padding: var(--space-3) var(--space-2); }
+    }
+    /* The flag-gated blocks are plain divs, so the UA default would normally do
+       this on its own. It is stated anyway because a display value set by a
+       later layout rule would beat that default and quietly un-hide the live
+       table on a dark site, which is the one failure this page cannot have. */
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="index.html">
+        <span class="lamplight" aria-hidden="true"></span>
+        <span class="brand-name">Galaxies</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="status.html" aria-current="page">Status</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="section" aria-labelledby="page-title">
+      <div class="container container-narrow stack">
+        <p class="eyebrow">is it running</p>
+        <h1 id="page-title">Status</h1>
+        <p class="lede">
+          Galaxies has not opened yet, so there is nothing running to report on.
+          Once the first public game starts, this is where you find out whether
+          turns are generating and, when they are not, what went wrong.
+        </p>
+        <p class="meta-line">Last updated by hand on 20 July 2026</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="now-title">
+      <div class="container container-narrow stack">
+        <h2 id="now-title">Right now</h2>
+
+        <!-- =====================================================================
+             There are two versions of this table and a runtime flag picks
+             between them, on the same contract index.html uses for the sign-in
+             button.
+
+             With serviceLive off, which is the checked-in default and the state
+             of every local preview, the pre-launch table shows. It carries no
+             hidden attribute, so it is also what a reader gets with JavaScript
+             disabled or when runtime-config.json cannot be fetched. A dark site
+             therefore cannot publish a green board by accident, which is the
+             whole point of doing it this way rather than trusting whoever edits
+             this file next.
+
+             With serviceLive on, the live table takes over. A row there goes to
+             Operational only once that service is deployed to roybot and has
+             served real traffic. Not when it compiles, not when its tests pass,
+             not when it runs on a laptop. Until a person has checked a row since
+             the last deploy it stays "Not checked", which is the honest state
+             for a hand-written page nobody has looked at yet.
+
+             serviceLive still needs adding to runtime-config.json.tmpl (as
+             __WEB_SERVICE_LIVE__) and to runtime-config.json as false. Until it
+             is, the flag is simply unknown, and an unknown flag is off, so
+             shipping this ahead of the template change is safe.
+        ===================================================================== -->
+
+        <div data-flag-off="serviceLive">
+          <table class="status-table">
+            <caption>
+              Every part of Galaxies before launch, checked by a person on
+              20 July 2026. Nothing is deployed, so nothing here can be
+              operational.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Part</th>
+                <th scope="col">State</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Every row here is pre-launch and stays that way. index.html
+                   says sign-in is not open yet, and the two pages ship
+                   together, so an "Operational" in this table would be a
+                   straight contradiction on the one page a reader visits
+                   specifically to be told the truth. Do not edit these rows to
+                   go live; turn serviceLive on and fill in the live table
+                   below instead. -->
+              <tr>
+                <th scope="row">Turn generation</th>
+                <td><span class="state">Not launched</span></td>
+                <td>No games are running, so there is nothing to generate yet.</td>
+              </tr>
+              <tr>
+                <th scope="row">Sign-in</th>
+                <td><span class="state">Not launched</span></td>
+                <td>
+                  Not open yet. Google sign-in will be the only path in, so a
+                  Google outage will be our outage.
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Game view and orders</th>
+                <td><span class="state">Not launched</span></td>
+                <td>No maps to load and no orders to save until the first game starts.</td>
+              </tr>
+              <tr>
+                <th scope="row">Lobby and game browser</th>
+                <td><span class="state">Not launched</span></td>
+                <td>The lobby opens with the first public game. You cannot create or join one yet.</td>
+              </tr>
+              <tr>
+                <th scope="row">Turn notification email</th>
+                <td><span class="state">Not launched</span></td>
+                <td>No deadlines exist, so no reminders are going out.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div data-flag="serviceLive" hidden>
+          <table class="status-table">
+            <caption>
+              Current state of each part of Galaxies, checked by a person.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Part</th>
+                <th scope="col">State</th>
+                <th scope="col">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Update the date in the caption whenever you touch a row, and
+                   use the state words the rest of the page uses: Operational
+                   (state-ok), Degraded (state-warn), Down (state-bad), or plain
+                   .state for "Not checked". -->
+              <tr>
+                <th scope="row">Turn generation</th>
+                <td><span class="state">Not checked</span></td>
+                <td>Nobody has checked this since the last deploy.</td>
+              </tr>
+              <tr>
+                <th scope="row">Sign-in</th>
+                <td><span class="state">Not checked</span></td>
+                <td>Nobody has checked this since the last deploy.</td>
+              </tr>
+              <tr>
+                <th scope="row">Game view and orders</th>
+                <td><span class="state">Not checked</span></td>
+                <td>Nobody has checked this since the last deploy.</td>
+              </tr>
+              <tr>
+                <th scope="row">Lobby and game browser</th>
+                <td><span class="state">Not checked</span></td>
+                <td>Nobody has checked this since the last deploy.</td>
+              </tr>
+              <tr>
+                <th scope="row">Turn notification email</th>
+                <td><span class="state">Not checked</span></td>
+                <td>Nobody has checked this since the last deploy.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="callout callout-note" role="note">
+          <p class="callout-label">How this page works</p>
+          <p>
+            This table is written by hand, not wired to a monitor. It is accurate
+            when it is updated and stale the moment something breaks at three in the
+            morning. Trust the incident log below over the table, and trust your own
+            game over both.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="sla-title">
+      <div class="container container-narrow stack">
+        <h2 id="sla-title">There is no SLA</h2>
+        <p>
+          Galaxies is free. A free service run by one person does not get to promise
+          you nines, and any number printed here would be marketing rather than a
+          commitment. So there is no uptime guarantee, no credit if a turn runs late,
+          and no support contract.
+        </p>
+        <p>What you do get, which is a smaller and more honest list:</p>
+        <ul class="plain-list">
+          <li>
+            Turn generation is the thing protected first. If something has to give,
+            it will be the lobby, the profile pages, or this site, not the machinery
+            that resolves your orders.
+          </li>
+          <li>
+            A missed deadline gets extended, not skipped. Half a galaxy resolving is
+            worse than everyone waiting another day, so the turn waits.
+          </li>
+          <li>
+            Incidents that affected play get written down here, including the ones
+            that were my own fault.
+          </li>
+          <li>
+            You are told in plain words what happened, not "a subset of users may
+            have experienced degraded performance".
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="counts-title">
+      <div class="container container-narrow stack">
+        <h2 id="counts-title">What counts as an incident</h2>
+        <p>
+          Anything that stopped you playing the game you signed up for: turns that
+          did not generate on time, orders that would not save, sign-in that would
+          not let you in, a map that would not load, turn email that never arrived,
+          or data that came back wrong.
+        </p>
+        <p>
+          Losing a battle you were sure you would win is not an incident. That is
+          the game working exactly as designed, and I am sorry about your fleet.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="log-title">
+      <div class="container container-narrow stack">
+        <h2 id="log-title">Incident log</h2>
+        <p>
+          Newest first. Every entry stays up permanently; nothing is quietly deleted
+          once it stops being embarrassing.
+        </p>
+
+        <div class="incident-log">
+
+          <!-- =====================================================================
+               INCIDENT ENTRIES GO HERE. Newest first.
+
+               To add one: copy the <li class="incident"> block below out of this
+               comment, paste it as the first child of <ol class="incident-list">,
+               fill it in, and delete the "no incidents yet" paragraph once at least
+               one entry exists.
+
+               Keep the house rules: no em dashes, no en dashes, no glyphs. State is
+               a word plus color plus shape, so the resolved or ongoing state is
+               written out in the .state span, never left to color alone.
+
+               <li class="incident">
+                 <p class="incident-date">
+                   <time datetime="2026-07-18">18 July 2026</time>
+                 </p>
+                 <h3>Turn generation ran two hours late for four games</h3>
+                 <p><span class="state state-ok">Resolved</span></p>
+                 <p>
+                   What players saw: the deadline passed and the new turn did not
+                   arrive until the evening.
+                 </p>
+                 <p>
+                   What happened: plain-language cause, no jargon shield.
+                 </p>
+                 <p>
+                   What changed: the specific thing done so this is less likely
+                   next time, or an honest "nothing yet" if nothing has.
+                 </p>
+               </li>
+
+               For an incident still running, use:
+                 <span class="state state-bad">Ongoing</span>
+               and for one that is fixed but still being watched:
+                 <span class="state state-warn">Monitoring</span>
+          ===================================================================== -->
+
+          <ol class="incident-list">
+          </ol>
+
+          <p id="incident-empty">
+            No incidents recorded yet. That is a service that has not opened
+            rather than a strong track record, and the first entry here will show
+            up the first time something goes wrong.
+          </p>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tell-title">
+      <div class="container container-narrow stack">
+        <h2 id="tell-title">If something is broken and this page says otherwise</h2>
+        <p>
+          Tell me, because the page is hand-written and it may simply be wrong. The
+          useful report includes the game name, the turn number, what you were doing,
+          and what happened instead. Send it to
+          <a href="mailto:coop@farehard.com">coop@farehard.com</a>.
+        </p>
+
+        <!-- =======================================================================
+             OPTIONAL: independent uptime history.
+
+             When an external uptime monitor is wired up (Better Stack, UptimeRobot,
+             Google Cloud Monitoring, or similar), uncomment the block below and
+             point it at that provider's public status page. Say plainly that the
+             numbers come from a third party rather than from us, so the reader knows
+             it is not self-reported. Do not publish an uptime percentage measured by
+             our own servers; that is marking your own homework.
+
+             <p>
+               <a href="https://status.galaxies.example" rel="external noopener">
+                 Independent uptime history
+               </a>
+               is measured by a third-party monitor, not by us.
+             </p>
+        ======================================================================= -->
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <!--
+      The fixed Farehard dedication appears exactly once per property. It lives in
+      the footer of the landing page (index.html). It is deliberately not repeated
+      on this page, and must not be added here.
+    -->
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <p class="eyebrow">galaxies</p>
+          <p>
+            An async, turn-based 4X. Everyone plans in secret, the galaxy resolves
+            all at once, then you wait for the next deadline.
+          </p>
+        </div>
+        <nav class="footer-col" aria-label="Site pages">
+          <p class="eyebrow">pages</p>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="support.html">Support</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="status.html">Status</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-col" aria-label="Support this project">
+          <p class="eyebrow">support</p>
+          <ul>
+            <li><a href="https://github.com/sponsors/Dr-Awkward" rel="external noopener">Sponsor on GitHub</a></li>
+            <li><a href="https://cash.app/$onassis" rel="external noopener">Cash App</a></li>
+          </ul>
+        </nav>
+      </div>
+      <p class="footer-credit">
+        Galaxies is built on the Stars! Nova engine. Stars! Nova is an independent
+        clean-room reimplementation released under the GNU General Public License
+        version 2; it is not built from the original Stars! source, which was never
+        open source. Thanks to Jeff Johnson and Jeff McBride, who made Stars!, and
+        to everyone who has worked on Stars! Nova since.
+      </p>
+      <p class="footer-legal">
+        A Farehard project. Licensed under the GPL version 2, same as the engine it
+        stands on.
+      </p>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       Runtime flags.
+
+       The same markup contract index.html uses, kept deliberately small because
+       this page gates one thing:
+
+         [data-flag="name"]      shown only when flags.name is exactly true
+         [data-flag-off="name"]  shown whenever flags.name is not true
+
+       Every flag defaults to off. If runtime-config.json is missing, slow,
+       malformed, or blocked, the page stays pre-launch. The same holds with
+       JavaScript disabled, because the live table carries the hidden attribute
+       in the markup and only this script removes it.
+
+       If a Content Security Policy is added later, this block needs its hash in
+       script-src, or it should move to a small external file alongside the one
+       on the landing page.
+  ========================================================================== -->
+  <script>
+  (function () {
+    "use strict";
+
+    var CONFIG_URL = "runtime-config.json";
+    var CONFIG_TIMEOUT_MS = 3000;
+
+    /* Every known flag, off. Anything the config does not mention stays off. */
+    var flags = {
+      serviceLive: false
+    };
+
+    function applyFlags() {
+      var i, el, name;
+
+      var shown = document.querySelectorAll("[data-flag]");
+      for (i = 0; i < shown.length; i++) {
+        el = shown[i];
+        name = el.getAttribute("data-flag");
+        el.hidden = flags[name] !== true;
+      }
+
+      var fallbacks = document.querySelectorAll("[data-flag-off]");
+      for (i = 0; i < fallbacks.length; i++) {
+        el = fallbacks[i];
+        name = el.getAttribute("data-flag-off");
+        el.hidden = flags[name] === true;
+      }
+    }
+
+    function readConfig() {
+      if (typeof window.fetch !== "function") {
+        return Promise.resolve(null);
+      }
+
+      var controller = null;
+      var options = { cache: "no-store", credentials: "omit" };
+
+      if (typeof window.AbortController === "function") {
+        controller = new AbortController();
+        options.signal = controller.signal;
+        window.setTimeout(function () { controller.abort(); }, CONFIG_TIMEOUT_MS);
+      }
+
+      return window.fetch(CONFIG_URL, options)
+        .then(function (response) {
+          if (!response.ok) { return null; }
+          return response.json();
+        })
+        .catch(function () {
+          /* Missing, blocked, slow, or malformed: stay pre-launch, and say so
+             once in the console so a broken deploy is findable. */
+          if (window.console && console.warn) {
+            console.warn("Galaxies: runtime-config.json unavailable, all flags off.");
+          }
+          return null;
+        });
+    }
+
+    function mergeConfig(config) {
+      if (!config || typeof config !== "object") { return; }
+      var source = (config.flags && typeof config.flags === "object") ? config.flags : config;
+      Object.keys(flags).forEach(function (key) {
+        flags[key] = source[key] === true;
+      });
+    }
+
+    readConfig().then(function (config) {
+      mergeConfig(config);
+      applyFlags();
+    });
+  }());
+  </script>
+
+</body>
+</html>

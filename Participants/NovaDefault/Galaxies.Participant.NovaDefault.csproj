@@ -1,0 +1,55 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard. GPL v2; see LICENSE.txt at the repository root.
+
+  The first-party AI participant worker (galaxies-ai spec Section 3, manifest id
+  "galaxies.default-ai").
+
+  This is the M3 container that answers POST /v1/act for the built-in Stars! Nova
+  AI. It is a participant, not a service of the control plane: it holds no
+  storage, no Firestore client, no locks, and no knowledge of any game other than
+  the one seat in the request body it is currently answering. That is the whole
+  reason N AI seats can run as N concurrent invocations where the desktop
+  AiRunner could only ever run one at a time behind a shared-folder lock file.
+
+  It references exactly two projects:
+    Galaxies.AiContract  the wire DTOs, the envelope, and the key formatting
+    Nova.Ai              the headless AI itself
+
+  It must never reference Nova.Server. A participant sits on the client side of
+  the engine boundary and never links the turn engine (galaxies-ai spec Section
+  1). Galaxies.AiContract and Nova.Ai both stop at Nova.Common, so that boundary
+  holds transitively as long as nobody adds a reference here.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Galaxies.Participant.NovaDefault</AssemblyName>
+    <RootNamespace>Galaxies.Participant.NovaDefault</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\AiContract\Galaxies.AiContract.csproj" />
+    <ProjectReference Include="..\..\Ai\Nova.Ai.csproj" />
+  </ItemGroup>
+
+  <!--
+    The AI cannot cost a factory, price a hull, or validate a design without the
+    component definitions, so components.xml is not optional data, it is a
+    runtime dependency. Copy it next to the assembly so a local run works with no
+    environment variable set; the Dockerfile sets the path override explicitly
+    anyway so the container never depends on this behaviour.
+  -->
+  <ItemGroup>
+    <None Include="..\..\components.xml" Link="components.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,91 @@
-.vs
-bin
-obj
-build
+# Galaxies, a cloud port of Stars! Nova.
+#
+# The rule that matters most is the Terraform block. infra/terraform/.terraform/
+# is a 117 MB downloaded provider cache, and tfstate holds secrets in plaintext.
+# Neither belongs in git, and neither belongs in Git LFS either: both are
+# regenerated, not authored.
+#
+# With this file in place the tracked tree is about 19 MB and the largest single
+# file is 872 KB, so plain git is sufficient and LFS is not needed. To keep it
+# that way, publish release binaries (the desktop installer the appcast points
+# at) as GitHub Release assets or to GCS rather than committing them.
+
+# ---- .NET build output ------------------------------------------------------
+[Bb]in/
+[Oo]bj/
+[Bb]uild/
+artifacts/
+*.user
+*.suo
+*.userprefs
+*.pidb
+
+# ---- Test output ------------------------------------------------------------
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+
+# ---- NuGet ------------------------------------------------------------------
+packages/
+*.nupkg
+*.snupkg
+
+# ---- Terraform --------------------------------------------------------------
+# Anchored deliberately. A loose *terraform* pattern would swallow
+# Graphics/Terraforming/*.png and Common/Components/Terraform.cs, which are
+# tracked game source.
+#
+# Note the trailing slash on .terraform/: it makes the rule directory-only, so
+# infra/terraform/.terraform.lock.hcl stays committed. That lock pins the
+# provider to 6.50.0 and is source, not cache.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Environment-specific values. Commit terraform.tfvars.example instead.
+*.tfvars
+*.tfvars.json
+
+# ---- Firebase and node (galaxies-web) ---------------------------------------
+node_modules/
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# ---- Local configuration and secrets ----------------------------------------
 nova.conf
-packages
+script.conf.bat
+.env
+.env.*
+*.pem
+*.p12
+*.pfx
+*-key.json
+*credentials*.json
+service-account*.json
+
+# ---- Editors ----------------------------------------------------------------
+.vs/
+.vscode/
+.idea/
+*.swp
+*~
+
+# ---- OS and OneDrive noise --------------------------------------------------
+# This checkout lives in a OneDrive folder, so these appear unprompted.
+desktop.ini
+Thumbs.db
+ehthumbs.db
+.DS_Store
+~$*

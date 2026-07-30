@@ -1,0 +1,248 @@
+# galaxies-web build and deploy.
+#
+# This is the one Galaxies service with a cloudbuild.yaml and no Dockerfile. It
+# is static Firebase Hosting: no port, no Cloud Run container, no image push.
+# The build stamps runtime-config.json from the _WEB_* substitutions, stamps the
+# API origin into the Content-Security-Policy, then runs firebase deploy.
+#
+# Every switch defaults to false, so a build with no substitutions ships the
+# site dark to a preview channel and never touches the live domain. The live
+# channel is only written when _WEB_SITE_ENABLED is true. That is the whole
+# safety story: to go live you have to say so.
+#
+# Run it by hand:
+#   gcloud builds submit galaxies-web --config=galaxies-web/cloudbuild.yaml
+#
+# The Cloud Build service account needs roles/firebasehosting.admin and
+# roles/firebase.viewer on roybot. The Firebase CLI picks up the build's
+# application default credentials; if your organization blocks that, mount a
+# service account key from Secret Manager and set GOOGLE_APPLICATION_CREDENTIALS
+# on the deploy step instead.
+
+substitutions:
+  # The six feature switches. All false. All of them ship dark.
+  _WEB_SITE_ENABLED: "false"
+  _WEB_SIGNIN_ENABLED: "false"
+  _WEB_ADS_ENABLED: "false"
+  _WEB_DOWNLOAD_ENABLED: "false"
+  _WEB_BROWSER_CLIENT_ENABLED: "false"
+  _WEB_PUSH_ENABLED: "false"
+  # The configuration values. These are not switches, so "false" means nothing
+  # to them; empty is their off state, and empty is what they default to. The
+  # guard step below refuses to enable a feature whose value is still empty.
+  _WEB_API_BASE_URL: ""
+  _WEB_FIREBASE_PROJECT: "roybot"
+  _WEB_ADSENSE_CLIENT: ""
+  _WEB_CMP_ID: ""
+  _WEB_UPDATE_FEED_URL: ""
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE
+
+timeout: 1200s
+
+steps:
+  # ---------------------------------------------------------------------------
+  # 1. Refuse a build that would ship a half-configured flip.
+  #
+  # A switch that is on with an empty value behind it is worse than a switch
+  # that is off, because it looks live and is not. Fail here, loudly, where a
+  # human is watching, rather than in a browser console after the promotion.
+  # ---------------------------------------------------------------------------
+  - id: guard
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        SITE='${_WEB_SITE_ENABLED}'
+        SIGNIN='${_WEB_SIGNIN_ENABLED}'
+        ADS='${_WEB_ADS_ENABLED}'
+        DOWNLOAD='${_WEB_DOWNLOAD_ENABLED}'
+        BROWSER='${_WEB_BROWSER_CLIENT_ENABLED}'
+        PUSH='${_WEB_PUSH_ENABLED}'
+        API_BASE='${_WEB_API_BASE_URL}'
+        ADSENSE='${_WEB_ADSENSE_CLIENT}'
+        CMP='${_WEB_CMP_ID}'
+        FEED='${_WEB_UPDATE_FEED_URL}'
+
+        fail() { echo "galaxies-web: $$1" >&2; exit 1; }
+
+        require_bool() {
+          case "$$2" in
+            true|false) : ;;
+            *) fail "$$1 must be exactly true or false, and it is '$$2'." ;;
+          esac
+        }
+
+        require_bool _WEB_SITE_ENABLED            "$$SITE"
+        require_bool _WEB_SIGNIN_ENABLED          "$$SIGNIN"
+        require_bool _WEB_ADS_ENABLED             "$$ADS"
+        require_bool _WEB_DOWNLOAD_ENABLED        "$$DOWNLOAD"
+        require_bool _WEB_BROWSER_CLIENT_ENABLED  "$$BROWSER"
+        require_bool _WEB_PUSH_ENABLED            "$$PUSH"
+
+        # Ads need a publisher id and a consent management platform. The CMP is
+        # not optional in the EU or the UK, so it is treated as required here
+        # rather than as a thing somebody remembers later.
+        if [ "$$ADS" = "true" ]; then
+          [ -n "$$ADSENSE" ] || fail "_WEB_ADS_ENABLED is true but _WEB_ADSENSE_CLIENT is empty."
+          [ -n "$$CMP" ]     || fail "_WEB_ADS_ENABLED is true but _WEB_CMP_ID is empty."
+          if grep -q "pub-0000000000000000" marketing/ads.txt; then
+            fail "_WEB_ADS_ENABLED is true but marketing/ads.txt still holds the placeholder publisher id. Replace it first."
+          fi
+        fi
+
+        # Sign-in, the browser client, and push all talk to /v1. Without an API
+        # base URL they render a button that goes nowhere.
+        if [ "$$SIGNIN" = "true" ] || [ "$$BROWSER" = "true" ] || [ "$$PUSH" = "true" ]; then
+          [ -n "$$API_BASE" ] || fail "sign-in, browser client, or push is enabled but _WEB_API_BASE_URL is empty."
+        fi
+
+        # Push rides on the browser client. On its own it has nothing to attach to.
+        if [ "$$PUSH" = "true" ] && [ "$$BROWSER" != "true" ]; then
+          fail "_WEB_PUSH_ENABLED is true but _WEB_BROWSER_CLIENT_ENABLED is false. Push needs the browser client."
+        fi
+
+        if [ "$$DOWNLOAD" = "true" ]; then
+          [ -n "$$FEED" ] || fail "_WEB_DOWNLOAD_ENABLED is true but _WEB_UPDATE_FEED_URL is empty."
+          if grep -q "REPLACE-ME.invalid" marketing/downloads/appcast.json; then
+            fail "_WEB_DOWNLOAD_ENABLED is true but marketing/downloads/appcast.json still holds the placeholder release. Publish a real build first."
+          fi
+        fi
+
+        echo "galaxies-web: substitutions look coherent."
+        echo "  site=$$SITE signin=$$SIGNIN ads=$$ADS download=$$DOWNLOAD browser=$$BROWSER push=$$PUSH"
+
+  # ---------------------------------------------------------------------------
+  # 2. Stamp runtime-config.json from the template.
+  #
+  # The site and the browser client read this file at load. It is the only place
+  # the switches exist at runtime, and it is served no-cache so a flip lands on
+  # the next page view rather than whenever a CDN feels like it.
+  #
+  # The checked-in marketing/runtime-config.json is the all-off default, so a
+  # local preview works with no build. This step overwrites it in the build
+  # workspace only; it never writes back to the repository.
+  # ---------------------------------------------------------------------------
+  - id: stamp-runtime-config
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        TMPL=marketing/runtime-config.json.tmpl
+        OUT=marketing/runtime-config.json
+
+        [ -f "$$TMPL" ] || { echo "galaxies-web: $$TMPL is missing." >&2; exit 1; }
+
+        sed \
+          -e 's|__WEB_SITE_ENABLED__|${_WEB_SITE_ENABLED}|g' \
+          -e 's|__WEB_SIGNIN_ENABLED__|${_WEB_SIGNIN_ENABLED}|g' \
+          -e 's|__WEB_ADS_ENABLED__|${_WEB_ADS_ENABLED}|g' \
+          -e 's|__WEB_DOWNLOAD_ENABLED__|${_WEB_DOWNLOAD_ENABLED}|g' \
+          -e 's|__WEB_BROWSER_CLIENT_ENABLED__|${_WEB_BROWSER_CLIENT_ENABLED}|g' \
+          -e 's|__WEB_PUSH_ENABLED__|${_WEB_PUSH_ENABLED}|g' \
+          -e 's|__WEB_API_BASE_URL__|${_WEB_API_BASE_URL}|g' \
+          -e 's|__WEB_ADSENSE_CLIENT__|${_WEB_ADSENSE_CLIENT}|g' \
+          -e 's|__WEB_CMP_ID__|${_WEB_CMP_ID}|g' \
+          -e 's|__WEB_UPDATE_FEED_URL__|${_WEB_UPDATE_FEED_URL}|g' \
+          "$$TMPL" > "$$OUT"
+
+        # A template that did not fully stamp is a broken config file, and a
+        # broken config file is a blank page. Catch it here.
+        if grep -q "__WEB_" "$$OUT"; then
+          echo "galaxies-web: runtime-config.json still holds unstamped placeholders:" >&2
+          grep -n "__WEB_" "$$OUT" >&2
+          exit 1
+        fi
+
+        python3 -c "import json,sys; json.load(open('$$OUT'))" \
+          || { echo "galaxies-web: stamped runtime-config.json is not valid JSON." >&2; cat "$$OUT" >&2; exit 1; }
+
+        echo "galaxies-web: stamped runtime-config.json"
+        cat "$$OUT"
+
+  # ---------------------------------------------------------------------------
+  # 3. Stamp the API origin into the Content-Security-Policy.
+  #
+  # connect-src has to name the API host explicitly, and the host is not known
+  # until deploy time. firebase.json carries the token __WEB_API_ORIGIN__ and
+  # this step replaces it with the origin (scheme plus host, no path) taken from
+  # _WEB_API_BASE_URL. When that is empty the token is replaced with nothing,
+  # which is correct: a dark site calls no API.
+  #
+  # If somebody deploys by hand without this step, the token survives, the
+  # browser ignores it as an unknown source, and calls to the API are blocked.
+  # That fails visibly in the console rather than silently in the middle of a
+  # sign-in, which is the trade we want.
+  # ---------------------------------------------------------------------------
+  - id: stamp-csp
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        API_BASE='${_WEB_API_BASE_URL}'
+        API_ORIGIN=""
+        if [ -n "$$API_BASE" ]; then
+          API_ORIGIN=$$(printf '%s' "$$API_BASE" | sed -E 's#^(https?://[^/]+).*#\1#')
+          case "$$API_ORIGIN" in
+            https://*) : ;;
+            *) echo "galaxies-web: _WEB_API_BASE_URL must be an https URL, and it is '$$API_BASE'." >&2; exit 1 ;;
+          esac
+        fi
+
+        sed -i "s|__WEB_API_ORIGIN__|$$API_ORIGIN|g" firebase.json
+
+        python3 -c "import json,sys; json.load(open('firebase.json'))" \
+          || { echo "galaxies-web: firebase.json is not valid JSON after stamping." >&2; exit 1; }
+
+        echo "galaxies-web: connect-src API origin set to '$$API_ORIGIN'"
+
+  # ---------------------------------------------------------------------------
+  # 4. Deploy.
+  #
+  # _WEB_SITE_ENABLED false goes to a preview channel with a seven-day expiry
+  # and prints a URL you can smoke. True promotes to the live channel and takes
+  # the domain. Firebase keeps prior releases, so `firebase hosting:rollback`
+  # undoes a bad promotion without a rebuild.
+  # ---------------------------------------------------------------------------
+  - id: deploy
+    name: node:20-slim
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        SITE='${_WEB_SITE_ENABLED}'
+        PROJECT='${_WEB_FIREBASE_PROJECT}'
+        SHA='${SHORT_SHA}'
+        BID='${BUILD_ID}'
+
+        [ -n "$$PROJECT" ] || { echo "galaxies-web: _WEB_FIREBASE_PROJECT is empty." >&2; exit 1; }
+
+        FIREBASE="npx --yes firebase-tools@13.29.1"
+
+        if [ "$$SITE" = "true" ]; then
+          echo "galaxies-web: _WEB_SITE_ENABLED is true, promoting to the live channel on $$PROJECT."
+          $$FIREBASE deploy --only hosting --project "$$PROJECT" --non-interactive \
+            --message "galaxies-web build $$BID"
+        else
+          # Not a repository build, so there is no commit to name the channel
+          # after. Fall back to the first segment of the build id.
+          if [ -z "$$SHA" ]; then SHA="$${BID%%-*}"; fi
+          CHANNEL="preview-$$SHA"
+          echo "galaxies-web: _WEB_SITE_ENABLED is false, deploying to preview channel $$CHANNEL. The live domain is not touched."
+          $$FIREBASE hosting:channel:deploy "$$CHANNEL" --project "$$PROJECT" --expires 7d --non-interactive
+        fi
+    env:
+      - GOOGLE_CLOUD_PROJECT=${_WEB_FIREBASE_PROJECT}

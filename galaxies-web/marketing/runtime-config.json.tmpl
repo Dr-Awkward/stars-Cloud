@@ -1,0 +1,14 @@
+{
+  "_comment": "Template for runtime-config.json. cloudbuild.yaml stamps every __WEB_*__ placeholder from the matching _WEB_* substitution and writes the result to marketing/runtime-config.json in the build workspace. Do not stamp this by hand and commit the result; the checked-in runtime-config.json is the all-off default and is meant to stay all off.",
+  "_note": "The booleans are deliberately unquoted, so a completed stamp produces real JSON booleans and a failed stamp produces invalid JSON that the build catches rather than a page that silently reads a truthy string. Everything here gates presence and visibility only. Nothing data-bearing is protected by these; galaxies-api has its own _API_ENABLED gate and is the thing that actually says no.",
+  "site": __WEB_SITE_ENABLED__,
+  "signin": __WEB_SIGNIN_ENABLED__,
+  "ads": __WEB_ADS_ENABLED__,
+  "download": __WEB_DOWNLOAD_ENABLED__,
+  "browser": __WEB_BROWSER_CLIENT_ENABLED__,
+  "push": __WEB_PUSH_ENABLED__,
+  "apiBaseUrl": "__WEB_API_BASE_URL__",
+  "adsenseClient": "__WEB_ADSENSE_CLIENT__",
+  "cmpId": "__WEB_CMP_ID__",
+  "updateFeedUrl": "__WEB_UPDATE_FEED_URL__"
+}

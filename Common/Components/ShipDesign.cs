@@ -769,8 +769,31 @@ namespace Nova.Common.Components
         {
             XmlElement xmlelShipDesign = xmldoc.CreateElement("ShipDesign");
             xmlelShipDesign.AppendChild(base.ToXml(xmldoc));
-            Global.SaveData(xmldoc, xmlelShipDesign, "Icon", Icon.Source);
-            xmlelShipDesign.AppendChild(Blueprint.ToXml(xmldoc));            
+
+            // Headless port (design Section A.2). A ShipIcon carries only the
+            // image file identifier, and the identifier comes from AllShipIcons,
+            // which scans a graphics folder that does not exist in a server
+            // container. So Icon is legitimately null on the server for every
+            // design the AI creates, and dereferencing it here used to throw
+            // partway through writing an empire's intel, taking the whole turn
+            // down over a missing picture. Persist the identifier when there is
+            // one and an empty string when there is not; the client resolves
+            // pixels from its own copy either way.
+            Global.SaveData(xmldoc, xmlelShipDesign, "Icon", Icon != null ? Icon.Source : string.Empty);
+
+            // A design with no hull cannot be reconstructed on load, so this is a
+            // real defect in whatever built it rather than a headless artifact.
+            // Skip it instead of aborting the write: losing one malformed design
+            // is recoverable, losing the empire's whole intel file is not.
+            if (Blueprint != null)
+            {
+                xmlelShipDesign.AppendChild(Blueprint.ToXml(xmldoc));
+            }
+            else
+            {
+                Report.Error("ShipDesign \"" + Name + "\" has no hull and was written without one.");
+            }
+
             return xmlelShipDesign;
         }
 
@@ -792,8 +815,18 @@ namespace Nova.Common.Components
                             Blueprint = new Component(mainNode);
                             break;
                         case "icon":
-                            string iconSource = mainNode.FirstChild.Value;
-                            Icon = AllShipIcons.Data.GetIconBySource(iconSource);
+                            // Headless port (design Section A.2). Two things go
+                            // wrong here on a server. The element can be empty,
+                            // because a design created headless has no icon, and
+                            // FirstChild is then null. And AllShipIcons scans a
+                            // graphics folder that a server container does not
+                            // have, so resolving through it fails and would lose
+                            // the identifier we were given. Keep the identifier
+                            // and let the client resolve pixels from its own copy.
+                            string iconSource = mainNode.FirstChild != null
+                                ? mainNode.FirstChild.Value
+                                : string.Empty;
+                            Icon = string.IsNullOrEmpty(iconSource) ? null : new ShipIcon(iconSource);
                             break;
                     }
                 }

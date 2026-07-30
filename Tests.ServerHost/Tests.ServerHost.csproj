@@ -1,0 +1,44 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard. GPL v2; see LICENSE.txt.
+
+  Turn-generator host tests (design Sections A.5, B.3). The game-file store seam:
+  the canonical object layout, and the empire-id to race-name translation that sits
+  between storage and the engine. These exist because the API wrote orders to one
+  path while the game store read another, so every submitted order was silently
+  ignored, and no test crossed that seam to notice.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ServerHost\Nova.Server.Host.csproj" />
+  </ItemGroup>
+
+  <!-- The component definitions travel with the test assembly so the headless
+       component loader can find them without a dialog (design A.2). The fixture
+       builder needs them: starting ship designs are costed against this file. -->
+  <ItemGroup>
+    <None Include="..\components.xml" CopyToOutputDirectory="PreserveNewest" Link="components.xml" />
+  </ItemGroup>
+
+  <!-- The committed two-empire fixture, so a local turn run and CI share one game. -->
+  <ItemGroup>
+    <None Include="..\Tests\Fixtures\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="Fixtures" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,154 @@
+# Build and push the built-in AI participant image, "galaxies.default-ai".
+#
+# Run it from the repository root, because the Dockerfile copies Common, Nova,
+# Ai, AiContract and components.xml and therefore needs the whole tree as its
+# build context:
+#
+#   gcloud builds submit . \
+#     --config=Participants/NovaDefault/cloudbuild.yaml
+#
+# This builds and pushes only. It does not deploy, and that is deliberate: the
+# participant is registered by publishing its manifest (see manifest.json and
+# galaxies-ai spec Section 9.2), not by a Cloud Run revision appearing. Deploy
+# explicitly when you want it running, with concurrency 1:
+#
+#   gcloud run deploy ai-nova-default \
+#     --image=us-central1-docker.pkg.dev/roybot/roybot-galaxies/ai-nova-default:TAG \
+#     --region=us-central1 --concurrency=1 --no-allow-unauthenticated \
+#     --service-account=ai-nova-default-sa@roybot.iam.gserviceaccount.com \
+#     --set-env-vars=PARTICIPANT_ENABLED=false
+#
+# Callers authenticate with GCP-native OIDC. There is no shared secret header
+# anywhere in Galaxies and none is to be added here.
+
+substitutions:
+  # Ships dark. The image is baked with the flag off; flipping it is a deploy
+  # time decision, made by a human, on a service that already exists.
+  _PARTICIPANT_ENABLED: "false"
+  _REGION: "us-central1"
+  _REPO: "us-central1-docker.pkg.dev/roybot/roybot-galaxies"
+  _IMAGE: "ai-nova-default"
+  # The manifest version this image is built as. A manifest is immutable per
+  # version (spec Section 9.2), so this is also the image tag: one version, one
+  # image, one manifest document, no ambiguity about what a pinned game runs.
+  _VERSION: "1.0.0"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE
+
+timeout: 1800s
+
+images:
+  - "${_REPO}/${_IMAGE}:${_VERSION}"
+  - "${_REPO}/${_IMAGE}:latest"
+
+steps:
+  # ---------------------------------------------------------------------------
+  # 1. Refuse an incoherent build before spending twenty minutes on it.
+  #
+  # A flag that is neither true nor false is a flag nobody can reason about, and
+  # a missing components.xml produces an image that builds, starts, passes
+  # /healthz, and then cannot play a single turn. Both fail here, loudly, where
+  # somebody is watching.
+  # ---------------------------------------------------------------------------
+  - id: guard
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        ENABLED='${_PARTICIPANT_ENABLED}'
+        VERSION='${_VERSION}'
+
+        fail() { echo "ai-nova-default: $$1" >&2; exit 1; }
+
+        case "$$ENABLED" in
+          true|false) : ;;
+          *) fail "_PARTICIPANT_ENABLED must be exactly true or false, and it is '$$ENABLED'." ;;
+        esac
+
+        [ -n "$$VERSION" ] || fail "_VERSION is empty; it is both the image tag and the manifest version."
+
+        [ -f components.xml ] \
+          || fail "components.xml is not in the build context. Submit this build from the repository root."
+
+        [ -f Participants/NovaDefault/Dockerfile ] \
+          || fail "Participants/NovaDefault/Dockerfile is missing from the build context."
+
+        # The manifest and the image tag must agree, or a pinned game runs a
+        # version its manifest does not describe.
+        if ! grep -q "\"version\": \"$$VERSION\"" Participants/NovaDefault/manifest.json; then
+          fail "manifest.json does not declare version $$VERSION. Bump both together."
+        fi
+
+        echo "ai-nova-default: building version $$VERSION, participant enabled=$$ENABLED."
+
+  # ---------------------------------------------------------------------------
+  # 2. Build.
+  #
+  # PARTICIPANT_ENABLED is baked as an image default rather than passed as a
+  # build arg the code reads, so it stays a runtime environment variable that a
+  # deploy can override without a rebuild. The build only decides what the image
+  # defaults to, and it defaults to off.
+  # ---------------------------------------------------------------------------
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file=Participants/NovaDefault/Dockerfile
+      - --tag=${_REPO}/${_IMAGE}:${_VERSION}
+      - --tag=${_REPO}/${_IMAGE}:latest
+      - --build-arg=PARTICIPANT_ENABLED=${_PARTICIPANT_ENABLED}
+      - "."
+
+  # ---------------------------------------------------------------------------
+  # 3. Smoke the image before it is pushed.
+  #
+  # Start it dark and check that /healthz answers and /version reports the
+  # disabled shape. This catches the two failures a plain build cannot: a runtime
+  # image missing a dependency, and a flag that is not actually wired.
+  # ---------------------------------------------------------------------------
+  - id: smoke
+    name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        docker run --rm -d --name novadefault-smoke -p 8084:8084 \
+          ${_REPO}/${_IMAGE}:${_VERSION}
+
+        trap 'docker rm -f novadefault-smoke >/dev/null 2>&1 || true' EXIT
+
+        for i in $$(seq 1 30); do
+          if docker exec novadefault-smoke sh -c 'exit 0' 2>/dev/null; then break; fi
+          sleep 1
+        done
+
+        ok=""
+        for i in $$(seq 1 30); do
+          if curl -fsS http://localhost:8084/healthz >/dev/null 2>&1; then ok="yes"; break; fi
+          sleep 2
+        done
+
+        if [ -z "$$ok" ]; then
+          echo "ai-nova-default: /healthz never answered." >&2
+          docker logs novadefault-smoke >&2 || true
+          exit 1
+        fi
+
+        VERSION_BODY=$$(curl -fsS http://localhost:8084/version)
+        echo "ai-nova-default: /version -> $$VERSION_BODY"
+
+        # Built dark, so /version must report the disabled shape. If it does not,
+        # the flag is not wired and the image would go live the moment it deployed.
+        if [ '${_PARTICIPANT_ENABLED}' = 'false' ]; then
+          echo "$$VERSION_BODY" | grep -q '"disabled":true' \
+            || { echo "ai-nova-default: built with the flag off but /version is not reporting disabled." >&2; exit 1; }
+        fi
+
+        echo "ai-nova-default: smoke passed."

@@ -1,0 +1,35 @@
+# .github/FUNDING.yml
+# This turns on the "Sponsor" button at the top of the repo and in the sidebar,
+# and it is the machine-readable source of truth for where donations go.
+#
+# Galaxies is free and ad-supported. The ads keep the servers on; donations let
+# me care less about the ads. Nothing here is a subscription, nothing is gated,
+# and no payment is ever taken on the site itself. Every entry below is an
+# outbound link to somewhere the money is actually handled.
+#
+# Keep this list identical to the channels the site surfaces (the support page
+# and the footer). One honest set of options, everywhere, so nothing
+# contradicts anything.
+#
+# Native keys resolve to hosted sponsor pages. Anything without a native key
+# (Cash App, a self-hosted support page) goes under `custom` as a full URL.
+# GitHub allows up to four custom URLs.
+
+github: [Dr-Awkward]        # GitHub Sponsors, the primary channel
+
+# Not used by Galaxies. Uncomment only if a channel is really going to be
+# monitored; an unwatched donate link is worse than no donate link.
+# ko_fi: your-handle
+# open_collective: your-collective
+# liberapay: your-handle
+# buy_me_a_coffee: your-handle
+# polar: your-handle
+
+custom:
+  # A direct tip jar for people who do not have a GitHub account.
+  - "https://cash.app/$onassis"
+  # The on-site support page: what donations pay for, in plain words, and the
+  # same two links as above. Confirm this URL resolves before launch; the
+  # domain is a launch dependency and this is the intended address, not a
+  # verified one.
+  - "https://galaxies.farehard.com/support"

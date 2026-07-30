@@ -1,0 +1,35 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard. GPL v2; see LICENSE.txt at the repository root.
+
+  The open AI-participant contract (AI-PARTICIPANTS.md Section F.1), as code.
+
+  This assembly is deliberately small and dependency-light: the wire DTOs for
+  POST /v1/act, the transcoder that projects one seat's intel into an
+  empire_view, and the mapper that turns a participant's orders[] back into
+  engine ICommands. It is shared by the galaxies-ai runner (which projects and
+  submits) and by first-party C# participants (which consume and answer), so
+  there is exactly one definition of the contract in the codebase.
+
+  It references only Nova.Common. It must never reference Nova.Server: a
+  participant sits on the client side of the engine boundary and never links the
+  turn engine (galaxies-ai spec Section 1).
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Galaxies.AiContract</AssemblyName>
+    <RootNamespace>Galaxies.AiContract</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+
+</Project>

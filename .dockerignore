@@ -1,0 +1,35 @@
+# Build context is the repository root for every image (see the Dockerfiles).
+# Keep the context lean: only the projects an image actually builds are copied in,
+# so everything else is excluded here.
+#
+# Two root files are NOT excluded and must not be: components.xml, a runtime
+# dependency, and VersionInfo.cs, which Common.csproj and Server.csproj both
+# compile via <Compile Include="..\VersionInfo.cs" />. Excluding or forgetting
+# VersionInfo.cs fails every image at publish with CS2001.
+**/bin/
+**/obj/
+**/.vs/
+**/.git/
+**/*.user
+
+# The desktop client. Nova/Ai is the exception: Ai/Nova.Ai.csproj compiles five
+# files out of it by link rather than copy, so the AI participant image cannot
+# build without them. Excluding all of Nova/ contradicted that Dockerfile
+# directly and made the ai-nova-default image unbuildable.
+Nova/**
+!Nova/Ai/**
+
+Documentation/
+Tests/
+Tests.Ai/
+Tests.ControlPlane/
+Tests.ServerHost/
+Client/
+TestHarness/
+Graphics/
+ControlLibrary/
+GameFileInflator/
+infra/
+galaxies-web/
+DefaultRaces/
+GameFiles/

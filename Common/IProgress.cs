@@ -13,7 +13,6 @@
 #endregion
 
 using System;
-using System.Windows.Forms;
 
 namespace Nova.Common
 {
@@ -86,5 +85,23 @@ namespace Nova.Common
         /// </summary>
         /// <remarks>You must have called one of the Begin() methods prior to this call.</remarks>
         void End();
+    }
+
+    /// <summary>
+    /// A headless no-op progress sink. The server has no dialog to drive, so long
+    /// operations such as component loading report their progress into this and it
+    /// discards everything except the Success flag (design Section A.2).
+    /// </summary>
+    public sealed class NullProgressCallback : IProgressCallback
+    {
+        public void Begin(int minimum, int maximum) { }
+        public void Begin() { }
+        public void SetRange(int minimum, int maximum) { }
+        public void SetText(string text) { }
+        public void StepTo(int val) { }
+        public void Increment(int val) { }
+        public bool IsAborting { get { return false; } }
+        public bool Success { get; set; }
+        public void End() { }
     }
 }

@@ -92,7 +92,7 @@ namespace Nova.Tests.IntegrationTests
             }
             catch (Exception e)
             {
-                System.Windows.Forms.MessageBox.Show("BattleReport.cs SerialisationTestEmptyBattleReport() failed:" + Environment.NewLine + e.Message + Environment.NewLine + stringStream.ToString());
+                System.Console.WriteLine("BattleReport.cs SerialisationTestEmptyBattleReport() failed:" + Environment.NewLine + e.Message + Environment.NewLine + stringStream.ToString());
                 throw e; // fail the test
             }
         }

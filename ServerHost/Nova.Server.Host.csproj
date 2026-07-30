@@ -1,0 +1,48 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard.
+  Based on Stars! Nova (Copyright (C) 2008 Ken Reed; 2009-2012 The Stars-Nova
+  Project), used under the GNU General Public License version 2. This project is
+  likewise distributed under the GNU General Public License version 2; see
+  LICENSE.txt at the repository root.
+
+  M0 "prove the pipe": a headless container that generates one turn for one game
+  from cloud storage, with no UI and no scheduler.
+
+  PREREQUISITE: this project references Common and ServerState. Those two must be
+  ported to net10.0 and stripped of WinForms and System.Drawing on the turn path
+  first (design Section A). Until that lands, this project does not compile; it is
+  written against the real class shapes so the port has a fixed target.
+-->
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Nova.Server.Host</RootNamespace>
+    <AssemblyName>Nova.Server.Host</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Deterministic build so the container image is reproducible. -->
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The ported, headless engine. These paths are correct; the projects
+         themselves are migrated to SDK-style net10.0 as part of Section A. -->
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\ServerState\Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Cloud.Storage.V1" Version="4.10.0" />
+    <PackageReference Include="Google.Cloud.Firestore" Version="3.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The static component and tech database ships in the image. The engine
+         reads it through a content locator (Section A.2), pointed here by config. -->
+    <None Include="..\components.xml" CopyToOutputDirectory="PreserveNewest" Link="components.xml" />
+  </ItemGroup>
+
+</Project>

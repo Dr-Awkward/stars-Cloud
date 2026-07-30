@@ -26,7 +26,6 @@ namespace Nova.Server
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Windows.Forms;
     using System.Xml;
     
     using Nova.Common;
@@ -57,6 +56,18 @@ namespace Nova.Server
         public int TurnYear             = Global.StartingYear;
         public string GameFolder        = null; // The path&folder where client files are held.
         public string StatePathName     = null; // path&file name to the saved state data
+
+        // Determinism (design Section A.4). The master seed is set once at game
+        // creation and round-tripped through the state XML. Every stochastic
+        // subsystem derives its per-turn stream from (MasterSeed, TurnYear), so a
+        // turn is reproducible. Old saves lacking it load as 0; the host
+        // synthesises one and writes it back on first generation.
+        public long MasterSeed          = 0;
+
+        // Save format version (design Section A.3). Bumped when the state schema
+        // changes; old saves load as 0.
+        public const int CurrentFormatVersion = 1;
+        public int FormatVersion        = 0;
 
         private Dictionary<string, Star> starPositionDictionary = null;
         
@@ -94,7 +105,13 @@ namespace Nova.Server
                             break;                                                
                         case "turnyear":
                             TurnYear = int.Parse(xmlnode.FirstChild.Value, System.Globalization.CultureInfo.InvariantCulture);
-                            break;                        
+                            break;
+                        case "masterseed":
+                            MasterSeed = long.Parse(xmlnode.FirstChild.Value, System.Globalization.CultureInfo.InvariantCulture);
+                            break;
+                        case "formatversion":
+                            FormatVersion = int.Parse(xmlnode.FirstChild.Value, System.Globalization.CultureInfo.InvariantCulture);
+                            break;
                         case "gamefolder":
                             GameFolder = xmlnode.FirstChild.Value;
                             break;                        
@@ -247,19 +264,9 @@ namespace Nova.Server
         {
             if (StatePathName == null)
             {
-                // TODO (priority 5) add the nicities. Update the game files location.
-                SaveFileDialog fd = new SaveFileDialog();
-                fd.Title = "Choose a location to save the game.";
-
-                DialogResult result = fd.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    StatePathName = fd.FileName;
-                }
-                else
-                {
-                    throw new System.IO.IOException("File dialog cancelled");
-                }
+                // Headless: there is no dialog to choose a location. The host sets
+                // StatePathName before saving (design Section A.5).
+                throw new System.IO.IOException("No state-file location is available in headless mode.");
             }
 
             ToXml();
@@ -283,6 +290,8 @@ namespace Nova.Server
             Global.SaveData(xmldoc, xmlelServerState, "GameInProgress", GameInProgress.ToString());
             // Global.SaveData(xmldoc, xmlelServerState, "FleetID", FleetID.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Global.SaveData(xmldoc, xmlelServerState, "TurnYear", TurnYear.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Global.SaveData(xmldoc, xmlelServerState, "MasterSeed", MasterSeed.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Global.SaveData(xmldoc, xmlelServerState, "FormatVersion", CurrentFormatVersion.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Global.SaveData(xmldoc, xmlelServerState, "GameFolder", GameFolder);
             Global.SaveData(xmldoc, xmlelServerState, "StatePathName", StatePathName);
             
@@ -471,7 +480,14 @@ namespace Nova.Server
         /// <returns>An enumerator containing all Fleets from all empires.</returns>
         public IEnumerable<Fleet> IterateAllFleets()
         {
-            return AllEmpires.Values.SelectMany(empire => empire.OwnedFleets.Values);
+            // Deterministic order (design Section A.4): empire id then fleet key.
+            // Dictionary .Values order is not part of the contract, and this loop's
+            // body draws from the RNG (cheap-engine failures, minefield checks), so
+            // unordered iteration is a silent source of turn-to-turn divergence.
+            return AllEmpires.OrderBy(empire => empire.Key)
+                             .SelectMany(empire => empire.Value.OwnedFleets
+                                                         .OrderBy(fleet => fleet.Key)
+                                                         .Select(fleet => fleet.Value));
         }
         
         

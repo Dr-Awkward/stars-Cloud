@@ -1,0 +1,29 @@
+{
+  "manifest_version": "1.0",
+  "id": "galaxies.default-ai",
+  "version": "1.0.0",
+  "name": "Nova Default AI",
+  "author": "Galaxies core team",
+  "description": "The classic Stars! Nova AI: expands, scouts, colonizes. Plays against the engine's own object graph via native intel.",
+  "kind": "container",
+  "image": "us-central1-docker.pkg.dev/roybot/roybot-galaxies/ai-nova-default:1.0.0",
+  "endpoint": "/v1/act",
+  "contract_versions": ["1.0"],
+  "difficulty": ["easy", "normal", "hard"],
+  "resources": {
+    "cpu": "1",
+    "memory": "512Mi",
+    "timeout_s": 60,
+    "max_concurrency": 20
+  },
+  "determinism": "seeded",
+  "determinism_note": "The guarantee holds: replaying the same empire_view yields byte-identical orders. The mechanism is not seeding. The AI sources (Nova/Ai/AbstractAI.cs, DefaultAi.cs, DefaultAIPlanner.cs, DefaultFleetAI.cs, DefaultPlanetAI.cs) contain no Random, no Guid, no clock read, and no hash-derived branch, so there is no randomness for the seat seed to constrain. The worker parses game.seat_seed and reports it in diagnostics.seed_used, and says in diagnostics.notes that nothing consumed it. If randomness is ever added, the injection point is DefaultAi.DoMove, which constructs the planner and the per-planet and per-fleet AIs; each would take a Random built from the seat seed, and this field would then describe a mechanism rather than a property.",
+  "network": "none",
+  "allowed_hosts": [],
+  "cost_class": "free",
+  "service_account": "ai-nova-default-sa@roybot.iam.gserviceaccount.com",
+  "visibility": "public",
+  "lifecycle": "active",
+  "native_intel": true,
+  "native_intel_note": "This participant requires intel_native on the dispatch. It reconstructs a real Nova.Common.Intel with Envelope.ReadIntel and plays the authoritative graph. It deliberately does NOT reconstruct an EmpireData from the lossy empire_view projection: guessing the dropped fields would make it a quietly weaker opponent than the desktop AI it claims to be. Dispatched without intel_native it returns an empty orders list and says why in diagnostics."
+}

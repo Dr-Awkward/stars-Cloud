@@ -113,32 +113,19 @@ namespace Nova.Server
                         // stack for the turn pops the oldest commands first, thus applying them in the correct order.                    
                         while (subnode != null)
                         {
-                            switch (subnode.Attributes["Type"].Value.ToString().ToLower())
+                            // Dispatch through the shared CommandRegistry instead of
+                            // a hardcoded switch, so the same resolution serves the
+                            // XML order path and the cloud API's order ingestion
+                            // (design Section E, "retire the hardcoded switch").
+                            string commandType = subnode.Attributes["Type"].Value.ToString();
+                            try
                             {
-                                case "research":
-                                    commands.Push(new ResearchCommand(subnode));
-                                    break;
-
-                                case "waypoint":
-                                    commands.Push(new WaypointCommand(subnode));
-                                    break;
-
-                                case "design":
-                                    commands.Push(new DesignCommand(subnode));
-                                    break;
-
-                                case "production":
-                                    commands.Push(new ProductionCommand(subnode));
-                                    break;
-                                    
-                                case "renamefleet":
-                                    commands.Push(new RenameFleetCommand(subnode));
-                                    break;
-            
-                                default:
-                                    Report.Error("The command \"" + subnode.Attributes["Type"].Value.ToString() + "\" was not recognised by the console.");
-                                    Report.Debug("Unrecognised Command in OrderReader.cs ReadPlayerTurn().");
-                                    break;
+                                commands.Push(CommandRegistry.Instance.Create(commandType, subnode));
+                            }
+                            catch (UnknownCommandException)
+                            {
+                                Report.Error("The command \"" + commandType + "\" was not recognised by the console.");
+                                Report.Debug("Unrecognised Command in OrderReader.cs ReadPlayerTurn().");
                             }
                             subnode = subnode.NextSibling;
                         }

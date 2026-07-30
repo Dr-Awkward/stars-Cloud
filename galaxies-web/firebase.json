@@ -1,0 +1,80 @@
+{
+  "hosting": {
+    "public": "marketing",
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.tmpl"
+    ],
+    "rewrites": [
+      { "source": "/support", "destination": "/support.html" },
+      { "source": "/privacy", "destination": "/privacy.html" },
+      { "source": "/status", "destination": "/status.html" }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://adservice.google.com https://fundingchoicesmessages.google.com https://apis.google.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https://pagead2.googlesyndication.com https://tpc.googlesyndication.com https://googleads.g.doubleclick.net https://www.google.com https://www.gstatic.com https://lh3.googleusercontent.com; connect-src 'self' __WEB_API_ORIGIN__ https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://fundingchoicesmessages.google.com https://csi.gstatic.com; frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com https://accounts.google.com https://roybot.firebaseapp.com; worker-src 'self'; manifest-src 'self'; upgrade-insecure-requests"
+          },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          {
+            "key": "Permissions-Policy",
+            "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), midi=(), serial=(), bluetooth=(), xr-spatial-tracking=(), accelerometer=(), gyroscope=(), magnetometer=(), display-capture=(), idle-detection=(), local-fonts=()"
+          },
+          { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
+          { "key": "X-Permitted-Cross-Domain-Policies", "value": "none" }
+        ]
+      },
+      {
+        "source": "/assets/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        "source": "/styles/**",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }
+        ]
+      },
+      {
+        "source": "**/*.html",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, max-age=0, must-revalidate" }
+        ]
+      },
+      {
+        "source": "/runtime-config.json",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, max-age=0, must-revalidate" }
+        ]
+      },
+      {
+        "source": "/downloads/appcast.json",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, max-age=0, must-revalidate" }
+        ]
+      },
+      {
+        "source": "/ads.txt",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=3600" }
+        ]
+      },
+      {
+        "source": "/downloads/*.@(exe|msi|msix|zip|nupkg)",
+        "headers": [
+          { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        ]
+      }
+    ]
+  }
+}

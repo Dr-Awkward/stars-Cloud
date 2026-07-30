@@ -50,7 +50,6 @@ namespace Nova.Common
 
     using Nova.Common.Components;
     using Nova.Common.DataStructures;
-    using NUnit.Framework;
 
     #endregion
 

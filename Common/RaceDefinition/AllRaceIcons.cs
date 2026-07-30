@@ -89,8 +89,9 @@ namespace Nova.Common
                         DirectoryInfo info = new DirectoryInfo(Path.Combine(graphicFolder, "Race"));
                         foreach (FileInfo fi in info.GetFiles())
                         {
-                            Bitmap i = new Bitmap(Path.Combine(fi.DirectoryName, fi.Name));
-                            RaceIcon icon = new RaceIcon(fi.Name, i);
+                            // Headless: no Bitmap is loaded; the icon carries only
+                            // its Source name (design Section A.2).
+                            RaceIcon icon = new RaceIcon(fi.Name);
                             Data.IconList.Add(icon);
                         }
                     }

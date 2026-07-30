@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy note for Galaxies</title>
+  <meta name="description" content="What Galaxies stores, why it stores it, how ads and consent work, and how to export or delete your account.">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/site.css">
+  <style>
+    /* Page-scoped only. Everything structural comes from tokens.css and site.css. */
+    .field-list { margin: 0; }
+    .field-list dt {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: var(--space-5);
+    }
+    .field-list dt:first-child { margin-top: 0; }
+    .field-list dd {
+      margin: var(--space-2) 0 0;
+      max-width: var(--measure);
+    }
+    .plain-list {
+      padding-left: var(--space-5);
+      max-width: var(--measure);
+    }
+    .plain-list li { margin-bottom: var(--space-3); }
+    .plain-list li:last-child { margin-bottom: 0; }
+    .meta-line {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="index.html">
+        <span class="lamplight" aria-hidden="true"></span>
+        <span class="brand-name">Galaxies</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="support.html">Support</a></li>
+          <li><a href="privacy.html" aria-current="page">Privacy</a></li>
+          <li><a href="status.html">Status</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="section" aria-labelledby="page-title">
+      <div class="container container-narrow stack">
+        <p class="eyebrow">what I keep</p>
+        <h1 id="page-title">A short, honest note about your data</h1>
+        <p class="lede">
+          Galaxies needs to know who you are so it can tell your empire apart from
+          six other people's empires. That is the whole reason any of this is
+          stored. Everything below is what that costs you, said plainly.
+        </p>
+        <p class="meta-line">Last updated 20 July 2026</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="signin-title">
+      <div class="container container-narrow stack">
+        <h2 id="signin-title">Sign-in is Google only, and here is everything I hold</h2>
+        <p>
+          There is no Galaxies password, because I never wanted to be the person
+          holding one. You sign in with a Google account, Google confirms it is you,
+          and from there the data falls into three piles: what Google hands me, what
+          you make by playing, and what the service records on its own. All three are
+          below. Listing only the first would be the flattering version rather than
+          the true one.
+        </p>
+
+        <h3>What Google hands me when you sign in</h3>
+        <dl class="field-list">
+          <dt>Google subject id</dt>
+          <dd>
+            The stable identifier Google gives me for your account. It is the key
+            your empires hang off. It is not your password and it cannot be used to
+            sign in to anything else.
+          </dd>
+
+          <dt>Email address</dt>
+          <dd>
+            Used to reach you about the game: turn deadlines, a game starting, a
+            game ending, and security notices. It is not sold, not rented, and not
+            put on a marketing list.
+          </dd>
+
+          <dt>Display name</dt>
+          <dd>
+            The name other players see in the lobby and the score table. You can
+            change it, and it does not have to be your real name.
+          </dd>
+
+          <dt>Avatar url</dt>
+          <dd>
+            A link to the picture on your Google account, shown next to your name in
+            the lobby and on profiles. It is a link to Google's copy, not a copy I
+            make.
+          </dd>
+
+          <dt>Email verified flag</dt>
+          <dd>
+            Whether Google considers that address verified. I require a verified one,
+            because it is the cheapest floor there is against throwaway accounts and
+            scripted abuse.
+          </dd>
+        </dl>
+        <p>
+          I do not receive your Google password, your contacts, your Drive, or your
+          calendar. The sign-in scopes I ask for are basic profile and email, and
+          nothing more.
+        </p>
+
+        <h3>What you make by playing</h3>
+        <dl class="field-list">
+          <dt>Game membership</dt>
+          <dd>
+            Which games you are in, which empire slot is yours in each, whether you
+            are a player or the host, and when you joined.
+          </dd>
+
+          <dt>Orders, turn files, and your intel</dt>
+          <dd>
+            The orders you submit, the turn files they produce, and the private
+            fog-of-war view the engine writes for your empire each turn. A turn-based
+            strategy game cannot resolve a turn without these, and your intel is only
+            ever served to you.
+          </dd>
+
+          <dt>Messages and names</dt>
+          <dd>
+            In-game messages you send, and the empire and race names you choose.
+            Messages are delivered to their recipients, and kept for moderation if
+            somebody reports one.
+          </dd>
+
+          <dt>Turn clock and history</dt>
+          <dd>
+            Submission and deadline timestamps, missed-turn counts, and the final
+            standings of games you finish. This is what decides when a turn generates
+            and who everyone else is waiting on.
+          </dd>
+        </dl>
+
+        <h3>What the service records on its own</h3>
+        <dl class="field-list">
+          <dt>Request logs</dt>
+          <dd>
+            Timestamp, IP address, request path, response status, user agent, and,
+            when you are signed in, your account id. This is how rate limiting, abuse
+            defence, and failure diagnosis work. Sensitive fields are kept out of the
+            logs.
+          </dd>
+
+          <dt>Session and refresh token records</dt>
+          <dd>
+            What keeps you signed in, and what lets you sign out everywhere.
+          </dd>
+
+          <dt>Error reports</dt>
+          <dd>
+            Crash reports from the client and the server. They can include a stack
+            trace and a game and turn identifier.
+          </dd>
+
+          <dt>Audit events</dt>
+          <dd>
+            Sign-ins, account changes, moderation actions, suspensions. These outlive
+            a deleted account in anonymised form, so an abuse history cannot be
+            cleared by making a new account.
+          </dd>
+
+          <dt>Product analytics, if it is switched on</dt>
+          <dd>
+            Which parts of the service people actually use. Whether this runs at
+            launch, and which product it would use, is not settled yet.
+          </dd>
+        </dl>
+        <p>
+          Anything you write to me (support email, a bug report, an appeal) I keep as
+          well, so I can handle it and refer back to it. If a feature ever needs a
+          category that is not on this page, the page changes before the feature
+          ships.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="ads-title">
+      <div class="container container-narrow stack">
+        <h2 id="ads-title">Ads, and the consent step for EU and UK visitors</h2>
+        <p>
+          Galaxies is ad-supported. Ads appear on this marketing site, the game
+          browser and lobby, profile pages, and the game-over summary. They never
+          appear in an active game (the map, your orders, combat), never on an error
+          page, never on the account-deletion flow, and they never autoplay audio.
+        </p>
+        <p>
+          Ads come from a third-party ad network, and like every ad network it sets
+          its own cookies and device identifiers to count impressions and, if you
+          allow it, to personalise what you see. That data goes to the ad network on
+          its own terms, not to me. I do not hand it your email, your display name,
+          or anything about your games.
+        </p>
+        <p>
+          If you are in the EU, the UK, the EEA, or Switzerland, you get asked before
+          any personalised advertising happens. The consent platform that does the
+          asking is not wired up yet, and until it is, no ad script runs at all.
+          When it ships it will ask you first, record your answer, and let you say no
+          and keep playing (you will simply see less relevant ads).
+        </p>
+        <p>
+          The control that reopens that choice and changes it later comes with the
+          consent platform, so it is not on this site today. There is no privacy
+          settings link in the footer yet, and I would rather say that than point you
+          at a link that does not exist. Until it is live, email
+          <a href="mailto:coop@farehard.com">coop@farehard.com</a> and I will handle
+          it by hand.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="never-title">
+      <div class="container container-narrow stack">
+        <h2 id="never-title">What I never do</h2>
+        <ul class="plain-list">
+          <li>I do not sell or rent your email address, your identity, or your game data.</li>
+          <li>I never pass your account details to a data broker, and I do not run a data-broker relationship of any kind.</li>
+          <li>I never read your private orders for any purpose other than generating the turn you asked for.</li>
+          <li>I never use your data to build a profile of you for anyone outside the game.</li>
+        </ul>
+        <aside class="callout callout-note" role="note">
+          <p class="callout-label">Note</p>
+          <p>
+            The ad network is a separate company with its own privacy terms. I can
+            tell you truthfully what I do not do; I cannot promise you what a third
+            party does inside its own systems, so I will not pretend otherwise.
+          </p>
+          <p>
+            One honest wrinkle on that first line. Serving ads means the ad network
+            receives ad-serving signals under whatever consent choice you make.
+            Whether that counts as a "sale" or a "share" under some US state privacy
+            laws is a question I have put to a lawyer and have not had answered yet.
+            I would rather flag it than write "never sell" in bold and hope nobody
+            checks the definition.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="export-title">
+      <div class="container container-narrow stack">
+        <h2 id="export-title">Getting your data out</h2>
+        <p>
+          The self-serve export button is not built yet. When it lands, you will be
+          able to request an export bundle (a data subject access request, if you
+          want the formal name for it) from your account settings, and it will be
+          assembled for you to download as a machine-readable archive.
+        </p>
+        <p>
+          Until then, email <a href="mailto:coop@farehard.com">coop@farehard.com</a>
+          and ask for your data. I put the bundle together by hand and send you a
+          link. It is slower than a button, and it is a real answer rather than a
+          promised one.
+        </p>
+        <p>
+          Either way the bundle contains your account record, your game membership,
+          your saved orders and turn files for games you are in, and any messages you
+          sent through the game. Ask for it as often as you need it; there is no
+          charge and no form to argue with.
+        </p>
+        <p>
+          Two limits worth knowing before you ask. While a game is still running you
+          get the current turn's intel view rather than every historical turn,
+          because per-empire intel is regenerated every turn and the full history is
+          large; once the game finishes you can export the whole run for your empire.
+          And the bundle is yours only. Your intel contains what your empire has seen
+          of other empires, and that comes with it, but I will not hand over another
+          player's orders, their account details, or their messages to somebody else.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="delete-title">
+      <div class="container container-narrow stack">
+        <h2 id="delete-title">Deleting your account</h2>
+        <p>
+          Deletion will be self-serve. It is not yet, so today it runs through email:
+          write to <a href="mailto:coop@farehard.com">coop@farehard.com</a> and say
+          you want your account deleted. You do not have to explain yourself, and you
+          will not be talked out of it. You will have to wait on a reply, because one
+          person reads that mailbox.
+        </p>
+        <p>
+          Here is the honest part, because it matters and most services skip it.
+          Deleting your account does not corrupt other players' live games. A game
+          running for weeks cannot survive an empire being cut out of history, so
+          your account record and your identity go, and your empires stay in play in
+          one of two ways: anonymised, so the empire keeps running under a neutral
+          name with nothing tying it to you, or handed to an AI seat that finishes
+          out the game.
+        </p>
+        <p>
+          What other players already saw stays where it is. Turn reports, battle
+          logs, and messages you sent to other empires live in their game history
+          too, and I cannot reach into their copies to unsay things. Your name comes
+          off; the events of the game remain the events of the game.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="limits-title">
+      <div class="container container-narrow stack">
+        <h2 id="limits-title">What this note is not</h2>
+        <p>
+          This is a summary, written to be read by a player in three minutes. It is
+          not the full policy, and calling it one would be a lie.
+        </p>
+        <p>
+          The full privacy policy is written, and it is the document that governs.
+          Where this page and the full policy disagree, the full policy wins. It goes
+          into the detail a summary cannot carry: the legal basis for each use under
+          GDPR and the UK GDPR, every third party by name with what it receives and
+          what role it plays, retention schedules in actual days, the security posture
+          in specifics, where the data is processed and on what transfer mechanism,
+          and the minimum age of 16 and how it is handled.
+        </p>
+        <p>
+          It is not published on this site yet, for a boring and honest reason: it is
+          a draft, it has not been through a lawyer, and it says so at the top. I am
+          not going to put an unreviewed legal document up as though it were in force.
+          It gets published here when counsel has been through it, before sign-ups
+          open. Until then, ask me anything on it at
+          <a href="mailto:coop@farehard.com">coop@farehard.com</a> and you will get
+          the real answer.
+        </p>
+        <p>Genuinely undecided, as of today:</p>
+        <ul class="plain-list">
+          <li>Whether the ad network's behaviour counts as a "sale" or a "share" under the CCPA and CPRA, and whether this site therefore needs a "Do Not Sell or Share My Personal Information" link. This one is with a lawyer.</li>
+          <li>Whether a data protection officer, an EU representative, or a UK representative is required. None is appointed today.</li>
+          <li>Which Google Cloud region the service runs in, which decides the transfer story.</li>
+          <li>Which transactional email provider sends the deadline reminders.</li>
+          <li>Whether product analytics is switched on at launch, and which product it would be.</li>
+          <li>How long backups hold a deleted account before they roll over. There is a backup cycle; the exact window is not pinned down.</li>
+        </ul>
+        <p>
+          Those get answered as they become real rather than promised in advance. If
+          you need an answer that is not on this page, ask, and you will get the true
+          answer including "not decided yet".
+        </p>
+        <p>
+          Questions about your data go to
+          <a href="mailto:coop@farehard.com">coop@farehard.com</a>.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <!--
+      The fixed Farehard dedication appears exactly once per property. It lives in
+      the footer of the landing page (index.html). It is deliberately not repeated
+      on this page, and must not be added here.
+    -->
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <p class="eyebrow">galaxies</p>
+          <p>
+            An async, turn-based 4X. Everyone plans in secret, the galaxy resolves
+            all at once, then you wait for the next deadline.
+          </p>
+        </div>
+        <nav class="footer-col" aria-label="Site pages">
+          <p class="eyebrow">pages</p>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="support.html">Support</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="status.html">Status</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-col" aria-label="Support this project">
+          <p class="eyebrow">support</p>
+          <ul>
+            <li><a href="https://github.com/sponsors/Dr-Awkward" rel="external noopener">Sponsor on GitHub</a></li>
+            <li><a href="https://cash.app/$onassis" rel="external noopener">Cash App</a></li>
+          </ul>
+        </nav>
+      </div>
+      <p class="footer-credit">
+        Galaxies is built on the Stars! Nova engine. Stars! Nova is an independent
+        clean-room reimplementation released under the GNU General Public License
+        version 2; it is not built from the original Stars! source, which was never
+        open source. Thanks to Jeff Johnson and Jeff McBride, who made Stars!, and
+        to everyone who has worked on Stars! Nova since.
+      </p>
+      <p class="footer-legal">
+        A Farehard project. Licensed under the GPL version 2, same as the engine it
+        stands on.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

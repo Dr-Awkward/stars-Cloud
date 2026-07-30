@@ -2,6 +2,7 @@
 // ============================================================================
 // Copyright (C) 2008 Ken Reed
 // Copyright (C) 2009, 2010 stars-nova
+// Copyright (C) 2026 Farehard (headless port).
 //
 // This file is part of Stars-Nova.
 // See <http://sourceforge.net/projects/stars-nova/>.
@@ -22,83 +23,95 @@
 
 #region Module Description
 // ===========================================================================
-// Some error reporting utilities.
+// Error reporting. The desktop game popped a MessageBox for every message,
+// which cannot exist headless. Messages now go to an IReporter sink: the cloud
+// host installs a logging sink writing to Cloud Logging, and a desktop client
+// installs a dialog sink. Common itself pops nothing and depends on no UI.
+//
+// The static Report facade is kept so the many existing Report.* call sites are
+// unchanged (design Section A.2, M0.md step 4).
 // ===========================================================================
 #endregion
 
 using System;
 using System.Diagnostics;
-using System.Windows.Forms;
 
 namespace Nova.Common
 {
     /// <summary>
-    /// Provides a variety of message pop ups.
+    /// A destination for engine messages. Set one on <see cref="Report.Sink"/>
+    /// at startup. The headless host writes these to structured logs; a desktop
+    /// client raises dialogs.
+    /// </summary>
+    public interface IReporter
+    {
+        void Error(string text);
+        void Information(string text);
+        void FatalError(string text);
+        void Debug(string text);
+    }
+
+    /// <summary>
+    /// Raised by <see cref="Report.FatalError"/> in place of the old
+    /// Thread.Abort (which throws PlatformNotSupportedException on modern .NET).
+    /// The host turns this into a failed turn generation; it never tears the
+    /// process down.
+    /// </summary>
+    public class NovaFatalException : Exception
+    {
+        public NovaFatalException(string message) : base(message) { }
+        public NovaFatalException(string message, Exception inner) : base(message, inner) { }
+    }
+
+    /// <summary>
+    /// The default sink, used until a host installs its own. Writes to standard
+    /// error so nothing is lost when the engine runs with no configured logger.
+    /// </summary>
+    public sealed class ConsoleReporter : IReporter
+    {
+        public void Error(string text) { Console.Error.WriteLine("Nova error: " + text); }
+        public void Information(string text) { Console.Error.WriteLine("Nova: " + text); }
+        public void FatalError(string text) { Console.Error.WriteLine("Nova fatal: " + text); }
+        public void Debug(string text) { Console.Error.WriteLine("Nova debug: " + text); }
+    }
+
+    /// <summary>
+    /// A static facade over the message sink, so the many existing Report.* call
+    /// sites are unchanged.
     /// </summary>
     public static class Report
     {
-        /// <summary>
-        /// Report an error.
-        /// </summary>
-        /// <param name="text">Message to display.</param>
+        /// <summary>Where messages go. Replace at startup to redirect output.</summary>
+        public static IReporter Sink { get; set; } = new ConsoleReporter();
+
+        /// <summary>Report a non-fatal error.</summary>
         public static void Error(string text)
         {
-            MessageBox.Show(
-                "Nova has encountered an error, but will continue anyway." + Environment.NewLine + "Details: " + text,
-                "Nova - Error ",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error,
-                MessageBoxDefaultButton.Button1,
-                MessageBoxOptions.DefaultDesktopOnly);
+            Sink.Error(text);
         }
 
-
-        /// <summary>
-        /// Raise a dialog to report an information message.
-        /// </summary>
-        /// <param name="text">Message to display.</param>
+        /// <summary>Report an informational message.</summary>
         public static void Information(string text)
         {
-            MessageBox.Show(
-                text,
-                "Nova - Information",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information,
-                MessageBoxDefaultButton.Button1,
-                MessageBoxOptions.DefaultDesktopOnly);
+            Sink.Information(text);
         }
 
         /// <summary>
-        /// Report a fatal error and terminate the application.
+        /// Report a fatal error and abandon the current operation. This always
+        /// throws, preserving the old "does not return" behaviour of the
+        /// Thread.Abort it replaces, whatever the sink chooses to do.
         /// </summary>
-        /// <param name="text">Message to display.</param>
         public static void FatalError(string text)
         {
-            MessageBox.Show(
-                text + "\r\n\r\n(This error will terminate the program)",
-                "Nova - Fatal Error",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Stop,
-                MessageBoxDefaultButton.Button1,
-                MessageBoxOptions.DefaultDesktopOnly);
-
-            System.Threading.Thread.CurrentThread.Abort();
+            Sink.FatalError(text);
+            throw new NovaFatalException(text);
         }
 
-        /// <summary>
-        /// Report Debug Messages if in debugging mode. Otherwise do nothing.
-        /// </summary>
-        /// <param name="text">Message to display.</param>
+        /// <summary>Report a debug message. Compiled out of release builds.</summary>
         [Conditional("DEBUG")]
         public static void Debug(string text)
         {
-            MessageBox.Show(
-                text,
-                "Nova - Debug",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information,
-                MessageBoxDefaultButton.Button1,
-                MessageBoxOptions.DefaultDesktopOnly);
+            Sink.Debug(text);
         }
     }
 }

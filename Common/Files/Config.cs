@@ -25,9 +25,8 @@ namespace Nova.Common
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Windows.Forms;
     using System.Xml.Schema;
-    using System.Xml.Serialization; 
+    using System.Xml.Serialization;
 
     /// <summary>
     /// Class to manage the application configuration settings. 
@@ -116,19 +115,9 @@ namespace Nova.Common
 
             if (fileName == null)
             {
-                // TODO (priority 5) add the nicities. Update the config files location.
-                SaveFileDialog fd = new SaveFileDialog();
-                fd.Title = "Choose a location to save the nova.config file.";
-
-                DialogResult result = fd.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    fileName = fd.FileName;
-                }
-                else
-                {
-                    throw new System.IO.IOException("File dialog cancelled.");
-                }
+                // Headless: there is no dialog to choose a location. The host
+                // supplies content paths through configuration (design A.2).
+                throw new System.IO.IOException("No nova.config location is available in headless mode.");
             }
 
             bool waitForFile = false;

@@ -94,7 +94,7 @@ namespace Nova.Tests.IntegrationTests
             }
             catch (Exception e)
             {
-                System.Windows.Forms.MessageBox.Show("Intel.cs SerialisationTestEmptyIntel() failed:" + Environment.NewLine + e.Message + Environment.NewLine + stringStream.ToString());
+                System.Console.WriteLine("Intel.cs SerialisationTestEmptyIntel() failed:" + Environment.NewLine + e.Message + Environment.NewLine + stringStream.ToString());
                 throw e; // fail the test
             }
         }
@@ -176,7 +176,7 @@ namespace Nova.Tests.IntegrationTests
             }
             catch (Exception e)
             {
-                System.Windows.Forms.MessageBox.Show("Intel.cs SerialisationTestIntel() failed:" + Environment.NewLine + e.Message + Environment.NewLine + stringStream.ToString());
+                System.Console.WriteLine("Intel.cs SerialisationTestIntel() failed:" + Environment.NewLine + e.Message + Environment.NewLine + stringStream.ToString());
                 throw e; // fail the test
             }
         }

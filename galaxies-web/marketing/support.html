@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Support Galaxies</title>
+  <meta name="description" content="Galaxies is free and ad-supported. Donations cover servers, storage, and the domain, and they buy no in-game advantage of any kind.">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/site.css">
+  <style>
+    /* Page-scoped only. Everything structural comes from tokens.css and site.css. */
+    .donate-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+    }
+    .cost-list { margin: 0; }
+    .cost-list dt {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: var(--space-5);
+    }
+    .cost-list dt:first-child { margin-top: 0; }
+    .cost-list dd {
+      margin: var(--space-2) 0 0;
+      max-width: var(--measure);
+    }
+    .plain-list {
+      padding-left: var(--space-5);
+      max-width: var(--measure);
+    }
+    .plain-list li { margin-bottom: var(--space-3); }
+    .plain-list li:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="container site-header-inner">
+      <a class="brand" href="index.html">
+        <span class="lamplight" aria-hidden="true"></span>
+        <span class="brand-name">Galaxies</span>
+      </a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="support.html" aria-current="page">Support</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="status.html">Status</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <section class="section" aria-labelledby="page-title">
+      <div class="container container-narrow stack">
+        <p class="eyebrow">keep the lights on</p>
+        <h1 id="page-title">The ads keep the servers on. Donations let me care less about the ads.</h1>
+        <p class="lede">
+          Galaxies is free and always will be. If it earns a place in your week, you
+          can chip in. If not, play anyway.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="where-title">
+      <div class="container container-narrow stack">
+        <h2 id="where-title">Where the money actually goes</h2>
+        <p>
+          This is the whole list. There is no office, no salary, and no investor
+          waiting to be paid back.
+        </p>
+        <dl class="cost-list">
+          <dt>Servers</dt>
+          <dd>
+            The machines that hold the galaxy and run turn generation every
+            deadline. Most of the time they idle cheaply; at the deadline they do a
+            hard burst of work for every active game at once, and that burst is the
+            expensive part.
+          </dd>
+
+          <dt>Storage</dt>
+          <dd>
+            Game files and every turn in a game's history. Every turn is written
+            once and never overwritten, which is the thing that would let a game be
+            rolled back. Off-project backups are on the list and are not built yet.
+            A game runs for in-game decades across real-life weeks, so the history
+            is not small and it does not get thrown away when the game ends.
+          </dd>
+
+          <dt>The domain and the boring bits</dt>
+          <dd>
+            Domain registration, certificates, and the mail that carries your turn
+            notifications so they land in the inbox instead of the spam folder.
+          </dd>
+        </dl>
+        <p>
+          Ads pay for most of that. They are standard ads, they run on this
+          marketing site, the game browser and lobby, profile pages, and the
+          game-over summary, and they never appear inside an active game. The map,
+          your orders, and combat are a permanent ad-free zone.
+        </p>
+        <p>
+          Donations are what let the ad load stay light instead of chasing every
+          last impression. That is the honest trade, and it is the only thing your
+          money buys.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="not-title">
+      <div class="container container-narrow stack">
+        <h2 id="not-title">What donating does not buy</h2>
+        <p>
+          Worth being blunt about, because plenty of free games are less blunt.
+        </p>
+        <ul class="plain-list">
+          <li>
+            <strong>No in-game advantage.</strong> Not a resource bonus, not a
+            faster hull, not a better home world, not a hidden setting. A donor and
+            a first-time player sit down to exactly the same rules. A 4X game where
+            money moves the numbers is not worth playing, and it is not what this
+            is.
+          </li>
+          <li>
+            <strong>No ad removal for you alone.</strong> There is no ad-free tier
+            and there will not be one. Either the ad placement is acceptable for
+            everybody or it gets cut for everybody.
+          </li>
+          <li>
+            <strong>No priority support.</strong> One person reads the mail. Your
+            message goes in the same queue as everyone else's, and it gets answered
+            when it gets answered.
+          </li>
+          <li>
+            <strong>No say you would not otherwise have.</strong> Bug reports and
+            design arguments are read on their merit. Sponsoring does not move you
+            up the roadmap.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" id="donate" aria-labelledby="donate-title">
+      <div class="container container-narrow stack">
+        <h2 id="donate-title">Two ways in, both of them outbound</h2>
+        <p>
+          Both links leave this site. Galaxies never takes a payment itself, never
+          stores a card, and never asks you for one. There is no subscription to
+          the game, no popup on your third visit, and nothing anywhere behind a
+          paywall.
+        </p>
+        <div class="donate-actions">
+          <a class="btn btn-accent tap-target"
+             href="https://github.com/sponsors/Dr-Awkward"
+             rel="external noopener">Sponsor on GitHub</a>
+          <a class="btn tap-target"
+             href="https://cash.app/$onassis"
+             rel="external noopener">Send a tip on Cash App</a>
+        </div>
+        <p>
+          GitHub Sponsors handles monthly or one-off support, and you can cancel it
+          there whenever you like; nothing here will remind you about it. Cash App
+          is the tip jar for people who do not have a GitHub account and do not want
+          one.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="other-title">
+      <div class="container container-narrow stack">
+        <h2 id="other-title">If money is tight, this is the honest alternative</h2>
+        <p>
+          It is a free game. Nobody is under any obligation, and a player who never
+          sends a cent is not a lesser player.
+        </p>
+        <ul class="plain-list">
+          <li>File a bug with the turn number and what you expected instead.</li>
+          <li>Finish your turns, so the six people waiting on the deadline are not waiting on you.</li>
+          <li>Tell one person who used to play Stars! that there is a game built on the Stars! Nova engine running again.</li>
+        </ul>
+        <aside class="callout callout-note" role="note">
+          <p class="callout-label">Note</p>
+          <p>
+            Support is invited once, here, and repeated in the footer. It will never
+            be a dialog over your game, an interstitial between turns, or a locked
+            feature.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <!--
+      The fixed Farehard dedication appears exactly once per property. It lives in
+      the footer of the landing page (index.html). It is deliberately not repeated
+      on this page, and must not be added here.
+    -->
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <p class="eyebrow">galaxies</p>
+          <p>
+            An async, turn-based 4X. Everyone plans in secret, the galaxy resolves
+            all at once, then you wait for the next deadline.
+          </p>
+        </div>
+        <nav class="footer-col" aria-label="Site pages">
+          <p class="eyebrow">pages</p>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="support.html">Support</a></li>
+            <li><a href="privacy.html">Privacy</a></li>
+            <li><a href="status.html">Status</a></li>
+          </ul>
+        </nav>
+        <nav class="footer-col" aria-label="Support this project">
+          <p class="eyebrow">support</p>
+          <ul>
+            <li><a href="https://github.com/sponsors/Dr-Awkward" rel="external noopener">Sponsor on GitHub</a></li>
+            <li><a href="https://cash.app/$onassis" rel="external noopener">Cash App</a></li>
+          </ul>
+        </nav>
+      </div>
+      <p class="footer-credit">
+        Galaxies is built on the Stars! Nova engine. Stars! Nova is an independent
+        clean-room reimplementation released under the GNU General Public License
+        version 2; it is not built from the original Stars! source, which was never
+        open source. Thanks to Jeff Johnson and Jeff McBride, who made Stars!, and
+        to everyone who has worked on Stars! Nova since.
+      </p>
+      <p class="footer-legal">
+        A Farehard project, built on the Stars! Nova engine, which is GPL v2.
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

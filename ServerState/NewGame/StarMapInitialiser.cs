@@ -182,7 +182,7 @@ namespace Nova.Server.NewGame
                     module.ComponentCount = 1;
                 }
             }
-            cs.Icon = new ShipIcon(colonyShipHull.ImageFile, (Bitmap)colonyShipHull.ComponentImage);
+            cs.Icon = new ShipIcon(colonyShipHull.ImageFile);
 
             cs.Type = ItemType.Ship;
             cs.Name = "Santa Maria";
@@ -203,7 +203,7 @@ namespace Nova.Server.NewGame
                     module.ComponentCount = 1;
                 }
             }
-            scout.Icon = new ShipIcon(scoutHull.ImageFile, (Bitmap)scoutHull.ComponentImage);
+            scout.Icon = new ShipIcon(scoutHull.ImageFile);
 
             scout.Type = ItemType.Ship;
             scout.Name = "Scout";
@@ -213,7 +213,7 @@ namespace Nova.Server.NewGame
             starbase.Name = "Starbase";
             starbase.Blueprint = starbaseHull;
             starbase.Type = ItemType.Starbase;
-            starbase.Icon = new ShipIcon(starbaseHull.ImageFile, (Bitmap)starbaseHull.ComponentImage);
+            starbase.Icon = new ShipIcon(starbaseHull.ImageFile);
             bool weaponSwitcher = false; // start with laser
             bool armorSwitcher = false; // start with armor
             foreach (HullModule module in starbase.Hull.Modules)

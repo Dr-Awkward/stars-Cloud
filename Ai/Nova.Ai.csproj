@@ -1,0 +1,61 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard.
+  Based on Stars! Nova (Copyright (C) 2008 Ken Reed; 2009-2012 The Stars-Nova
+  Project), used under the GNU General Public License version 2. This project is
+  likewise distributed under the GNU General Public License version 2; see
+  LICENSE.txt at the repository root.
+
+  The headless AI assembly (Galaxies M3, AI-PARTICIPANTS.md Section F.2 kind a).
+
+  The Stars! Nova AI lived inside the WinForms Nova.csproj, which dragged in
+  System.Windows.Forms and System.Drawing and could therefore never run in a
+  Linux container. This project is the M3 analogue of the M0 engine port: it
+  compiles the same AI sources headless against net10.0 and the ported
+  Nova.Common, with no UI reference anywhere.
+
+  The sources are LINKED from their original location rather than moved, matching
+  the M0 decision to cut the coupling in place and leave the files on disk for
+  the eventual GUI port. One copy of the source, compiled two ways.
+
+  Two files are deliberately not compiled here:
+    Nova\Ai\AiRunner.cs   the console entry point whose whole job was to take a
+                          <race>.lock file on a shared folder and read/write
+                          .intel and .orders. That is precisely the single-AI-at-
+                          a-time limitation the cloud model removes, so it stays
+                          behind with the desktop build.
+    Nova\Client\ClientData.cs  the WinForms client state (OpenFileDialog,
+                          SelectRaceDialog). Ai\ClientData.cs is the headless
+                          replacement, in the same Nova.Client namespace.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Nova.Ai</AssemblyName>
+    <RootNamespace>Nova.Ai</RootNamespace>
+    <!-- The linked AI sources are legacy engine code, not nullable annotated.
+         Match the Common and ServerState convention rather than papering over
+         hundreds of warnings. -->
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- The AI proper. These files depend only on Nova.Common plus the client
+       state type; none of them references Nova.Server. -->
+  <ItemGroup>
+    <Compile Include="..\Nova\Ai\AbstractAI.cs" Link="AbstractAI.cs" />
+    <Compile Include="..\Nova\Ai\DefaultAi.cs" Link="DefaultAi.cs" />
+    <Compile Include="..\Nova\Ai\DefaultAIPlanner.cs" Link="DefaultAIPlanner.cs" />
+    <Compile Include="..\Nova\Ai\DefaultFleetAI.cs" Link="DefaultFleetAI.cs" />
+    <Compile Include="..\Nova\Ai\DefaultPlanetAI.cs" Link="DefaultPlanetAI.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+
+</Project>

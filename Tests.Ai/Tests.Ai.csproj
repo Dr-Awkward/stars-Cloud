@@ -1,0 +1,44 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard. GPL v2; see LICENSE.txt at the repository root.
+
+  Tests for the M3 AI participant layer: the headless AI assembly, the open
+  participant contract, the empire_view transcoder, and the order mapper.
+
+  Separate from Nova.Tests because it references Nova.Ai and Galaxies.AiContract,
+  which the engine test project deliberately does not. Nullable is disabled to
+  match the engine convention, since the fixtures build legacy engine types.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Galaxies.Tests.Ai</AssemblyName>
+    <RootNamespace>Galaxies.Tests.Ai</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <!-- The component and tech database, copied beside the test assembly so the
+       headless component loader finds it with no dialog and no nova.conf. The
+       AI cannot design a ship without it. -->
+  <ItemGroup>
+    <None Include="..\components.xml" CopyToOutputDirectory="PreserveNewest" Link="components.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Ai\Nova.Ai.csproj" />
+    <ProjectReference Include="..\AiContract\Galaxies.AiContract.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -22,11 +22,12 @@
 
 namespace Nova.Server
 {
-    using System;    
+    using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
-    
+
     using Nova.Common;
     using Nova.Common.Commands;
     using Nova.Common.Components;
@@ -65,9 +66,12 @@ namespace Nova.Server
         /// </summary>
         public TurnGenerator(ServerData serverState)
         {
-            this.serverState = serverState;            
+            this.serverState = serverState;
             turnSteps = new SortedList<int, ITurnStep>();
-            rand = new Random();
+            // Determinism (design Section A.4): seed the main turn RNG from the
+            // game's master seed and the current (pre-increment) turn year, so a
+            // turn reproduces exactly. Was: new Random() (unseeded).
+            rand = NovaRandom.ForTurn(serverState.MasterSeed, serverState.TurnYear);
             
             // Now that there is a state, comopose the turn processor.
             // TODO ??? (priority 4): Use dependency injection for this? It would
@@ -167,7 +171,9 @@ namespace Nova.Server
         /// </summary>
         protected virtual void ParseCommands()
         {
-            foreach (EmpireData empire in serverState.AllEmpires.Values)
+            // Deterministic order (design Section A.4): apply each empire's commands
+            // in ascending empire-id order, not raw dictionary order.
+            foreach (EmpireData empire in serverState.AllEmpires.OrderBy(e => e.Key).Select(e => e.Value))
             {
                 if (serverState.AllCommands.ContainsKey(empire.Id))
                 {                
@@ -199,7 +205,7 @@ namespace Nova.Server
         protected virtual void CleanupOrders()
         {
             // Delete orders on turn generation.
-            // Copy each file into it’s new directory.
+            // Copy each file into itï¿½s new directory.
             DirectoryInfo source = new DirectoryInfo(serverState.GameFolder);
             foreach (FileInfo fi in source.GetFiles())
             {
@@ -232,7 +238,7 @@ namespace Nova.Server
                     Directory.CreateDirectory(target.FullName);
                 }
 
-                // Copy each file into it’s new directory.
+                // Copy each file into itï¿½s new directory.
                 foreach (FileInfo fi in source.GetFiles())
                 {
                     fi.CopyTo(Path.Combine(target.ToString(), fi.Name), true);

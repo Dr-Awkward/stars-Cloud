@@ -37,7 +37,7 @@ namespace Nova.Server
     /// </summary>
     public class BattleEngine
     {
-        private readonly Random random = new Random();
+        private readonly Random random;
         private readonly int movementPhasesPerRound = 3;
         private readonly int maxBattleRounds = 16;
         // The above table as a 2d lookup. Note round 8 moved to the first postion as we use battleRound % 8.
@@ -96,6 +96,9 @@ namespace Nova.Server
         {
             this.serverState = serverState;
             this.battle = battleReport;
+            // Determinism (design Section A.4): a battle stream derived from the
+            // game seed and turn year, distinct from other subsystems. Was: new Random().
+            this.random = NovaRandom.ForSubsystem(serverState.MasterSeed, serverState.TurnYear, "battle");
         }
 
         /// <summary>

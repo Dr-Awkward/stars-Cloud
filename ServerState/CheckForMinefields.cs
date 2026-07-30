@@ -34,12 +34,15 @@ namespace Nova.Server
     /// </summary>
     public class CheckForMinefields
     {
-        private readonly Random random = new Random();
+        private readonly Random random;
         private ServerData serverState;
-        
+
         public CheckForMinefields(ServerData serverState)
         {
             this.serverState = serverState;
+            // Determinism (design Section A.4): a minefield stream derived from the
+            // game seed and turn year, distinct from battles. Was: new Random().
+            this.random = NovaRandom.ForSubsystem(serverState.MasterSeed, serverState.TurnYear, "minefields");
         }
 
         /// <summary>

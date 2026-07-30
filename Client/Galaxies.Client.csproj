@@ -1,0 +1,29 @@
+<!--
+  Galaxies, a cloud port of Stars! Nova.
+  Copyright (C) 2026 Farehard. GPL v2; see LICENSE.txt.
+
+  The client transport seam (design Section E.4). The desktop game exchanged
+  .orders and .intel through a shared folder; the cloud client talks to
+  galaxies-api instead. ITurnTransport is that seam: the WinForms client's
+  IntelReader and OrderWriter are refactored to read/write through an
+  ITurnTransport, and HttpTurnTransport is the cloud implementation. This library
+  is net10.0 so it can be shared by the desktop client (once ported) and, later,
+  other first-party clients. It references only the shared engine contract.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>Galaxies.Client</AssemblyName>
+    <RootNamespace>Galaxies.Client</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+
+</Project>

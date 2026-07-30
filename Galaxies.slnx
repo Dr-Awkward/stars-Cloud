@@ -1,0 +1,35 @@
+<Solution>
+  <Folder Name="/Ai/">
+    <Project Path="Ai/Nova.Ai.csproj" />
+  </Folder>
+  <Folder Name="/AiContract/">
+    <Project Path="AiContract/Galaxies.AiContract.csproj" />
+  </Folder>
+  <Folder Name="/AiService/">
+    <Project Path="AiService/Galaxies.AiService.csproj" />
+  </Folder>
+  <Folder Name="/Api/">
+    <Project Path="Api/Galaxies.Api.csproj" />
+  </Folder>
+  <Folder Name="/Client/">
+    <Project Path="Client/Galaxies.Client.csproj" />
+  </Folder>
+  <Folder Name="/ControlPlane/">
+    <Project Path="ControlPlane/Galaxies.ControlPlane.csproj" />
+  </Folder>
+  <Folder Name="/Participants/" />
+  <Folder Name="/Participants/NovaDefault/">
+    <Project Path="Participants/NovaDefault/Galaxies.Participant.NovaDefault.csproj" />
+  </Folder>
+  <Folder Name="/ServerHost/">
+    <Project Path="ServerHost/Nova.Server.Host.csproj" />
+  </Folder>
+  <Folder Name="/ServerState/">
+    <Project Path="ServerState/Server.csproj" />
+  </Folder>
+  <Project Path="Common/Common.csproj" />
+  <Project Path="Tests.Ai/Tests.Ai.csproj" />
+  <Project Path="Tests.ControlPlane/Tests.ControlPlane.csproj" />
+  <Project Path="Tests.ServerHost/Tests.ServerHost.csproj" />
+  <Project Path="Tests/Tests.csproj" />
+</Solution>

@@ -28,13 +28,18 @@ namespace Nova.Tests.UnitTests
     [TestFixture]
     public class StarTest
     {
-        private Star star = new Star();
-        private Race race = new Race();
+        private Star star;
+        private Race race;
         private double habitalValue;
 
         [SetUp]
         public void Init()
         {
+            // Fresh instances per test. NUnit reuses one fixture instance for all
+            // tests in it, so field initializers run only once; without this reset
+            // these tests contaminate each other's star/race state.
+            star = new Star();
+            race = new Race();
             race.RadiationTolerance.Immune = false;
             race.TemperatureTolerance.Immune = false;
             race.GravityTolerance.Immune = false;
@@ -46,7 +51,7 @@ namespace Nova.Tests.UnitTests
         /// </summary>
         /// <returns>The amount of popluation added (may be negative).</returns>
         [Test]
-        public double NegativeHabPopGrowth()
+        public void NegativeHabPopGrowth()
         {
             // setup the star
             star.Colonists = 100000;
@@ -64,12 +69,11 @@ namespace Nova.Tests.UnitTests
             // check the growth
             Assert.AreEqual(-1500, growth);
 
-            return growth;
         }
 
         // Tests for population growth
         [Test]
-        public int LowPopGrowth()
+        public void LowPopGrowth()
         {
             // setup the star
             star.Colonists = 100000;
@@ -86,11 +90,10 @@ namespace Nova.Tests.UnitTests
             // check the growth
             Assert.AreEqual(10000, growth);
 
-            return growth;
         }
 
         [Test]
-        public int CrowdingPopGrowth()
+        public void CrowdingPopGrowth()
         {
             // setup the star
             star.Colonists = 500000;
@@ -108,11 +111,10 @@ namespace Nova.Tests.UnitTests
             // check the growth
             Assert.AreEqual(22200, growth);
 
-            return growth;
         }
 
         [Test]
-        public int MaxPopGrowth()
+        public void MaxPopGrowth()
         {
             // setup the star
             star.Colonists = 1000000;
@@ -130,11 +132,10 @@ namespace Nova.Tests.UnitTests
             // check the growth
             Assert.AreEqual(0, growth);
 
-            return growth;
         }
 
         [Test]
-        public int OvercrowdedPopGrowth()
+        public void OvercrowdedPopGrowth()
         {
             // setup the star
             star.Colonists = 1500000;
@@ -152,11 +153,10 @@ namespace Nova.Tests.UnitTests
             // check the growth
             Assert.AreEqual(-30000, growth);
 
-            return growth;
         }
 
         [Test]
-        public int VeryOvercrowdedPopGrowth()
+        public void VeryOvercrowdedPopGrowth()
         {
             // setup the star
             star.Colonists = 5000000;
@@ -174,7 +174,6 @@ namespace Nova.Tests.UnitTests
             // check the growth
             Assert.AreEqual(-600000, growth);
 
-            return growth;
         }
 
         [Test]

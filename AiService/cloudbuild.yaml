@@ -1,0 +1,148 @@
+# galaxies-ai build and deploy (spec Section 14).
+#
+# Builds the runner image, pushes it to the pinned registry, and deploys it to
+# Cloud Run with ingress=internal and no unauthenticated access. Invocation is
+# gated by IAM: Cloud Tasks and Pub/Sub call in with OIDC identity tokens minted
+# for their own service accounts and accepted only for this service's audience.
+#
+# EVERY _*_ENABLED SUBSTITUTION DEFAULTS TO FALSE. A build run with no
+# substitutions ships the service completely dark: dispatch records held, submits
+# nothing, and every AI seat runs on held orders while turns still generate on
+# schedule. Arming a feature is something you have to say out loud.
+#
+# Run it by hand from the repository root:
+#   gcloud builds submit . --config=AiService/cloudbuild.yaml
+
+substitutions:
+  # ---- The three switches. All false. All ship dark. -----------------------
+  _GALAXIES_AI_ENABLED: "false"
+  _AI_DISPATCH_ENABLED: "false"
+  _AI_TAKEOVER_ENABLED: "false"
+
+  # ---- Configuration. Not switches, so "false" means nothing to them; empty
+  # ---- is their off state and the guard step below refuses a flip that leaves
+  # ---- a required value empty.
+  _REGION: "us-central1"
+  _SERVICE: "galaxies-ai"
+  _RUNTIME_SA: "galaxies-ai-sa@roybot.iam.gserviceaccount.com"
+  _GALAXIES_API_URL: ""
+  _GALAXIES_TURNGEN_URL: ""
+  _GALAXIES_AI_URL: ""
+  _DEFAULT_PARTICIPANT_URL: ""
+  _INTEL_BUCKET: "roybot-galaxies-intel"
+  _ORDERS_BUCKET: "roybot-galaxies-orders"
+  _STATE_BUCKET: "roybot-galaxies-state"
+  _TASKS_QUEUE: "galaxies-deadlines"
+  _CONTRACT_VERSION: "1.0"
+  _DEFAULT_TIMEOUT_S: "60"
+  _DISPATCH_RETRY: "1"
+  _MAX_ORDERS_PER_TURN: "2000"
+  _AI_DISPATCH_LEAD_S: "3600"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE
+
+timeout: 1800s
+
+images:
+  - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-ai:$SHORT_SHA"
+  - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-ai:latest"
+
+steps:
+  # ---------------------------------------------------------------------------
+  # 1. Refuse a build that would arm a half-configured flip.
+  #
+  # A switch that is on with an empty value behind it is worse than a switch that
+  # is off, because it looks live and is not. Fail here, loudly, where a human is
+  # watching, rather than at 3am when a seat silently stops submitting.
+  # ---------------------------------------------------------------------------
+  - id: guard
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        fail() { echo "REFUSING: $$1" >&2; exit 1; }
+
+        if [ "${_AI_DISPATCH_ENABLED}" = "true" ]; then
+          [ "${_GALAXIES_AI_ENABLED}" = "true" ] \
+            || fail "_AI_DISPATCH_ENABLED needs _GALAXIES_AI_ENABLED=true."
+          [ -n "${_GALAXIES_API_URL}" ] \
+            || fail "_AI_DISPATCH_ENABLED needs _GALAXIES_API_URL; without it no seat can submit."
+          [ -n "${_GALAXIES_AI_URL}" ] \
+            || fail "_AI_DISPATCH_ENABLED needs _GALAXIES_AI_URL; Cloud Tasks has nowhere to call."
+          [ -n "${_DEFAULT_PARTICIPANT_URL}" ] \
+            || fail "_AI_DISPATCH_ENABLED needs _DEFAULT_PARTICIPANT_URL; there is no AI to ask."
+        fi
+
+        if [ "${_AI_TAKEOVER_ENABLED}" = "true" ] && [ "${_AI_DISPATCH_ENABLED}" != "true" ]; then
+          fail "_AI_TAKEOVER_ENABLED without _AI_DISPATCH_ENABLED would flip seats to an AI that never runs."
+        fi
+
+        echo "Flag configuration is coherent."
+
+  # ---------------------------------------------------------------------------
+  # 2. Build. Context is the repository root; the Dockerfile copies only what the
+  #    runner needs, and deliberately not ServerState.
+  # ---------------------------------------------------------------------------
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - AiService/Dockerfile
+      - -t
+      - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-ai:$SHORT_SHA"
+      - -t
+      - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-ai:latest"
+      - .
+
+  # ---------------------------------------------------------------------------
+  # 3. Deploy. ingress=internal and no unauthenticated access: this service can
+  #    submit orders into live games and must never be reachable from the public
+  #    internet.
+  # ---------------------------------------------------------------------------
+  - id: deploy
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        gcloud run deploy "${_SERVICE}" \
+          --image="us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-ai:$SHORT_SHA" \
+          --region="${_REGION}" \
+          --platform=managed \
+          --ingress=internal \
+          --no-allow-unauthenticated \
+          --service-account="${_RUNTIME_SA}" \
+          --port=8082 \
+          --min-instances=0 \
+          --max-instances=20 \
+          --cpu-boost \
+          --concurrency=20 \
+          --timeout=300 \
+          --set-env-vars="^@^GOOGLE_CLOUD_PROJECT=$PROJECT_ID@GALAXIES_REGION=${_REGION}@GALAXIES_API_URL=${_GALAXIES_API_URL}@GALAXIES_TURNGEN_URL=${_GALAXIES_TURNGEN_URL}@GALAXIES_AI_URL=${_GALAXIES_AI_URL}@DEFAULT_PARTICIPANT_URL=${_DEFAULT_PARTICIPANT_URL}@INTEL_BUCKET=${_INTEL_BUCKET}@ORDERS_BUCKET=${_ORDERS_BUCKET}@STATE_BUCKET=${_STATE_BUCKET}@TASKS_QUEUE=${_TASKS_QUEUE}@CONTRACT_VERSION=${_CONTRACT_VERSION}@DEFAULT_TIMEOUT_S=${_DEFAULT_TIMEOUT_S}@DISPATCH_RETRY=${_DISPATCH_RETRY}@MAX_ORDERS_PER_TURN=${_MAX_ORDERS_PER_TURN}@AI_DISPATCH_LEAD_S=${_AI_DISPATCH_LEAD_S}@GALAXIES_INVOKER_SA=${_RUNTIME_SA}@GALAXIES_AI_ENABLED=${_GALAXIES_AI_ENABLED}@AI_DISPATCH_ENABLED=${_AI_DISPATCH_ENABLED}@AI_TAKEOVER_ENABLED=${_AI_TAKEOVER_ENABLED}"
+
+  # ---------------------------------------------------------------------------
+  # 4. Prove the flags actually landed on the revision.
+  #
+  # A substitution with no matching --set-env-vars entry is a silent no-op, and a
+  # silent no-op on a feature flag is how a service ends up believing it is dark
+  # while it is live. Print what the revision really has.
+  # ---------------------------------------------------------------------------
+  - id: verify
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        echo "Environment on the deployed revision:"
+        gcloud run services describe "${_SERVICE}" --region="${_REGION}" \
+          --format='value(spec.template.spec.containers[0].env)' | tr ',' '\n' | grep -E 'ENABLED|URL|BUCKET' || true

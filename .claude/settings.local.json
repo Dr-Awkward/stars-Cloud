@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"/tmp/claude-1000/-mnt-c-users-thebl-onedrive-documents-github-stars-Cloud/50f6dc52-787a-4629-9101-e4091d47fafb/scratchpad/skill\")",
+      "Bash(unzip -o \"farehard-design \\(1\\).skill\" -d \"/tmp/claude-1000/-mnt-c-users-thebl-onedrive-documents-github-stars-Cloud/50f6dc52-787a-4629-9101-e4091d47fafb/scratchpad/skill\")"
+    ]
+  }
+}

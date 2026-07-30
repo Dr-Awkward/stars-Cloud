@@ -28,41 +28,19 @@
 #endregion
 
 using System;
-using System.Drawing;
 using System.Xml;
 
 namespace Nova.Common
 {
     /// <summary>
-    /// A race's icon image.
+    /// A race's icon, identified by the image file path (Source). The live Bitmap
+    /// for display is loaded by the client presentation layer from Source (design
+    /// Section A.2). Headless Common carries no System.Drawing.
     /// </summary>
     [Serializable]
     public class RaceIcon : ICloneable
     {
         public string Source = string.Empty;
-        private Bitmap image; 
-        public Bitmap Image
-        {
-            get
-            {
-                if (image == null)
-                {
-                    // atempt to retrieve image
-                    try
-                    {
-                        // image = new Bitmap(Source); // Never works currently so commenting!
-                    }
-                    catch
-                    {
-                    }
-                }
-                return image;
-            }
-            set
-            {
-                image = value;
-            }
-        }
 
         #region Construction
 
@@ -77,11 +55,9 @@ namespace Nova.Common
         /// initializing constructor.
         /// </summary>
         /// <param name="source">The path and file name to the icon.</param>
-        /// <param name="image">The loaded image.</param>
-        public RaceIcon(string source, Bitmap image)
+        public RaceIcon(string source)
         {
             Source = source;
-            Image = image;
         }
 
         #endregion
@@ -140,7 +116,7 @@ namespace Nova.Common
         /// </summary>
         public object Clone()
         {
-            RaceIcon clone = new RaceIcon(Source, Image);
+            RaceIcon clone = new RaceIcon(Source);
             return clone as object;
         }
 

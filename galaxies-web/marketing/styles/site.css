@@ -1,0 +1,1189 @@
+/* ===========================================================================
+   Galaxies, marketing site layer.
+
+   This file sits on top of tokens.css and nothing else. Load them in order:
+
+     <link rel="stylesheet" href="/styles/tokens.css">
+     <link rel="stylesheet" href="/styles/site.css">
+
+   tokens.css owns the palette, the type scale, the spacing scale, the focus
+   ring, .visually-hidden, .skip-link, .eyebrow, .btn, .callout, .card,
+   .container, .section, and .lamplight. This file owns the page: the sticky
+   nav, the hero, section rhythm, the card grid, the turn sequence, the support
+   block, the ad slots, and the footer.
+
+   Two rules held hard in here:
+     ... no raw hex, ever. Every color comes from a semantic token, or from
+         color-mix over one. That is what lets a retheme skip this file.
+     ... nothing added here overrides the light and dark mappings in tokens.css.
+         Both themes come out of the same rules, because the rules only name
+         semantic tokens.
+
+   Ads, since this is an ad supported site: the reserved slot lives here (see
+   section 10). The active game view (map, orders, combat) is a permanent ad
+   free zone, so no ad rule in this file is meant to travel into the app shell.
+=========================================================================== */
+
+/* ---- 1. Site layout variables --------------------------------------------
+   Layout only. No color enters here; color stays in tokens.css so the theme
+   mappings keep working untouched. */
+:root {
+  --nav-height: 3.75rem;          /* the sticky bar, measured, not guessed */
+  --hero-min: 78svh;              /* tall enough to breathe, short enough to scroll */
+  --rule-thin: 1px;
+  --lit-path: 2px;                /* the width of the lit path between steps */
+  --ad-reserve-narrow: 250px;     /* 300 by 250, the phone slot */
+  --ad-reserve-wide: 90px;        /* 728 by 90, the desktop slot */
+}
+
+/* Anchored navigation needs the browser to stop scrolling short of the sticky
+   bar, otherwise every jump link buries its own heading. */
+html {
+  scroll-padding-top: calc(var(--nav-height) + var(--space-4));
+  scroll-behavior: smooth;
+}
+
+/* tokens.css already forces scroll-behavior back to auto under reduced motion.
+   This is here so the intent is readable at this layer too. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  /* A single quiet wash of the carried light behind the top of the page. It is
+     built from the accent token, so it follows the theme without a hex value
+     anywhere near it. */
+  background-image:
+    radial-gradient(
+      60rem 32rem at 50% -12rem,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 70%
+    );
+  background-repeat: no-repeat;
+}
+
+/* =========================================================================
+   2. ACCESSIBILITY UTILITIES (site layer)
+
+   tokens.css ships .visually-hidden and .skip-link already. This block adds
+   the two things a marketing page still needs: a focusable variant of the
+   hidden utility, and a skip link that clears the sticky bar.
+========================================================================= */
+
+/* Hidden until focused. Use it for a control that should stay out of the way
+   visually but must announce itself when a keyboard reaches it. */
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Skip to content. First focusable thing on the page, jumps to <main>. The
+   sticky nav sits at z-index 50, so this has to outrank it. */
+.skip-link {
+  z-index: 200;
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-2);
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: var(--space-3);
+}
+
+/* <main tabindex="-1"> receives focus after the skip link. Programmatic focus
+   should not paint a ring, but a real keyboard visit should. The id selector is
+   here because the pages ship <main id="main"> with no class on it. */
+.site-main:focus,
+main#main:focus { outline: none; }
+.site-main:focus-visible,
+main#main:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
+}
+
+/* Every interactive thing this file introduces keeps the house ring. The base
+   rule in tokens.css covers a, button, input, select, textarea, summary and
+   [tabindex]; these are the site specific cases where a wrapper or a custom
+   element could otherwise lose it.
+
+   Both vocabularies are listed on purpose. The markup ships .brand and
+   .site-nav; .nav-brand and .nav-link are kept as aliases so a later markup
+   rename cannot silently drop the ring. */
+nav.site-nav a:focus-visible,
+.nav-link:focus-visible,
+.brand:focus-visible,
+.nav-brand:focus-visible,
+.footer-nav a:focus-visible,
+.footer-col a:focus-visible,
+.link-list a:focus-visible,
+.donate-actions > a:focus-visible,
+.support-actions > a:focus-visible,
+.step a:focus-visible,
+.turn-step a:focus-visible,
+.depth-item a:focus-visible,
+.depth-card a:focus-visible,
+.theme-toggle:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-1);
+}
+
+/* =========================================================================
+   3. THE STICKY ANCHORED NAV
+
+   One bar, always reachable, never taller than it needs to be. It marks the
+   current section with weight plus an underline plus aria-current, never with
+   color on its own.
+
+   Whatever it is called, the element that sticks is the <header>, never the
+   <nav> inside it. Sticking the inner nav pins the links to the viewport while
+   the brand scrolls away underneath them, so the whole bar sticks as one.
+
+   Two header shapes are in the tree, and .site-nav unfortunately means a
+   different element in each:
+
+     index.html            <header class="site-nav">
+                             <div class="container">
+                               <a class="nav-brand"> ... </a>
+                               <nav><ul class="nav-links"> ... </ul></nav>
+
+     privacy/status/support  <header class="site-header">
+                               <div class="container site-header-inner">
+                                 <a class="brand"> ... </a>
+                                 <nav class="site-nav"><ul> ... </ul></nav>
+
+   So every selector below is element-qualified: header.site-nav is the sticky
+   bar, nav.site-nav is the link group inside one. A bare .site-nav is never
+   used, because it would put position: sticky on the inner nav of three pages
+   and hand the brand's own anchor the muted link treatment on the fourth. */
+.site-header,
+header.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  min-height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  border-bottom: var(--rule-thin) solid transparent;
+  background: var(--bg);
+  transition: border-color var(--motion) var(--ease),
+              background var(--motion) var(--ease);
+}
+
+/* Translucency only where the browser can actually blur behind it. Without
+   backdrop-filter the bar stays fully opaque, which is the readable fallback. */
+@supports (backdrop-filter: blur(10px)) {
+  .site-header,
+  header.site-nav {
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(10px) saturate(120%);
+  }
+}
+
+/* Set data-scrolled="true" on the header once the page has moved. The border is
+   the only change, so nothing under it shifts. */
+.site-header[data-scrolled="true"],
+header.site-nav[data-scrolled="true"] {
+  border-bottom-color: var(--border);
+  box-shadow: var(--shadow-1);
+}
+
+/* The row inside the bar. Named .site-header-inner on three pages and left as a
+   bare .container on index, so both are matched. */
+.site-header-inner,
+header.site-nav > .container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  width: 100%;
+}
+
+/* The inner nav is a plain flex child. It does not stick; its header does. */
+nav.site-nav {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.brand,
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  font-size: var(--text-lg);
+  letter-spacing: var(--tracking-tight);
+  color: var(--text);
+  text-decoration: none;
+  margin-inline-end: auto;
+}
+.brand:hover,
+.nav-brand:hover { color: var(--text); }
+
+/* The brand carries one lamplight. It is decorative (aria-hidden in the
+   markup), so the word "Galaxies" is still doing all the work. */
+.brand .lamplight,
+.nav-brand .lamplight { --size: 0.6rem; }
+
+/* The wordmark itself, so the lamplight and the word stay on one baseline. */
+.brand-name { display: inline-block; }
+
+/* The link list. index.html labels it .nav-links; the other pages ship a bare
+   <ul> inside nav.site-nav. .site-nav-list is kept for markup that uses it. */
+.site-nav-list,
+nav.site-nav > ul,
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Below the wide breakpoint the anchor list scrolls sideways rather than
+   collapsing into a menu. Fewer moving parts, nothing hidden behind a toggle,
+   and it still reflows cleanly at 320px. */
+@media (max-width: 47.99rem) {
+  .site-header-inner,
+  header.site-nav > .container {
+    gap: var(--space-3);
+    padding-inline: var(--space-4);
+  }
+  .site-nav-list,
+  nav.site-nav > ul,
+  .nav-links {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    margin-inline: calc(var(--space-2) * -1);
+    padding-inline: var(--space-2);
+  }
+  .site-nav-list::-webkit-scrollbar,
+  nav.site-nav > ul::-webkit-scrollbar,
+  .nav-links::-webkit-scrollbar { height: 3px; }
+  .site-nav-list::-webkit-scrollbar-thumb,
+  nav.site-nav > ul::-webkit-scrollbar-thumb,
+  .nav-links::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-round); }
+}
+
+/* nav.site-nav a, not .site-nav a: on index the header itself carries
+   .site-nav, so the unqualified form would catch the brand anchor and shrink
+   the wordmark to a muted 15px link. */
+nav.site-nav a,
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;                 /* the target floor, met without a helper class */
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--motion-fast) var(--ease),
+              background var(--motion-fast) var(--ease);
+}
+nav.site-nav a:hover,
+.nav-link:hover {
+  color: var(--text);
+  background: var(--bg-sunken);
+}
+
+/* Current section. Three signals: the word gets heavier, the color lifts, and
+   a flame rule appears under it. Color is never carrying this alone. */
+nav.site-nav a[aria-current="true"],
+nav.site-nav a[aria-current="page"],
+.nav-link[aria-current="true"],
+.nav-link[aria-current="page"] {
+  color: var(--text);
+  font-weight: var(--weight-strong);
+  box-shadow: inset 0 -2px 0 0 var(--accent);
+}
+
+/* The nav's own call to action. Compact so the bar stays short. */
+.site-header .btn,
+header.site-nav .btn {
+  min-height: 40px;
+  padding-inline: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+/* =========================================================================
+   4. THE HERO
+
+   It opens with the true, specific thing about Galaxies: everyone plans in
+   secret, the galaxy resolves at once, then you wait. No big number over a
+   gradient.
+========================================================================= */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--hero-min);
+  padding-block: clamp(var(--space-8), 6vw, var(--space-10)) var(--gap-section);
+  overflow: clip;
+}
+
+.hero > .container {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-inner {
+  max-width: 54rem;
+}
+
+.hero .eyebrow {
+  margin-bottom: var(--space-4);
+}
+
+.hero-title {
+  font-size: var(--text-4xl);
+  margin-bottom: var(--space-5);
+  max-width: 20ch;
+}
+
+/* There was a .hero-title .flame rule here, for taking one phrase of the
+   headline into the accent. No headline on any of the four pages uses it, and
+   the current hero title is a three sentence statement with no phrase that
+   wants singling out, so it is gone rather than left as a tempting trap. */
+
+.hero-subhead,
+.hero-lede {
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  max-width: 52ch;
+  margin-bottom: var(--space-6);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+/* The honest small print under the buttons. It says the real terms (free,
+   Google sign in, ad supported) instead of hiding them in a footer. */
+.hero-limits,
+.hero-terms {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  max-width: 62ch;
+}
+.hero-limits a,
+.hero-terms a { color: var(--link); }
+
+/* The sign-in-is-closed line. It stands in for the primary button whenever the
+   googleSignIn flag is off, including when the config fetch fails and when no
+   JavaScript runs at all, so it has to read as a real statement rather than as
+   an error. Bordered like a quiet note, sized to sit beside the buttons. */
+.hero-signin-closed {
+  flex: 1 1 26rem;
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: var(--rule-thin) solid var(--border);
+  border-left: 4px solid var(--border-strong);
+  border-radius: var(--radius-2);
+  background: var(--bg-raised);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  max-width: 52ch;
+}
+
+/* A quiet field of light behind the hero. Decorative, low contrast, and it
+   never sits under body text at a strength that could hurt legibility.
+
+   It is painted by .hero::before rather than by an element, because the markup
+   carries no field div. .hero > .container sits at z-index 1, so this always
+   stays behind the words. The .hero-field class is kept as an alias for markup
+   that does ship the element. */
+.hero::before,
+.hero-field {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(1.5px 1.5px at 18% 26%, var(--text-subtle), transparent 60%),
+    radial-gradient(1.5px 1.5px at 72% 18%, var(--text-subtle), transparent 60%),
+    radial-gradient(2px 2px at 86% 62%, var(--text-subtle), transparent 60%),
+    radial-gradient(1.5px 1.5px at 34% 78%, var(--text-subtle), transparent 60%),
+    radial-gradient(2px 2px at 58% 44%, var(--accent), transparent 60%);
+  opacity: 0.55;
+}
+
+/* =========================================================================
+   5. SECTION RHYTHM
+
+   Every section on the page uses the same three part head: the // eyebrow, the
+   heading, and one lede paragraph. Consistent breathing room does more for a
+   page than any ornament, so the rhythm is a component, not a per section
+   decision.
+========================================================================= */
+
+/* Anchor targets clear the sticky bar. Belt and braces with scroll-padding. */
+.section[id],
+[id].anchor-target {
+  scroll-margin-top: calc(var(--nav-height) + var(--space-4));
+}
+
+/* Deleted from this block, because no page has the markup and keeping them
+   would only mislead the next reader: .section-sunken (an alternating surface
+   nothing alternates onto), and .section-head / .section-head-center (wrapper
+   rules for a three part section head that the markup builds directly inside
+   .container.stack instead, where .stack in tokens.css already does the
+   spacing they duplicated). .section-note went the same way; the honest limits
+   it was built for are written into the body copy and the .callout instead. */
+
+/* .lede is the page-level opener on privacy, status, and support; .section-lede
+   is the same treatment under a section heading. One rule, both names. */
+.section-lede,
+.lede {
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  max-width: 58ch;
+  margin-bottom: 0;
+}
+
+/* =========================================================================
+   6. THE SIGNATURE: THE CARRIED LIGHT
+
+   tokens.css defines .lamplight and its breathing glow. Everything here is
+   placement: how the mark sits beside the words it accompanies. The mark is
+   always decorative and always aria-hidden, so the text next to it is what
+   carries the meaning.
+
+   The page uses the signature in exactly two places, and both are a mark
+   beside a line of text: the header brand, and the footer signature. The
+   .lamplight-focal and .lamplight-rule variants that used to live here had no
+   markup on any page, so a lit horizontal rule the design never drew is not
+   worth carrying.
+========================================================================= */
+
+/* A mark set beside a line of text. .footer-signature is the markup's name for
+   it; .lamplight-mark is the generic form for anywhere else it is needed. */
+.lamplight-mark,
+.footer-signature {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* The footer signature: the mark, then the line that says who keeps it lit. */
+.footer-signature {
+  margin-top: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* =========================================================================
+   7. DEPTH CALLOUT CARD GRID
+
+   The cards that say what is actually in the game: the simultaneous turn, the
+   research tree, the ship designer, the battle engine. Each is a concrete
+   claim, not a feeling.
+
+   The markup ships this as a <ul class="depth-list"> of <li class="depth-item
+   card">, so the list furniture has to be stripped here as well as the grid
+   applied. .depth-grid and .depth-card are kept as aliases.
+========================================================================= */
+.depth-list,
+.depth-grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
+  align-items: stretch;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.depth-item,
+.depth-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  transition: transform var(--motion) var(--ease),
+              border-color var(--motion) var(--ease),
+              box-shadow var(--motion) var(--ease);
+}
+
+/* A hairline of flame along the top edge, revealed on hover and on focus. It
+   is decoration only; nothing is communicated by it. */
+.depth-item::before,
+.depth-card::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  height: 2px;
+  border-start-start-radius: var(--radius-2);
+  border-start-end-radius: var(--radius-2);
+  background: linear-gradient(to right, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity var(--motion) var(--ease);
+}
+
+.depth-item:hover,
+.depth-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-2);
+}
+.depth-item:hover::before,
+.depth-card:hover::before { opacity: 1; }
+
+/* Keyboard parity: reaching a card's link lights the same edge the mouse does.
+   :focus-within is the fallback for browsers without :has. */
+.depth-item:focus-within,
+.depth-card:focus-within {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-2);
+}
+.depth-item:focus-within::before,
+.depth-card:focus-within::before { opacity: 1; }
+@supports selector(:has(*)) {
+  .depth-item:has(:focus-visible),
+  .depth-card:has(:focus-visible) {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-2);
+  }
+}
+
+.depth-title,
+.depth-item h3,
+.depth-card h3 {
+  font-size: var(--text-lg);
+  margin: 0;
+}
+
+.depth-item p,
+.depth-card p {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  margin: 0;
+  max-width: none;
+}
+
+/* Deleted from this block: .depth-grid-wide, .depth-card-label,
+   .depth-card-link, and .depth-card-limit. No depth item on any page carries a
+   label, a bottom link, or the muted limit treatment, and the four cards sit
+   in one auto-fit grid that never needed the two-up variant. The honest limits
+   these were built to hold are written into the body copy instead, which is
+   where they read better anyway. */
+
+/* =========================================================================
+   8. HOW A TURN WORKS: THE THREE STEP SEQUENCE
+
+   Numbers are earned here, because this is a real sequence: you plan, the
+   galaxy resolves, you read what happened. Marked up as an <ol> so the order
+   is in the document, not just in the paint.
+
+   The markup ships <ol class="steps"> of <li class="step card">, so each step
+   is already a card and the lit path rides the card's top edge rather than
+   floating above it. .turn-steps and .turn-step are kept as aliases.
+========================================================================= */
+.steps,
+.turn-steps {
+  list-style: none;
+  counter-reset: turn-step;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 52rem) {
+  .steps,
+  .turn-steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+.step,
+.turn-step {
+  counter-increment: turn-step;
+  position: relative;
+}
+
+/* .turn-step is a bare block, so it needs room made for the path above it.
+   .step is a .card and already has its own padding. */
+.turn-step { padding-top: var(--space-5); }
+
+/* The lit path. It runs along the head of each step and fades out at the far
+   end, so the sequence reads as ongoing rather than as a closed box. */
+.step::before,
+.turn-step::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: var(--lit-path);
+  background: linear-gradient(to right, var(--accent), var(--border) 60%, transparent);
+  border-radius: var(--radius-round);
+}
+.step:last-child::before,
+.turn-step:last-child::before {
+  background: linear-gradient(to right, var(--accent), var(--border) 40%, transparent 92%);
+}
+
+/* On a card the path sits flush in the top corners, so it takes the card's
+   radius instead of the round end caps. */
+.step::before {
+  border-radius: var(--radius-2) var(--radius-2) 0 0;
+}
+
+/* The number. Monospace, zero padded, sitting quietly above the heading. It
+   repeats the list order for sighted readers; the <ol> carries it for everyone
+   else, which is why the markup marks it aria-hidden.
+
+   Color is --text-muted, not --accent-strong. At --text-xs (13px) this is small
+   text, and on light --accent-strong (#B4630C) measures 4.13:1 on --bg and
+   3.84:1 on --bg-sunken, both under the 4.5:1 floor. tokens.css says outright
+   that accent-strong is for large accent text only. --text-muted measures
+   5.88:1 on --bg, 5.46:1 on --bg-sunken, and 6.31:1 on --bg-raised, which is
+   the surface a .card actually paints. The flame stays where it is a graphic
+   and only owes 3:1: the lit path and the lamplight waypoint. */
+.step-number,
+.turn-step-index {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
+}
+
+/* Only the alias generates its number. .step-number carries the literal digits
+   in the markup, so giving it generated content would print them twice. */
+.turn-step-index::before {
+  content: counter(turn-step, decimal-leading-zero);
+}
+
+.step-title,
+.step h3,
+.turn-step h3 {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-3);
+}
+
+.step p,
+.turn-step p {
+  color: var(--text-muted);
+  margin-bottom: 0;
+  max-width: 46ch;
+}
+
+/* The waypoint mark that sits on the path at the head of each step. */
+.step .lamplight,
+.turn-step .lamplight {
+  --size: 0.55rem;
+  position: absolute;
+  inset-block-start: calc(var(--lit-path) / 2);
+  inset-inline-start: 0;
+  transform: translateY(-50%);
+}
+
+/* There was a .turn-deadline panel here for the one fact that shapes the whole
+   game. No page has one: the point is made by the .callout.callout-note that
+   follows the sequence, which tokens.css already styles and which carries its
+   severity as a word rather than as a colored bar alone. One treatment for one
+   job, so the unused second one is gone. */
+
+/* =========================================================================
+   9. SUPPORT AND DONATIONS
+
+   Outbound links only. No subscription, no on site payment capture, no modal,
+   and nothing gated behind it. The honest position is in the heading itself:
+   the ads pay for the servers, donations just make the ads matter less.
+========================================================================= */
+.support,
+#support {
+  border-top: var(--rule-thin) solid var(--border);
+}
+
+/* The panel. index.html ships <div class="support-card stack"> inside the
+   section's .container, so the panel is drawn on that. */
+.support-card {
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding: clamp(var(--space-6), 4vw, var(--space-8));
+  border: var(--rule-thin) solid var(--border);
+  border-radius: var(--radius-3);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-1);
+  text-align: center;
+}
+
+.support-card h2 {
+  font-size: var(--text-xl);
+  max-width: 26ch;
+  margin-inline: auto;
+}
+
+.support-card p {
+  color: var(--text-muted);
+  margin-inline: auto;
+  max-width: 52ch;
+}
+
+/* The line that takes the pressure off, straight under the heading. It is the
+   lede of this block, so it is sized like one, and it means what it says.
+   .support-subline is support.html's name for the same line. */
+.support-subline {
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  max-width: 52ch;
+}
+
+.donate-actions,
+.support-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+/* Every button here leaves the site. Say so in the markup with a plain word
+   ("opens GitHub Sponsors"), not with an external link glyph. */
+.donate-actions > a,
+.support-actions > a { min-width: 13rem; }
+
+/* Note on .donate-actions: support.html also scopes it in a page-level <style>
+   block, which loads after this file and so wins there. That copy omits
+   justify-content, which is deliberate; the support page runs its buttons flush
+   left under body copy, while the landing page centers them under the panel
+   heading. Nothing here needs to fight it. */
+
+/* =========================================================================
+   10. AD SLOTS
+
+   Galaxies is ad supported, so this has to be handled honestly rather than
+   hidden. Three rules built into the CSS:
+
+   1. Space is reserved before the ad arrives. The frame holds its height from
+      first paint, so filling it never pushes the page around. Reserving is why
+      there is no :empty collapse here; collapsing an empty slot is exactly what
+      causes the shift it is supposed to prevent.
+   2. Turning ads off collapses the slot completely, with no leftover gap. That
+      is an explicit switch (data-ads="off" on a container, or hidden on the
+      slot), never a guess.
+   3. The slot is labeled in words. A reader always knows what it is.
+
+   Where these may appear: the marketing site, the lobby and game browser,
+   profile pages, and the game over summary. Never in the active game view, and
+   never on an error page or the account deletion flow.
+========================================================================= */
+.ad-slot {
+  display: block;
+  width: 100%;
+  margin-block: var(--gap-section);
+  container-type: inline-size;
+}
+
+/* The label. A word, in the eyebrow's monospace, so nobody has to work out
+   what the box is.
+
+   The color is --text-muted, not --text-subtle. This is the one string that
+   tells a reader the box is an advertisement, which makes it informative text
+   and, in several jurisdictions, a required disclosure. tokens.css documents
+   --text-subtle as decorative or non-text only, and it earns that label: at
+   --text-2xs (12px) it computes to 2.60:1 in light and 3.58:1 in dark against
+   the surface it sits on, both under the 4.5:1 floor for small text.
+   --text-muted clears it on both (5.5:1 light, 7.5:1 dark). A disclosure
+   nobody can read is not a disclosure.
+
+   max-width is reset because the markup is a <p>, and the 66ch measure from
+   tokens.css would keep text-align:center from centering over a wide slot. */
+.ad-slot-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: none;
+  margin: 0 0 var(--space-2);
+}
+
+/* The reserved frame. min-height is the whole point: it is set before the ad
+   network answers, so the layout is already final. */
+.ad-slot-frame {
+  display: grid;
+  place-items: center;
+  min-height: var(--ad-reserve-narrow);
+  padding: var(--space-2);
+  border: var(--rule-thin) dashed var(--border);
+  border-radius: var(--radius-2);
+  background: var(--bg-sunken);
+  overflow: hidden;
+}
+.ad-slot-frame > * { max-width: 100%; }
+
+/* Desktop sizes take the shorter leaderboard reserve. */
+@media (min-width: 52rem) {
+  .ad-slot-frame { min-height: var(--ad-reserve-wide); }
+}
+
+/* Once the slot has real content, the placeholder dressing goes away. The
+   height does not change, so nothing moves.
+
+   Both hooks are matched. The loader in index.html sets data-ad-state="filled"
+   when the unit is appended and removes it if the network call fails, and it
+   also sets data-loaded="true" as its reentrancy guard. Matching both means
+   this keeps working whichever of the two a future loader settles on. */
+.ad-slot[data-ad-state="filled"] .ad-slot-frame,
+.ad-slot[data-loaded="true"] .ad-slot-frame {
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+}
+
+/* Ads off. Both hooks collapse the slot and its margin completely, so a page
+   with ads disabled has no ghost gap where the box used to be.
+
+   The [hidden] case is load bearing rather than defensive: .ad-slot sets
+   display:block, which would otherwise beat the browser's own styling for the
+   hidden attribute that every ad slot ships with in the markup. The
+   data-ad-state="off" selector that used to sit here matched nothing. */
+[data-ads="off"] .ad-slot,
+.ad-slot[hidden] {
+  display: none !important;
+  margin-block: 0 !important;
+}
+
+/* A hard stop for the ad free surfaces. Put data-ad-free="true" on the root of
+   the active game view, the error pages, and the account deletion flow; any ad
+   markup that somehow reaches them renders as nothing. */
+[data-ad-free="true"] .ad-slot {
+  display: none !important;
+  margin-block: 0 !important;
+}
+
+/* =========================================================================
+   11. THE FOOTER
+
+   Credits, licensing, support links, and the dedication. The Stars! Nova
+   credit is standing, not optional; the GPL v2 notices stay.
+========================================================================= */
+.site-footer {
+  border-top: var(--rule-thin) solid var(--border);
+  background: var(--bg-sunken);
+  padding-block: var(--space-8) var(--space-6);
+  margin-top: var(--gap-section);
+}
+
+/* Two footer shapes are in play. privacy, status, and support ship
+   .footer-grid holding a blurb column plus two nav columns, which is what the
+   1.4fr template is for. index.html ships .footer-cols holding four equal nav
+   columns, so it gets an auto-fit track instead of a fixed three column
+   template that would strand the fourth. */
+.footer-grid,
+.footer-cols {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 44rem) {
+  .footer-grid {
+    grid-template-columns: 1.4fr repeat(2, minmax(0, 1fr));
+    gap: var(--space-7);
+  }
+  .footer-cols {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+    gap: var(--space-6) var(--space-7);
+  }
+}
+
+/* .footer-brand and .footer-blurb used to sit here, for a wordmark plus
+   description column. No footer on any page has one: index carries the
+   wordmark in .footer-signature at the foot of the block instead, and the sub
+   pages open their first column with an .eyebrow. Both are deleted rather than
+   kept as a shape the markup does not make. */
+
+.footer-heading {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3);
+}
+
+/* index.html labels its footer columns .footer-nav; the other three pages label
+   theirs .footer-col and head them with an .eyebrow instead of .footer-heading.
+   Both get the same list treatment. */
+.footer-nav ul,
+.footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.footer-nav a,
+.footer-col a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;         /* the target floor holds in the footer too */
+  font-size: var(--text-sm);
+  color: var(--link);
+}
+
+/* The blurb column on the subpage footers is a .footer-col with a paragraph
+   rather than a list, so it takes the same muted, narrow treatment the
+   .footer-blurb gets on index. */
+.footer-col p:not(.eyebrow) {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  max-width: 40ch;
+}
+
+/* A plain list of outbound links in body copy (the source and licensing
+   links). List furniture off, targets at the 44px floor, same as the footer. */
+.link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: var(--measure);
+}
+.link-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* The credit and license block, and the rule that separates it from the link
+   columns above.
+
+   The four pages hang these two classes differently, so both carry the
+   separator and the doubled case is cancelled below:
+     ... index.html wraps the credit in <div class="footer-legal">, so the
+         wrapper owns the rule and the credit is the first paragraph inside it.
+     ... privacy, status, and support put <p class="footer-credit"> first and
+         <p class="footer-legal"> after it, so the credit owns the rule and the
+         legal line just follows on. */
+.footer-legal,
+.footer-credit {
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: var(--rule-thin) solid var(--border);
+  color: var(--text-muted);
+  max-width: var(--measure);
+}
+
+.footer-legal { font-size: var(--text-sm); }
+
+/* The standing engine credit. It names Stars! Nova and the original Stars!
+   team, and it does not shrink to nothing on a phone. */
+.footer-credit {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+}
+
+/* Only the outer element draws the rule. Inside the wrapper, and on the line
+   that follows the credit, it would be a second line across the same block. */
+.footer-legal .footer-credit,
+.footer-credit + .footer-legal {
+  padding-top: 0;
+  border-top: 0;
+}
+.footer-legal .footer-credit { margin-top: 0; }
+.footer-credit + .footer-legal { margin-top: var(--space-3); }
+
+.footer-legal p {
+  max-width: var(--measure);
+  margin-bottom: var(--space-3);
+}
+.footer-legal p:last-child { margin-bottom: 0; }
+
+/* The dedication ships its own styles in a <style> block that follows this
+   file, so only properties it does not set are safe to add here. This gives it
+   air and separates it from the credit above; it does not touch the type, the
+   color, or the memorial cross, which stays exactly as written. It appears
+   exactly once on the property, in the index.html footer, verbatim. */
+.footer-dedication {
+  margin-top: var(--space-7);
+  padding-top: var(--space-6);
+  border-top: var(--rule-thin) solid var(--border);
+}
+
+/* =========================================================================
+   12. MOTION, FORCED COLORS, AND PRINT
+
+   tokens.css already flattens animation and transition durations under
+   prefers-reduced-motion. Duration is not enough on its own: a transform with
+   a zero duration still jumps. So the movement itself is removed here.
+========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .depth-item:hover,
+  .depth-item:focus-within,
+  .depth-card:hover,
+  .depth-card:focus-within,
+  .btn:active {
+    transform: none;
+  }
+  .hero::before,
+  .hero-field { opacity: 0.35; }
+}
+
+/* Windows high contrast and other forced colors modes. System color keywords
+   only, and the decorative pieces step out of the way.
+
+   Every selector in these last two blocks was pointed at a class no page has,
+   which meant high contrast support and print support were both inert: the
+   cards kept no border in forced colors, and the sticky header printed on
+   every page. They name the real classes now. */
+@media (forced-colors: active) {
+  .depth-item,
+  .depth-card,
+  .step,
+  .turn-step,
+  .ad-slot-frame,
+  .support-card {
+    border: 1px solid CanvasText;
+  }
+  nav.site-nav a[aria-current="true"],
+  nav.site-nav a[aria-current="page"],
+  .nav-link[aria-current="true"],
+  .nav-link[aria-current="page"] {
+    box-shadow: none;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+  .hero::before,
+  .hero-field,
+  .depth-item::before,
+  .depth-card::before,
+  .step::before,
+  .turn-step::before {
+    display: none;
+  }
+  .site-header,
+  header.site-nav { border-bottom: 1px solid CanvasText; }
+}
+
+/* Print. Drop the furniture, keep the words, keep the dedication. */
+@media print {
+  .site-header,
+  header.site-nav,
+  .ad-slot,
+  .hero-field,
+  .skip-link {
+    display: none !important;
+  }
+  .hero::before { display: none !important; }
+  .site-footer { background: none; border-top: 1px solid currentColor; }
+  .depth-item,
+  .depth-card,
+  .support-card { box-shadow: none; break-inside: avoid; }
+  .step,
+  .turn-step { break-inside: avoid; }
+}
+
+/* ---------------------------------------------------------------------------
+   11. Utilities the pages reference
+
+   These four were used in the markup but defined nowhere, which is the failure
+   mode a stylesheet cannot warn you about: the class attribute is valid, the
+   browser finds no rule, and the element simply renders unstyled. Grouped here
+   rather than scattered so the next audit can diff "used" against "defined" in
+   one place.
+--------------------------------------------------------------------------- */
+
+/* The single flame-accent primary action. Reserved for one action per screen
+   (on the landing page, "Sign in with Google to play"); everything else stays
+   in cool neutrals so the one thing that matters reads first. */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid transparent;
+  border-radius: var(--radius-1);
+  background: var(--accent);
+  /* --on-accent is the token for text sitting on a flame fill, and it is
+     remapped for dark mode, so it stays legible in both themes. */
+  color: var(--on-accent);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-strong);
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--motion) ease, transform var(--motion-fast) ease;
+}
+
+.btn-accent:hover { background: var(--accent-strong); }
+
+/* Never signal the press with colour alone. */
+.btn-accent:active { transform: translateY(1px); }
+
+.btn-accent[disabled],
+.btn-accent[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* The mono "//" eyebrow label that opens each section. */
+.callout-label {
+  display: block;
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: lowercase;
+  color: var(--text-muted);
+}
+
+/* Prose column, narrower than the page container so line length stays
+   comfortable on the text-heavy sub-pages. */
+.container-narrow {
+  width: 100%;
+  max-width: var(--container-narrow);
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+}
+
+/* WCAG 2.2 target size (minimum) is 24 by 24 CSS pixels; 44 is the comfortable
+   floor this property holds to, and it is what makes the footer and nav links
+   usable on a phone without enlarging their text. */
+.tap-target {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-accent { transition: none; }
+  .btn-accent:active { transform: none; }
+}

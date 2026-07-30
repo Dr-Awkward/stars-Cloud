@@ -23,7 +23,6 @@ namespace Nova.Ai
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
     using System.Linq;
     using System.Text;
 
@@ -223,7 +222,11 @@ namespace Nova.Ai
                             module.ComponentCount = 1;
                         }*/
                     }
-                    transportDesign.Icon = new ShipIcon(freighterHull.ImageFile, (Bitmap)freighterHull.ComponentImage);
+                    // Headless port (design Section A.2): a ShipIcon carries the image
+                    // file identifier only. The live Bitmap moved to the client
+                    // presentation layer, so Component.ComponentImage no longer exists
+                    // and the two-argument ShipIcon constructor went with it.
+                    transportDesign.Icon = new ShipIcon(freighterHull.ImageFile);
 
                     transportDesign.Type = ItemType.Ship;
                     transportDesign.Name = "Large Freighter";

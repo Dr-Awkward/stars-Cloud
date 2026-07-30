@@ -1,0 +1,415 @@
+/* ===========================================================================
+   Hearthlight, the Farehard design language.
+   Default theme: "Vigil" (a warm light carried against a cold winter dark).
+
+   This file is the drop-in foundation for any Farehard property: marketing
+   pages, applications, and repo docs. It ships design tokens, a small
+   opinionated base layer, accessibility utilities, and a few components.
+
+   How the layers work (this is what makes the system extensible):
+     1. Raw palette + scales      ... brand primitives, rarely referenced directly.
+     2. Semantic tokens           ... what you actually build with (--bg, --text, ...).
+     3. Light and dark mappings   ... a product retheme swaps step 2, not step 1.
+
+   To retheme a product, override the semantic tokens under :root (and the dark
+   block). Do not hardcode raw hex in components; reach for the semantic name.
+
+   Rules that never change, in any theme (see the skill's references for why):
+     ... no em dashes in any copy; prefer the comma, the ellipsis, the
+         parenthesis, and the semicolon.
+     ... no emoji or dingbat glyphs for status, alerts, bullets, or buttons.
+         Status is carried by a word plus color plus shape, never a glyph alone.
+     ... a visible focus ring on every interactive element.
+     ... motion is optional; it respects prefers-reduced-motion.
+=========================================================================== */
+
+/* ---- 1. Raw palette (primitives) ---------------------------------------- */
+:root {
+  /* Night: the cold dark. Bluer and warmer-neutral than a plain terminal black,
+     so it reads as winter dusk rather than "developer default". */
+  --c-night-900: #0E141C;
+  --c-night-800: #131C26;
+  --c-night-700: #1A2531;
+  --c-night-600: #24313F;
+  --c-night-500: #33424F;
+
+  /* Snow: the cold light. A cool paper, deliberately not the warm cream that
+     reads as an AI tell when paired with a serif display. */
+  --c-snow-50:  #F5F7F9;
+  --c-snow-100: #EBEFF3;
+  --c-snow-200: #DBE2E9;
+  --c-snow-300: #C3CED8;
+
+  /* Ink: text on light surfaces. */
+  --c-ink-900: #0F1620;
+  --c-ink-700: #2A3542;
+  --c-ink-500: #55616F; /* muted text, meets 4.5:1 on snow-50 */
+  --c-ink-300: #8A97A6; /* decorative or non-text only, below text contrast */
+
+  /* Flame: the carried light. Golden amber. The brand's one warm note.
+     Used for marks, fills, large display, and button backgrounds, never for
+     small body text on a light surface (it will not meet contrast). */
+  --c-flame-600: #B4630C; /* accent text on light, when large */
+  --c-flame-500: #E4952B; /* primary fill (buttons, marks) */
+  --c-flame-400: #F2B457; /* accent on dark surfaces */
+  --c-flame-300: #F8D091; /* soft glow */
+
+  /* Frost: the cold counterpoint. Steel blue, used sparingly, mostly links. */
+  --c-frost-600: #2F6488; /* link on light, meets 4.5:1 on snow-50 */
+  --c-frost-500: #4E86AE;
+  --c-frost-400: #86B3D6; /* link on dark */
+
+  /* Semantic hues. Each is always paired with a text label in the UI.
+     Caution is burnt orange, kept distinct from the golden brand flame so the
+     two never read as the same thing. */
+  --c-ok-600:   #2C8A57; --c-ok-400:   #57C285;
+  --c-warn-600: #B85A1C; --c-warn-400: #E29050;
+  --c-bad-600:  #B23A3A; --c-bad-400:  #E37070;
+
+  /* ---- 2. Type ---------------------------------------------------------- */
+  /* Display: Fraunces, a warm characterful serif, used with restraint.
+     Body: IBM Plex Sans, humanist and highly legible.
+     Mono: IBM Plex Mono, for the // eyebrow labels, data, and code. */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Fluid type scale. Body never drops below 16px (1rem) for readability. */
+  --text-2xs:  0.75rem;                                  /* 12px, meta only, never body */
+  --text-xs:   0.8125rem;                                /* 13px, labels */
+  --text-sm:   0.9375rem;                                /* 15px */
+  --text-base: clamp(1.0625rem, 1.01rem + 0.24vw, 1.1875rem); /* 17 to 19px body */
+  --text-lg:   clamp(1.1875rem, 1.10rem + 0.42vw, 1.375rem);
+  --text-xl:   clamp(1.4375rem, 1.28rem + 0.78vw, 1.875rem);
+  --text-2xl:  clamp(1.8125rem, 1.52rem + 1.44vw, 2.75rem);
+  --text-3xl:  clamp(2.375rem, 1.86rem + 2.55vw, 4rem);
+  --text-4xl:  clamp(3rem, 2.15rem + 4.2vw, 5.75rem);
+
+  --leading-tight: 1.08;
+  --leading-snug: 1.28;
+  --leading-body: 1.6;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.14em;   /* for the mono eyebrow labels */
+  --weight-body: 400;
+  --weight-medium: 500;
+  --weight-strong: 650;
+  --weight-display: 560;     /* Fraunces optical weight, kept below bold */
+
+  --measure: 66ch;           /* comfortable line length for prose */
+
+  /* ---- Spacing (4px base) ---------------------------------------------- */
+  --space-1: 0.25rem;  --space-2: 0.5rem;   --space-3: 0.75rem;
+  --space-4: 1rem;     --space-5: 1.5rem;   --space-6: 2rem;
+  --space-7: 3rem;     --space-8: 4rem;     --space-9: 6rem;
+  --space-10: 8rem;
+  /* Fluid gaps for section rhythm. */
+  --gap-section: clamp(3.5rem, 2.5rem + 4vw, 7rem);
+
+  /* ---- Radii (modest and consistent; not zero, not pill-everything) ---- */
+  --radius-1: 6px;   /* controls */
+  --radius-2: 10px;  /* cards, inputs */
+  --radius-3: 16px;  /* large panels */
+  --radius-round: 999px;
+
+  /* ---- Containers ------------------------------------------------------ */
+  --container: 72rem;      /* 1152px page max */
+  --container-narrow: 44rem;
+
+  /* ---- Motion (respect reduced motion, always) ------------------------- */
+  --motion-fast: 120ms;
+  --motion: 200ms;
+  --motion-slow: 380ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1); /* a warm, settling ease */
+
+  /* ---- 3a. Semantic tokens: LIGHT (default) ---------------------------- */
+  --bg: var(--c-snow-50);
+  --bg-raised: #FFFFFF;
+  --bg-sunken: var(--c-snow-100);
+  --border: var(--c-snow-300);
+  --border-strong: var(--c-ink-300);
+
+  --text: var(--c-ink-900);
+  --text-muted: var(--c-ink-500);
+  --text-subtle: var(--c-ink-300); /* decorative only */
+
+  --link: var(--c-frost-600);
+  --link-hover: var(--c-ink-900);
+
+  --accent: var(--c-flame-500);        /* fills and marks */
+  --accent-strong: var(--c-flame-600); /* accent text, large sizes only */
+  --on-accent: var(--c-ink-900);       /* text on a flame fill */
+
+  --ok: var(--c-ok-600);
+  --warn: var(--c-warn-600);
+  --bad: var(--c-bad-600);
+
+  --focus: #16405E;             /* dark steel, high contrast on light */
+  --shadow-color: 214 40% 20%;  /* HSL parts, tinted with night, not pure black */
+  --lamplight-glow: 30 92% 55%; /* the signature glow, flame hue */
+
+  color-scheme: light dark;
+}
+
+/* ---- 3b. Semantic tokens: DARK -------------------------------------------
+   Applied automatically by OS preference, and forceable with data-theme.
+   A product can also force light with [data-theme="light"]. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: var(--c-night-900);
+    --bg-raised: var(--c-night-800);
+    --bg-sunken: var(--c-night-700);
+    --border: var(--c-night-600);
+    --border-strong: var(--c-night-500);
+
+    --text: var(--c-snow-50);
+    --text-muted: #A9B6C3;
+    --text-subtle: #6C7B8A;
+
+    --link: var(--c-frost-400);
+    --link-hover: #FFFFFF;
+
+    --accent: var(--c-flame-400);
+    --accent-strong: var(--c-flame-400);
+    --on-accent: var(--c-night-900);
+
+    --ok: var(--c-ok-400);
+    --warn: var(--c-warn-400);
+    --bad: var(--c-bad-400);
+
+    --focus: var(--c-flame-400);
+    --shadow-color: 216 60% 3%;
+  }
+}
+[data-theme="dark"] {
+  --bg: var(--c-night-900);
+  --bg-raised: var(--c-night-800);
+  --bg-sunken: var(--c-night-700);
+  --border: var(--c-night-600);
+  --border-strong: var(--c-night-500);
+  --text: var(--c-snow-50);
+  --text-muted: #A9B6C3;
+  --text-subtle: #6C7B8A;
+  --link: var(--c-frost-400);
+  --link-hover: #FFFFFF;
+  --accent: var(--c-flame-400);
+  --accent-strong: var(--c-flame-400);
+  --on-accent: var(--c-night-900);
+  --ok: var(--c-ok-400);
+  --warn: var(--c-warn-400);
+  --bad: var(--c-bad-400);
+  --focus: var(--c-flame-400);
+  --shadow-color: 216 60% 3%;
+}
+
+/* ---- Shadows (soft, warm-neutral, low) ---------------------------------- */
+:root {
+  --shadow-1: 0 1px 2px hsl(var(--shadow-color) / 0.08),
+              0 2px 6px hsl(var(--shadow-color) / 0.06);
+  --shadow-2: 0 4px 10px hsl(var(--shadow-color) / 0.10),
+              0 12px 28px hsl(var(--shadow-color) / 0.10);
+}
+
+/* =========================================================================
+   BASE LAYER (opinionated, minimal)
+========================================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  font-weight: var(--weight-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+  margin: 0 0 var(--space-4);
+}
+h1 { font-size: var(--text-3xl); }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+
+p { max-width: var(--measure); margin: 0 0 var(--space-4); }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--link); text-decoration: underline; text-underline-offset: 0.14em; }
+a:hover { color: var(--link-hover); }
+
+code, kbd, samp { font-family: var(--font-mono); font-size: 0.92em; }
+
+img, svg, video { max-width: 100%; height: auto; display: block; }
+
+/* The // eyebrow label. A structural signature carried over from Phantom.
+   Use it above a section heading to name the section quietly. */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: lowercase;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3);
+}
+.eyebrow::before { content: "// "; color: var(--accent-strong); }
+
+/* =========================================================================
+   ACCESSIBILITY UTILITIES
+========================================================================= */
+
+/* One visible focus style for everything interactive. Two rings guarantee
+   the focus is visible on any background, including on a flame button. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-1);
+}
+
+/* Screen-reader-only text (labels for icon-only controls, section context). */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+/* Skip link. First focusable element on every page. */
+.skip-link {
+  position: absolute; left: var(--space-3); top: -3rem;
+  z-index: 100;
+  background: var(--bg-raised); color: var(--text);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border); border-radius: var(--radius-1);
+  text-decoration: none;
+  transition: top var(--motion) var(--ease);
+}
+.skip-link:focus { top: var(--space-3); }
+
+/* Minimum comfortable touch target. */
+.tap-target { min-height: 44px; min-width: 44px; }
+
+/* Motion off by preference. Non-essential animation and the signature glow
+   both go quiet here. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =========================================================================
+   COMPONENTS
+========================================================================= */
+
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: var(--space-2);
+  min-height: 44px; padding: 0 var(--space-5);
+  font: inherit; font-weight: var(--weight-medium);
+  border-radius: var(--radius-1);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised); color: var(--text);
+  text-decoration: none; cursor: pointer;
+  transition: transform var(--motion-fast) var(--ease),
+              background var(--motion-fast) var(--ease),
+              border-color var(--motion-fast) var(--ease);
+}
+.btn:hover { border-color: var(--text); }
+.btn:active { transform: translateY(1px); }
+
+/* Primary call to action: a flame fill with near-black text. High contrast,
+   and the warmest thing on the page. No arrow glyph. Label says the action. */
+.btn-accent {
+  background: var(--accent); color: var(--on-accent);
+  border-color: transparent;
+}
+.btn-accent:hover { background: var(--c-flame-400); border-color: transparent; }
+.btn-accent:focus-visible { outline-color: var(--c-ink-900); } /* dark ring on flame */
+
+/* ---- Callout / alert, without a single glyph -----------------------------
+   Severity is carried by a word (the label), a color (the accent bar), and a
+   shape (the left bar plus border). Never by an emoji. This is both the house
+   style and an accessibility win: meaning does not live in a decorative glyph.
+
+   Usage:
+     <aside class="callout callout-warn" role="note">
+       <p class="callout-label">Caution</p>
+       <p>Moving the folder stops the extension from loading.</p>
+     </aside>
+   For an urgent message, set role="alert" instead of role="note". */
+.callout {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--border-strong);
+  border-radius: var(--radius-2);
+  background: var(--bg-raised);
+  padding: var(--space-4) var(--space-5);
+  margin: var(--space-5) 0;
+}
+.callout-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+}
+.callout > :last-child { margin-bottom: 0; }
+.callout-note  { border-left-color: var(--link); }
+.callout-note  .callout-label { color: var(--link); }
+.callout-ok    { border-left-color: var(--ok); }
+.callout-ok    .callout-label { color: var(--ok); }
+.callout-warn  { border-left-color: var(--warn); }
+.callout-warn  .callout-label { color: var(--warn); }
+.callout-bad   { border-left-color: var(--bad); }
+.callout-bad   .callout-label { color: var(--bad); }
+
+/* ---- The signature: "the carried light" ---------------------------------
+   A small warm mark with a soft glow, used to anchor a focal point or to mark
+   waypoints down a page (a lit path). It is decorative: keep it aria-hidden,
+   and never let it be the only thing carrying meaning. Spend your boldness
+   here and keep the rest of the page quiet.
+
+   Usage: <span class="lamplight" aria-hidden="true"></span> */
+.lamplight {
+  --size: 0.7rem;
+  display: inline-block;
+  width: var(--size); height: var(--size);
+  border-radius: var(--radius-round);
+  background: radial-gradient(circle at 50% 42%,
+              var(--c-flame-300), var(--c-flame-500) 62%, var(--c-flame-600));
+  box-shadow: 0 0 0 3px hsl(var(--lamplight-glow) / 0.16),
+              0 0 14px 2px hsl(var(--lamplight-glow) / 0.30);
+  vertical-align: middle;
+  animation: lamplight-breathe 4.5s var(--ease) infinite;
+}
+@keyframes lamplight-breathe {
+  0%, 100% { box-shadow: 0 0 0 3px hsl(var(--lamplight-glow) / 0.14),
+                         0 0 12px 2px hsl(var(--lamplight-glow) / 0.26); }
+  50%      { box-shadow: 0 0 0 4px hsl(var(--lamplight-glow) / 0.20),
+                         0 0 18px 3px hsl(var(--lamplight-glow) / 0.38); }
+}
+
+/* ---- Layout helpers ---- */
+.container { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--space-5); }
+.container-narrow { max-width: var(--container-narrow); }
+.section { padding-block: var(--gap-section); }
+.stack > * + * { margin-top: var(--space-4); }
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-1);
+}

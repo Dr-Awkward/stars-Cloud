@@ -24,7 +24,6 @@ namespace Nova.Common.Components
 {
     using System;
     using System.Collections.Generic;
-    using System.Drawing;
     using System.IO;
     using System.Xml;
 
@@ -37,7 +36,9 @@ namespace Nova.Common.Components
     public class Component : Item
     {
         public TechLevel RequiredTech = new TechLevel();
-        public Image ComponentImage;
+        // The live component image (a Bitmap) is loaded by the client presentation
+        // layer from ImageFile; headless Common carries only the identifier
+        // (design Section A.2).
         public string ImageFile = string.Empty;
         public string Description = string.Empty;
         public RaceRestriction Restrictions = new RaceRestriction();
@@ -88,7 +89,6 @@ namespace Nova.Common.Components
             Cost = new Resources(copy.Cost);
             Properties = new Dictionary<string, ComponentProperty>();
             RequiredTech = new TechLevel(copy.RequiredTech);
-            ComponentImage = copy.ComponentImage;
             ImageFile = copy.ImageFile;
             Description = copy.Description;
             foreach (string key in copy.Properties.Keys)
@@ -145,52 +145,13 @@ namespace Nova.Common.Components
                             break;
                         case "image":
                             {
-                                // Paths are always stored in external files using forward slashes.
+                                // Store only the image file identifier. Paths are
+                                // stored using forward slashes. The live Bitmap is
+                                // loaded by the client presentation layer from
+                                // ImageFile; headless Common holds no pixels and
+                                // does no graphics path resolution (design A.2).
                                 ImageFile = mainNode.FirstChild.Value;
                                 ImageFile = ImageFile.Replace('/', Path.DirectorySeparatorChar);
-
-
-                                // relative or absolute path? we normally store the relative path but will handle loading either incase the file has been manually modified.
-                                try
-                                {
-                                    FileInfo info = new FileInfo(ImageFile);
-                                    if (info.Exists)
-                                    {
-                                        // was absolute, so keep as is and load up the image
-                                        ComponentImage = new Bitmap(ImageFile);
-                                    }
-                                    else
-                                    {
-                                        {
-                                            string graphicsPath = FileSearcher.GetGraphicsPath();
-                                            if (graphicsPath != null)
-                                            {
-                                                ImageFile = Path.Combine(graphicsPath, ImageFile);
-                                                info = new FileInfo(ImageFile);
-                                            }
-                                        }
-                                        
-                                        if (info.Exists)
-                                        {
-                                            // now we have an absolute path, load the image
-                                            ComponentImage = new Bitmap(ImageFile);
-                                        }
-                                        else
-                                        {
-                                            // No further action. FileSearcher will report an error (once only) if the graphics are not available.
-                                        }
-                                    }
-                                }
-                                catch (System.NotSupportedException)
-                                {
-                                    // The path doesn't make sense, maybe it wasn't relative.
-                                    // Don't change anything and don't load the image
-                                    ImageFile = mainNode.FirstChild.Value.Replace('/', Path.DirectorySeparatorChar);
-                                    ComponentImage = null;
-                                    Report.Error("Unable to locate the image file " + ImageFile);
-                                }
-
-
                                 break;
                             }
 
