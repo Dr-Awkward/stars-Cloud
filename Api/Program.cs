@@ -30,21 +30,57 @@ using Task = System.Threading.Tasks.Task;
 var builder = WebApplication.CreateBuilder(args);
 IConfiguration cfg = builder.Configuration;
 
-string Project() => cfg["GALAXIES_PROJECT_ID"] ?? "roybot";
-string Region() => cfg["GALAXIES_REGION"] ?? "us-central1";
+// appsettings.json ships every GALAXIES_* key as an empty string, deliberately, to
+// document what has to be supplied at deploy time. That makes `??` the wrong
+// operator against them: an empty string is not null, so the fallback never fires
+// and the blank value wins. Read through Setting so blank means absent.
+//
+// This was not theoretical. With the committed appsettings.json the signing key
+// below resolved to "" rather than to the dev placeholder, so the API would have
+// signed and validated every session token with an empty HMAC key.
+string? Setting(string key)
+{
+    string? value = cfg[key];
+    return string.IsNullOrWhiteSpace(value) ? null : value;
+}
+
+string Project() => Setting("GALAXIES_PROJECT_ID") ?? "roybot";
+string Region() => Setting("GALAXIES_REGION") ?? "us-central1";
 
 // ---- Options -----------------------------------------------------------------
+// The two secrets have no safe default. Outside Development the service refuses to
+// start without them, rather than booting and minting forgeable sessions or
+// validating Google tokens against an audience nobody owns. A service that cannot
+// authenticate anybody is not usefully "up", so failing at startup loses nothing
+// and makes a misconfigured deploy obvious instead of silent.
+const string DevSigningKey = "dev-only-insecure-signing-key-change-me-0123456789";
+bool isDevelopment = builder.Environment.IsDevelopment();
+
+string signingKey = Setting("GALAXIES_JWT_SIGNING_KEY")
+    ?? (isDevelopment
+        ? DevSigningKey
+        : throw new InvalidOperationException(
+            "GALAXIES_JWT_SIGNING_KEY is required outside Development. It comes from the "
+            + "galaxies-jwt-signing-key secret; check the Cloud Run secret mount."));
+
+string googleClientId = Setting("GALAXIES_GOOGLE_CLIENT_ID")
+    ?? (isDevelopment
+        ? "unset.apps.googleusercontent.com"
+        : throw new InvalidOperationException(
+            "GALAXIES_GOOGLE_CLIENT_ID is required outside Development. It comes from the "
+            + "galaxies-google-client-id secret; check the Cloud Run secret mount."));
+
 builder.Services.AddSingleton(new JwtOptions
 {
-    Issuer = cfg["GALAXIES_JWT_ISSUER"] ?? "galaxies",
-    Audience = cfg["GALAXIES_JWT_AUDIENCE"] ?? "galaxies-client",
-    SigningKey = cfg["GALAXIES_JWT_SIGNING_KEY"] ?? "dev-only-insecure-signing-key-change-me-0123456789",
+    Issuer = Setting("GALAXIES_JWT_ISSUER") ?? "galaxies",
+    Audience = Setting("GALAXIES_JWT_AUDIENCE") ?? "galaxies-client",
+    SigningKey = signingKey,
     AccessTokenMinutes = 60,
 });
 builder.Services.AddSingleton(new GcsBucketOptions
 {
-    OrdersBucket = cfg["GALAXIES_ORDERS_BUCKET"] ?? "roybot-galaxies-orders",
-    IntelBucket = cfg["GALAXIES_INTEL_BUCKET"] ?? "roybot-galaxies-intel",
+    OrdersBucket = Setting("GALAXIES_ORDERS_BUCKET") ?? "roybot-galaxies-orders",
+    IntelBucket = Setting("GALAXIES_INTEL_BUCKET") ?? "roybot-galaxies-intel",
 });
 // Feature flags and quotas. Everything added after M2 ships dark: a missing or
 // unparsable env var reads as false, so the off state is also the default state.
@@ -65,8 +101,7 @@ builder.Services.AddSingleton(orchestratorOptions);
 
 // ---- Auth --------------------------------------------------------------------
 builder.Services.AddSingleton(sp => new JwtService(sp.GetRequiredService<JwtOptions>()));
-builder.Services.AddSingleton<IGoogleIdentityVerifier>(
-    new GoogleIdentityVerifier(cfg["GALAXIES_GOOGLE_CLIENT_ID"] ?? "unset.apps.googleusercontent.com"));
+builder.Services.AddSingleton<IGoogleIdentityVerifier>(new GoogleIdentityVerifier(googleClientId));
 
 // ---- GCP clients (lazy: constructed on first resolve, not at startup) ---------
 builder.Services.AddSingleton(sp => FirestoreDb.Create(Project()));
@@ -85,9 +120,13 @@ builder.Services.AddSingleton<IDeadlineScheduler>(sp => new CloudTasksDeadlineSc
     {
         ProjectId = Project(),
         LocationId = Region(),
-        QueueId = cfg["GALAXIES_DEADLINE_QUEUE"] ?? "galaxies-deadlines",
-        DeadlineFireUrl = (cfg["GALAXIES_API_BASE_URL"] ?? "http://localhost") + "/internal/deadline-fire",
-        InvokerServiceAccount = cfg["GALAXIES_INVOKER_SA"] ?? "sa-invoker@roybot.iam.gserviceaccount.com",
+        QueueId = Setting("GALAXIES_DEADLINE_QUEUE") ?? "galaxies-deadlines",
+        // Terraform does not set GALAXIES_API_BASE_URL today, so on a real deploy
+        // this silently became http://localhost/internal/deadline-fire and every
+        // Cloud Tasks deadline was undeliverable. The fallback is kept for local
+        // runs but it is not a deployable value; see Documentation/Cloud/M0.md.
+        DeadlineFireUrl = (Setting("GALAXIES_API_BASE_URL") ?? "http://localhost") + "/internal/deadline-fire",
+        InvokerServiceAccount = Setting("GALAXIES_INVOKER_SA") ?? "sa-invoker@roybot.iam.gserviceaccount.com",
     },
     sp.GetRequiredService<ILogger<CloudTasksDeadlineScheduler>>()));
 builder.Services.AddSingleton<ITurnEventPublisher>(sp =>
@@ -95,7 +134,7 @@ builder.Services.AddSingleton<ITurnEventPublisher>(sp =>
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ITurnGenerationInvoker>(sp => new HttpTurnGenerationInvoker(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("turngen"),
-    cfg["GALAXIES_TURNGEN_URL"] ?? "http://localhost:8081"));
+    Setting("GALAXIES_TURNGEN_URL") ?? "http://localhost:8081"));
 builder.Services.AddSingleton<GameOrchestrator>();
 builder.Services.AddSingleton<LaunchOrchestrator>();
 
@@ -173,9 +212,9 @@ app.MapGet("/readyz", () => Results.Ok("ready"));
 // rather than sending orders the server can no longer parse. It comes from env so
 // raising the floor is a config change, not a rebuild.
 app.MapGet("/version", () => Results.Ok(new VersionResponse(
-    cfg["GALAXIES_API_VERSION"] ?? "1.0.0",
-    cfg["GALAXIES_PROTOCOL_VERSION"] ?? "1",
-    cfg["GALAXIES_MIN_CLIENT_VERSION"] ?? "0.1.0")));
+    Setting("GALAXIES_API_VERSION") ?? "1.0.0",
+    Setting("GALAXIES_PROTOCOL_VERSION") ?? "1",
+    Setting("GALAXIES_MIN_CLIENT_VERSION") ?? "0.1.0")));
 
 // ============================ Auth ============================================
 app.MapPost("/v1/auth/google", async (GoogleLoginRequest req, HttpContext ctx, CancellationToken ct) =>

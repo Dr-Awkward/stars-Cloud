@@ -63,22 +63,55 @@ app.Run();
 
 // ---- helpers ----------------------------------------------------------------
 
+// appsettings.json ships every GALAXIES_* key as an empty string, deliberately, to
+// document what has to be supplied at deploy time. That makes `??` the wrong
+// operator throughout this file: an empty string is not null, so the fallback never
+// fires and the empty value wins.
+//
+// It cost a turn. ScratchRoot returned "", Path.Combine("", "gen-...") produced a
+// RELATIVE path, it resolved against the image's WORKDIR of /app, and creating it
+// as uid 10001 failed with UnauthorizedAccessException. Every HTTP generate request
+// returned 500, including the one for a game that does not exist, while the CLI path
+// kept working because it calls Path.GetTempPath() directly. Treat blank as absent.
+static string? Setting(IConfiguration cfg, string key)
+{
+    string? value = cfg[key];
+    return string.IsNullOrWhiteSpace(value) ? null : value;
+}
+
 static string ScratchRoot(IConfiguration cfg)
-    => cfg["GALAXIES_SCRATCH_ROOT"] ?? Path.Combine(Path.GetTempPath(), "galaxies");
+{
+    string root = Setting(cfg, "GALAXIES_SCRATCH_ROOT") ?? Path.Combine(Path.GetTempPath(), "galaxies");
+
+    // A relative scratch root resolves against the working directory, which in the
+    // container is /app and is not writable by the non-root user. Fail loudly here
+    // rather than at the first generate request.
+    if (!Path.IsPathRooted(root))
+    {
+        throw new InvalidOperationException(
+            $"GALAXIES_SCRATCH_ROOT must be an absolute path; got '{root}'.");
+    }
+
+    return root;
+}
 
 static IGameStore BuildStore(IConfiguration cfg)
 {
-    // Local development: point at a folder, no cloud needed.
-    string? localRoot = cfg["GALAXIES_LOCAL_ROOT"];
-    if (!string.IsNullOrEmpty(localRoot))
+    // Local development, or production with game files on a mounted volume: point
+    // at a directory, no cloud needed. Note that the directory must be durable. A
+    // container filesystem is not: on Cloud Run it is in-memory, per-instance, and
+    // destroyed at scale to zero, so this needs a volume mount rather than a plain
+    // container path.
+    string? localRoot = Setting(cfg, "GALAXIES_LOCAL_ROOT");
+    if (localRoot is not null)
     {
         return new LocalGameStore(localRoot);
     }
 
     // Cloud: three GCS buckets from configuration (design Section B.3).
-    string state = cfg["GALAXIES_STATE_BUCKET"] ?? throw new InvalidOperationException("GALAXIES_STATE_BUCKET is required");
-    string orders = cfg["GALAXIES_ORDERS_BUCKET"] ?? throw new InvalidOperationException("GALAXIES_ORDERS_BUCKET is required");
-    string intel = cfg["GALAXIES_INTEL_BUCKET"] ?? throw new InvalidOperationException("GALAXIES_INTEL_BUCKET is required");
+    string state = Setting(cfg, "GALAXIES_STATE_BUCKET") ?? throw new InvalidOperationException("GALAXIES_STATE_BUCKET is required");
+    string orders = Setting(cfg, "GALAXIES_ORDERS_BUCKET") ?? throw new InvalidOperationException("GALAXIES_ORDERS_BUCKET is required");
+    string intel = Setting(cfg, "GALAXIES_INTEL_BUCKET") ?? throw new InvalidOperationException("GALAXIES_INTEL_BUCKET is required");
     return new GcsGameStore(StorageClient.Create(), state, orders, intel);
 }
 

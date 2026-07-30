@@ -1,54 +1,63 @@
+# CodeQL static analysis for the Galaxies cloud services.
+#
+# This replaces the upstream Stars! Nova workflow, which ran on windows-latest
+# with codeql-action@v1 and actions/checkout@v2. All three were a problem once the
+# cloud port landed: v1 of codeql-action is retired and fails outright, and
+# Autobuild on Windows resolves Nova.sln or NovaSetupWindows.sln, the legacy
+# WinForms desktop solutions. So the analysis that did run analysed the desktop
+# client and never looked at Api, ControlPlane, AiService, AiContract, or
+# ServerHost, which are the parts that face the network.
+#
+# Building Galaxies.slnx explicitly rather than relying on Autobuild keeps this
+# pointed at the cloud services and matches what build.yml compiles.
+
 name: "CodeQL"
 
 on:
   push:
-    branches: [master, ]
+    branches: [master]
   pull_request:
-    # The branches below must be a subset of the branches above
     branches: [master]
   schedule:
+    # Weekly, so a finding in a dependency surfaces without waiting for a push.
     - cron: '0 5 * * 3'
 
 jobs:
   analyse:
     name: Analyse
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        # We must fetch at least the immediate parents so that if this is
-        # a pull request then we can checkout the head.
-        fetch-depth: 2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    # If this run was triggered by a pull request event, then checkout
-    # the head of the pull request instead of the merge commit.
-    - run: git checkout HEAD^2
-      if: ${{ github.event_name == 'pull_request' }}
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
 
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
-      # Override language selection by uncommenting this and choosing your languages
-      # with:
-      #   languages: go, javascript, csharp, python, cpp, java
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          # security-and-quality is broader than the default security-extended.
+          # Worth the extra noise here: the fog-of-war boundary is the highest
+          # severity class in this project (see SECURITY.md), and the cheapest way
+          # to catch a leak is to look at everything that touches empire data.
+          queries: security-and-quality
 
-    # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-    # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v1
+      # Explicit build, not Autobuild. Autobuild picks a solution by heuristic and
+      # would find the legacy desktop solutions first.
+      - name: Build
+        run: |
+          dotnet restore Galaxies.slnx
+          dotnet build Galaxies.slnx -c Release --no-restore
 
-    # ℹ️ Command-line programs to run using the OS shell.
-    # 📚 https://git.io/JvXDl
-
-    # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
-    #    and modify them (or add more) to build your code if your project
-    #    uses a compiled language
-
-    #- run: |
-    #   make bootstrap
-    #   make release
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:csharp"

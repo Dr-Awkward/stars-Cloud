@@ -4,7 +4,31 @@ This is the pickup file. Read it first. It says where the build is, what the
 last session did, and exactly what the next milestone (M5, the notifier) needs.
 It follows the house rules: plain, direct, no em dashes, honest about limits.
 
-Last worked: 2026-07-24. Milestones done as code: M0, M1, M2, M3, M4.
+Last worked: 2026-07-30. Code is WRITTEN through M4. **M0 is not finished, and it
+is the active milestone.**
+
+That distinction is the most important thing on this page. "Done as code" and
+"milestone met" are not the same claim, and this file used to make the first one
+while sounding like the second. Measured against M0's own exit criteria in
+[M0.md](M0.md):
+
+| M0 criterion | Status |
+|---|---|
+| 1. Builds on ubuntu-latest in CI | Unblocked as of the first commit (`04c5e83`); needs a CI run to confirm |
+| 2. A local turn on `fixture-2p` advances a year and writes one intel per empire | **MET** 2026-07-30 |
+| 3. The same container does it on `roybot` against GCS | Open. Image build defects fixed; nothing deployed |
+| 4. Golden turn captured on .NET Framework 4.8 and reproduced on Linux | Open. Needs a Windows build; cannot be closed from Linux |
+
+Closing criterion 2 required fixing four defects that no existing test could see,
+because nothing had ever run the turn pipe end to end. They are listed in
+[M0.md](M0.md) under "What closing criterion 2 turned up". The short version: the
+API's orders were never read, intel was never delivered, no saved game containing
+a fleet could be loaded headless, and every game reported GAME OVER after its
+first turn. All four degraded play silently rather than crashing.
+
+The lesson worth carrying: every one of those was invisible to unit tests and
+would have been caught by a single real run. Prefer running the thing over
+writing another test double.
 
 ## The one thing to run first
 

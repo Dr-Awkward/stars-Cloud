@@ -99,10 +99,24 @@ app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
 
 app.MapGet("/readyz", async (HttpContext ctx, CancellationToken ct) =>
 {
-    bool firestore = await ctx.RequestServices.GetRequiredService<AiStore>().PingAsync(ct);
-    return firestore
-        ? Results.Ok(new { status = "ready", firestore = true })
-        : Results.Json(new { status = "degraded", firestore = false }, statusCode: 503);
+    // Any failure is "not ready", never a 500. Resolving AiStore constructs the
+    // Firestore client, and that throws outright when application default
+    // credentials are absent, so the unguarded version returned 500 for the exact
+    // condition this probe exists to report. The distinction matters to the
+    // platform: 503 means not ready, keep the revision and retry, while 500 reads
+    // as a broken handler.
+    try
+    {
+        bool firestore = await ctx.RequestServices.GetRequiredService<AiStore>().PingAsync(ct);
+        return firestore
+            ? Results.Ok(new { status = "ready", firestore = true })
+            : Results.Json(new { status = "degraded", firestore = false }, statusCode: 503);
+    }
+    catch (Exception e)
+    {
+        app.Logger.LogWarning(e, "Readiness check failed to reach Firestore.");
+        return Results.Json(new { status = "degraded", firestore = false }, statusCode: 503);
+    }
 });
 
 // ============================ Internal (OIDC via Cloud Run IAM) ===============

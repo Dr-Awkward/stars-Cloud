@@ -167,6 +167,34 @@ namespace Nova.Common.Components
             {
                 saveFilePath = ComponentFilePathOverride;
             }
+
+            // Headless port (design Section A.2). FileSearcher resolves through
+            // nova.conf, the registry, a Nova root, and finally a file dialog. A
+            // server container has none of those, so the two steps below are what
+            // make the component database findable there.
+            //
+            // GALAXIES_COMPONENT_FILE is the same variable the AI participant image
+            // already used; honouring it here means every service gets it rather
+            // than each one wiring its own.
+            if (string.IsNullOrEmpty(saveFilePath))
+            {
+                saveFilePath = Environment.GetEnvironmentVariable("GALAXIES_COMPONENT_FILE");
+            }
+
+            // A components.xml beside the assembly, which is where every Dockerfile
+            // puts it and where the desktop build has always kept it. This is the
+            // step that makes a container work with no configuration at all: the
+            // turngen image shipped components.xml at /app/components.xml and still
+            // could not load a game, because nothing pointed at it.
+            if (string.IsNullOrEmpty(saveFilePath))
+            {
+                string beside = System.IO.Path.Combine(AppContext.BaseDirectory, Global.ComponentFileName);
+                if (System.IO.File.Exists(beside))
+                {
+                    saveFilePath = beside;
+                }
+            }
+
             if (string.IsNullOrEmpty(saveFilePath))
             {
                 saveFilePath = FileSearcher.GetComponentFile();

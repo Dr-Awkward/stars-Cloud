@@ -1,0 +1,53 @@
+# Galaxies, a cloud port of Stars! Nova.
+#
+# Deliberately narrow. There is no `* text=auto` here, because adding one would
+# renormalize the entire upstream Stars! Nova tree in a single commit and bury the
+# port's real history under a whitespace diff. This file only pins the cases where
+# a line-ending conversion would cause a bug rather than an annoyance.
+#
+# The reason this matters: the repository is a Windows OneDrive folder mounted
+# over WSL, so the same file can be written with LF by a Linux toolchain and read
+# back with CRLF. The committed fixture drifted by exactly six bytes that way, in
+# <Description> strings inherited from components.xml.
+
+# ---- Engine data files: byte exact, never converted -------------------------
+# M0 exit criterion 4 compares a generated .sstate against a committed golden
+# BYTE FOR BYTE, across .NET Framework 4.8 on Windows and net10.0 on Linux. If git
+# rewrites line endings on checkout, that comparison fails for a reason that has
+# nothing to do with the engine, and the tempting fix is to re-baseline the
+# golden, which would mask exactly the cross-architecture divergence the check
+# exists to catch. These must round trip untouched.
+*.sstate  -text
+*.cstate  -text
+*.intel   -text
+*.orders  -text
+*.race    -text
+*.settings -text
+
+# components.xml is the input those files inherit description strings from, so it
+# has to be as stable as they are.
+components.xml -text
+
+# ---- Windows scripts: must keep CRLF ----------------------------------------
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+
+# ---- Shell scripts: must keep LF or they will not run -----------------------
+*.sh   text eol=lf
+
+# ---- Binary assets: never diffed, never converted ---------------------------
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.bmp  binary
+*.ico  binary
+*.xcf  binary
+*.dll  binary
+*.exe  binary
+*.pdb  binary
+*.zip  binary
+*.7z   binary
+*.woff binary
+*.woff2 binary
