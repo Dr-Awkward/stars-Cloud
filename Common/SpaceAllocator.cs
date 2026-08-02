@@ -37,7 +37,22 @@ namespace Nova.Common
         public int GridAxisCount;
 
         private readonly List<Rectangle> availableBoxes = new List<Rectangle>();
-        private readonly Random random = new Random();
+
+        // Supplied, never created here. This allocator runs on the turn path:
+        // BattleEngine builds one to position stacks, so an unseeded Random here
+        // made every battle irreproducible even though BattleEngine seeds its own
+        // stream from (MasterSeed, TurnYear, "battle").
+        //
+        // That matters more than it looks. Battles are exactly where an x86 versus
+        // x64 floating point difference would first appear, so M0 exit criterion 4
+        // compares a generated turn byte for byte to catch it. An unseeded RNG in
+        // this class would have produced a mismatch on every run and looked like the
+        // cross-architecture divergence the check exists to find, which invites a
+        // re-baseline that buries the real thing.
+        //
+        // The parameter is required rather than defaulted for that reason: a caller
+        // that has not thought about reproducibility should not compile.
+        private readonly Random random;
 
         /// <summary>
         /// <para>Construction
@@ -50,8 +65,14 @@ namespace Nova.Common
         /// requested number is rounded up to a number that does.
         /// </para></summary>
         /// <param name="numberOfItems">The number of items to be distributed in the allocatable space.</param>
-        public SpaceAllocator(int numberOfItems)
+        /// <param name="random">
+        /// The random stream box allocation draws from. Pass the caller's seeded
+        /// stream, not a fresh Random: see the field comment above.
+        /// </param>
+        public SpaceAllocator(int numberOfItems, Random random)
         {
+            this.random = random ?? throw new ArgumentNullException(nameof(random));
+
             GridAxisCount = (int)Math.Sqrt(numberOfItems);
             if ((GridAxisCount * GridAxisCount) != numberOfItems)
             {

@@ -1,0 +1,161 @@
+# galaxies-api build and deploy (M1/M2).
+#
+# The public front door: Google sign-in, first-party sessions, the lobby and
+# lifecycle, orders and intel, and the turn clock. This is the only service with
+# public ingress, and the only one holding secrets.
+#
+# Run it by hand from the repository root:
+#   gcloud builds submit . --config=Api/cloudbuild.yaml \
+#     --substitutions=_API_BASE_URL=https://galaxies-api-xxxx.us-central1.run.app
+#
+# There is no Cloud Build trigger for this. Every deploy in this repo is a manual
+# submit; see ServerHost/cloudbuild.yaml for why.
+#
+# Prefer Terraform for the first deploy, because it owns the service account, the
+# secrets, and the IAM that lets the service read them. Use this for a code-only
+# redeploy afterwards. The values below match infra/terraform/m2_clock.tf.
+
+substitutions:
+  _REGION: "us-central1"
+  _SERVICE: "galaxies-api"
+  _RUNTIME_SA: "sa-api@roybot.iam.gserviceaccount.com"
+  _INVOKER_SA: "sa-invoker@roybot.iam.gserviceaccount.com"
+  _ORDERS_BUCKET: "roybot-galaxies-orders"
+  _INTEL_BUCKET: "roybot-galaxies-intel"
+  _DEADLINE_QUEUE: "galaxies-deadlines"
+  _TURNGEN_URL: ""
+  # The service's own public URL. Cloud Tasks deadline targets are built from it,
+  # and it cannot be derived at deploy time on a first deploy, so it is an input.
+  # Empty is refused below rather than accepted: an unset value made the API build
+  # every deadline against http://localhost, which Cloud Tasks accepted and then
+  # delivered nowhere.
+  _API_BASE_URL: ""
+  _AI_ORDERS_ENABLED: "false"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE
+
+timeout: 1800s
+
+images:
+  - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-api:$SHORT_SHA"
+  - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-api:latest"
+
+steps:
+  # ---------------------------------------------------------------------------
+  # 1. Refuse a deploy that would come up unable to do its job.
+  #
+  # The two secrets are not listed here on purpose: they are mounted by reference
+  # and the service now refuses to start without them, so a missing secret is a
+  # failed revision rather than a silently insecure one. What this guard catches
+  # is the settings that have a plausible-looking fallback and therefore fail
+  # quietly instead.
+  # ---------------------------------------------------------------------------
+  - id: guard
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        fail() { echo "REFUSING: $$1" >&2; exit 1; }
+
+        [ -n "${_TURNGEN_URL}" ] \
+          || fail "_TURNGEN_URL is required; without it the API cannot ask for a turn."
+
+        case "${_API_BASE_URL}" in
+          https://*) ;;
+          "") fail "_API_BASE_URL is required. Cloud Tasks deadline targets are built from it, and an empty value silently becomes http://localhost so no deadline is ever delivered. On a first deploy, deploy once, read the service URL, then redeploy with it set." ;;
+          *)  fail "_API_BASE_URL must be an absolute https URL; got '${_API_BASE_URL}'." ;;
+        esac
+
+        for secret in galaxies-jwt-signing-key galaxies-google-client-id; do
+          gcloud secrets describe "$$secret" >/dev/null 2>&1 \
+            || fail "Secret $$secret does not exist. Create it before deploying; the service refuses to start without it."
+          gcloud secrets versions list "$$secret" --filter="state=enabled" --format="value(name)" | grep -q . \
+            || fail "Secret $$secret exists but has no enabled version."
+        done
+
+        echo "Configuration is coherent."
+
+  # ---------------------------------------------------------------------------
+  # 2. Build. Context is the repository root: Common.csproj and Server.csproj both
+  #    compile ../VersionInfo.cs by link.
+  # ---------------------------------------------------------------------------
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - Api/Dockerfile
+      - -t
+      - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-api:$SHORT_SHA"
+      - -t
+      - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-api:latest"
+      - .
+
+  # ---------------------------------------------------------------------------
+  # 3. Deploy.
+  #
+  # Public ingress with --allow-unauthenticated is correct here and only here: the
+  # API verifies Google ID tokens in-app, so an anonymous caller gets a 401 from
+  # the application rather than a 403 from the platform. Every other service in
+  # this repo is private.
+  #
+  # Secrets are mounted by reference, never passed as values, so they never appear
+  # in build logs or in the revision's env listing.
+  # ---------------------------------------------------------------------------
+  - id: deploy
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        gcloud run deploy "${_SERVICE}" \
+          --image="us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-api:$SHORT_SHA" \
+          --region="${_REGION}" \
+          --platform=managed \
+          --ingress=all \
+          --allow-unauthenticated \
+          --service-account="${_RUNTIME_SA}" \
+          --port=8080 \
+          --min-instances=0 \
+          --max-instances=4 \
+          --concurrency=80 \
+          --memory=512Mi \
+          --cpu=1 \
+          --set-secrets="GALAXIES_JWT_SIGNING_KEY=galaxies-jwt-signing-key:latest,GALAXIES_GOOGLE_CLIENT_ID=galaxies-google-client-id:latest" \
+          --set-env-vars="^@^GALAXIES_PROJECT_ID=$PROJECT_ID@GALAXIES_REGION=${_REGION}@GALAXIES_ORDERS_BUCKET=${_ORDERS_BUCKET}@GALAXIES_INTEL_BUCKET=${_INTEL_BUCKET}@GALAXIES_DEADLINE_QUEUE=${_DEADLINE_QUEUE}@GALAXIES_TURNGEN_URL=${_TURNGEN_URL}@GALAXIES_INVOKER_SA=${_INVOKER_SA}@GALAXIES_API_BASE_URL=${_API_BASE_URL}@API_AI_ORDERS_ENABLED=${_AI_ORDERS_ENABLED}"
+
+  # ---------------------------------------------------------------------------
+  # 4. Prove it is serving, and that the secrets landed.
+  #
+  # The service refuses to start outside Development without a real signing key
+  # and client id, so a revision that is Ready is also a revision whose secrets
+  # mounted. That is the point of checking readiness rather than the deploy's own
+  # exit code.
+  # ---------------------------------------------------------------------------
+  - id: verify
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        gcloud run services describe "${_SERVICE}" --region="${_REGION}" \
+          --format='value(status.conditions[0].type,status.conditions[0].status)'
+
+        url=$(gcloud run services describe "${_SERVICE}" --region="${_REGION}" --format='value(status.url)')
+        code=$(curl -s -o /dev/null -w '%{http_code}' "$$url/healthz")
+        echo "GET $$url/healthz -> $$code"
+        [ "$$code" = "200" ] || { echo "REFUSING: the deployed revision is not healthy." >&2; exit 1; }
+
+        if [ "$$url" != "${_API_BASE_URL}" ]; then
+          echo "WARNING: _API_BASE_URL is '${_API_BASE_URL}' but the service URL is '$$url'." >&2
+          echo "WARNING: every Cloud Tasks deadline will be delivered to the wrong address." >&2
+        fi

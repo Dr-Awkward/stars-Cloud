@@ -120,7 +120,10 @@ resource "google_cloud_run_v2_service" "turngen" {
   name                = "galaxies-turngen"
   location            = var.region
   deletion_protection = false
-  ingress             = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
+  # See variables.tf: the previous hardcoded INTERNAL_LOAD_BALANCER required a
+  # load balancer this configuration never declared, so the service was
+  # unreachable from everywhere after a successful apply.
+  ingress = var.turngen_ingress
 
   template {
     service_account                  = google_service_account.turngen.email
@@ -134,6 +137,15 @@ resource "google_cloud_run_v2_service" "turngen" {
 
     containers {
       image = var.turngen_image
+
+      # Cloud Run defaults the container port to 8080 when no ports block is
+      # given. galaxies-turngen listens on 8080 (ASPNETCORE_URLS in its Dockerfile), so
+      # without this the platform probes the wrong port and the revision never
+      # becomes ready. The cloudbuild path passed --port and worked; the
+      # Terraform path did not, and the two disagreed silently.
+      ports {
+        container_port = 8080
+      }
 
       resources {
         limits = {

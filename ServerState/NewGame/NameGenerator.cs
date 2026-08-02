@@ -32,7 +32,11 @@ namespace Nova.Server.NewGame
     /// </summary>
     public class NameGenerator
     {
-        private readonly Random randomGenerator = new Random();
+        // Supplied, never created here. Star and race names are drawn from this
+        // stream during game creation, so an unseeded Random meant the same galaxy
+        // seed produced different names on every generation. Design Section A.4
+        // item 4 requires the same options to reproduce the same galaxy.
+        private readonly Random randomGenerator;
         private readonly List<string> starNamePool = new List<string>();
         private readonly List<string> raceNamePool = new List<string>();
         private readonly HashSet<string> usedRaceNames = new HashSet<string>();
@@ -42,8 +46,10 @@ namespace Nova.Server.NewGame
         /// Initializes a new instance of the ShipDesignDialog class.
         /// <para>Put all of our star names into our hat.</para>
         /// </summary>
-        public NameGenerator()
+        /// <param name="random">The seeded stream names are drawn from.</param>
+        public NameGenerator(Random random)
         {
+            this.randomGenerator = random ?? throw new ArgumentNullException(nameof(random));
             this.starNamePool.AddRange(this.starNames);
             this.raceNamePool.AddRange(this.raceNames);        
         }

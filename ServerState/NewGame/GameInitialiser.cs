@@ -34,7 +34,7 @@ namespace Nova.Server.NewGame
     {
         private ServerData serverState;
         private StarMapinitializer starMapinitializer;
-        private NameGenerator nameGenerator = new NameGenerator();
+        private NameGenerator nameGenerator;
         
         public ServerData ServerState
         {
@@ -59,7 +59,29 @@ namespace Nova.Server.NewGame
         private Gameinitializer(string gameFolderPath)
         {
             serverState = new ServerData();
-            
+
+            // The seed is drawn FIRST, before anything that derives from it.
+            //
+            // Every stochastic subsystem takes its stream from (MasterSeed,
+            // TurnYear) through NovaRandom, and that machinery was already wired
+            // into TurnGenerator, BattleEngine and CheckForMinefields. What was
+            // missing was the seed itself: nothing in production ever assigned
+            // MasterSeed, so it kept its default of 0 and every game in existence
+            // shared one RNG stream. Reproducible, which was the goal, but identical
+            // across games, which was not.
+            //
+            // Drawn from a non-deterministic source on purpose. Games must differ
+            // from each other; it is each game's own turns that must reproduce, and
+            // they do, because the seed is persisted with the state from here on.
+            //
+            // Ordering matters: StarMapinitializer derives its galaxy streams from
+            // this value in its constructor, so assigning it later would have seeded
+            // the map from zero and silently undone design Section A.4 item 4.
+            serverState.MasterSeed = System.Security.Cryptography.RandomNumberGenerator.GetInt32(1, int.MaxValue);
+            nameGenerator = new NameGenerator(
+                NovaRandom.ForSubsystem(serverState.MasterSeed, Global.StartingYear, "racenames"));
+
+
             // store the updated Game Folder information
             using (Config conf = new Config())
             {

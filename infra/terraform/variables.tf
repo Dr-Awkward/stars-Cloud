@@ -198,3 +198,62 @@ variable "ai_dead_letter_max_attempts" {
   type        = number
   default     = 5
 }
+
+# ---- Two-phase URLs ---------------------------------------------------------
+# A Cloud Run service cannot reference its own uri: that is a dependency cycle.
+# Both of these are therefore supplied on a second apply. Leave them empty on the
+# first apply, read the matching terraform output, set them, and apply again.
+#
+# Leaving them empty is safe rather than silent. galaxies-api refuses to schedule
+# a deadline against a non-absolute URL, and galaxies-ai refuses to enqueue
+# dispatch against a blank target, so a forgotten second phase surfaces as a clear
+# error at the point of use instead of as tasks quietly delivered to localhost.
+
+variable "api_base_url" {
+  description = "Absolute base URL of galaxies-api, from `terraform output api_url`. Cloud Tasks deadline targets are built from it. Empty on the first apply."
+  type        = string
+  default     = ""
+}
+
+variable "ai_base_url" {
+  description = "Absolute base URL of galaxies-ai, from `terraform output ai_url`. The dispatch task target and OIDC audience. Empty on the first apply."
+  type        = string
+  default     = ""
+}
+
+# ---- Participant kill switch ------------------------------------------------
+variable "participant_enabled" {
+  description = "Whether ai-nova-default answers /v1/act. Ships false: the image default is also false, but without a Terraform lever the only way to flip it was a gcloud edit that the next apply would revert."
+  type        = bool
+  default     = false
+}
+
+# ---- Turngen reachability ---------------------------------------------------
+variable "turngen_ingress" {
+  description = <<-EOT
+    Cloud Run ingress for galaxies-turngen.
+
+    Was hardcoded to INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER, which requires an
+    internal load balancer that this configuration does not declare, so the
+    service was reachable from nowhere: not from a laptop and not from a VM in the
+    VPC. The failure looks like a network timeout and says nothing about the cause.
+
+    INGRESS_TRAFFIC_ALL is the default here and is not the same as public. No
+    allUsers invoker binding exists, so Cloud Run rejects unauthenticated calls at
+    the edge with a 403; ALL only means a request may arrive from the internet
+    before IAM judges it, which is what allows a smoke test with an identity token.
+    Narrow to INGRESS_TRAFFIC_INTERNAL_ONLY once galaxies-api calls it from inside
+    the VPC, or add a load balancer and use INTERNAL_LOAD_BALANCER.
+  EOT
+  type        = string
+  default     = "INGRESS_TRAFFIC_ALL"
+
+  validation {
+    condition = contains([
+      "INGRESS_TRAFFIC_ALL",
+      "INGRESS_TRAFFIC_INTERNAL_ONLY",
+      "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER",
+    ], var.turngen_ingress)
+    error_message = "turngen_ingress must be one of INGRESS_TRAFFIC_ALL, INGRESS_TRAFFIC_INTERNAL_ONLY, or INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER."
+  }
+}

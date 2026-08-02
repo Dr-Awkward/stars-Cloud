@@ -70,6 +70,38 @@ public sealed class CloudTasksDeadlineScheduler : IDeadlineScheduler
             return; // no clock on this game
         }
 
+        // Refuse to arm a deadline nobody can receive.
+        //
+        // GALAXIES_API_BASE_URL was set by nothing, so this URL silently became
+        // http://localhost/internal/deadline-fire. Cloud Tasks accepted the task,
+        // reported success, and then delivered every deadline to the loopback
+        // address of whichever machine ran the API. Turn generation on a deadline
+        // simply never happened, and no error appeared anywhere: the failure was a
+        // valid string in a required field.
+        //
+        // Loopback is legitimate when running the whole stack on one machine, so it
+        // is a warning there and an error only when a real queue is involved.
+        // The scheme check is not redundant. On Linux, Uri.TryCreate accepts a
+        // rooted path such as "/internal/deadline-fire" as an ABSOLUTE uri, parsing
+        // it as file:///internal/deadline-fire. That is precisely the string an
+        // unset GALAXIES_API_BASE_URL produces, and the services run on Linux, so an
+        // absolute-only check would have passed the exact case it exists to catch.
+        if (!Uri.TryCreate(options.DeadlineFireUrl, UriKind.Absolute, out Uri? fireUrl)
+            || (fireUrl.Scheme != Uri.UriSchemeHttp && fireUrl.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new InvalidOperationException(
+                "GALAXIES_API_BASE_URL is not set to an absolute http or https URL, so the deadline target "
+                + $"resolved to '{options.DeadlineFireUrl}'. Cloud Tasks would accept the task and deliver it "
+                + "nowhere. Set it to the value of `terraform output api_url` and apply again.");
+        }
+
+        if (fireUrl.IsLoopback)
+        {
+            log.LogWarning(
+                "Deadline target {Url} is a loopback address. Cloud Tasks cannot reach it. "
+                + "This is only correct when the queue is local.", options.DeadlineFireUrl);
+        }
+
         QueueName queue = new(options.ProjectId, options.LocationId, options.QueueId);
         var task = new Google.Cloud.Tasks.V2.Task
         {

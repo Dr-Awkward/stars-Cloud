@@ -90,10 +90,34 @@ sits on top of a running system.
 2. **No golden turn captured on .NET Framework 4.8.** This is still the single
    highest-value check in the whole program, because it is where a silently
    different game across architecture would first show.
-3. **Server-side new-game map generation is still unseeded.** `StarMapInitialiser`,
-   `StarMapGenerator`, `NameGenerator`, `PointUtilities`, and `SpaceAllocator`
-   still use bare `new Random()`. Needed before the server can create games
-   rather than only advance a fixture.
+3. **RNG seeding: DONE as of 2026-08-01.** This item used to say map generation was
+   unseeded. It is now fully seeded, and closing it turned up two things the
+   original note did not anticipate.
+
+   The seeding machinery had been wired into `TurnGenerator`, `BattleEngine`, and
+   `CheckForMinefields` all along, and was being fed a constant: **nothing in
+   production ever assigned `ServerData.MasterSeed`**, so it kept its default of
+   zero and every game in existence shared one RNG stream. `Gameinitializer` now
+   draws a seed once at creation, before anything derives from it.
+
+   And `SpaceAllocator` held an unseeded `Random` while being constructed by
+   `BattleEngine` on the *turn* path, so battles were irreproducible even though
+   `BattleEngine` seeded its own stream. That one mattered most: battles are
+   exactly where an x86 versus x64 floating point difference would first appear,
+   so an unseeded RNG there would have surfaced during criterion 4 looking like
+   cross-architecture divergence, and invited a re-baseline that buried the real
+   thing.
+
+   `StarMapGenerator`, `NameGenerator`, and `StarMapinitializer` now take their
+   streams from `NovaRandom.ForSubsystem(MasterSeed, StartingYear, ...)`, so the
+   same seed and options reproduce the same galaxy, which is design Section A.4
+   item 4. Guarded by `Tests/UnitTests/GalaxyReproducibilityTest.cs`, which also
+   asserts that two *different* seeds differ, so a fix that made every galaxy
+   identical would not pass.
+
+   `PointUtilities.GetPositionInBox` still holds an unseeded static `Random` and is
+   deliberately left alone: it has no callers anywhere in the repository. It is
+   dead code, not a live defect.
 4. **The marketing site owes binary assets.** Self-hosted fonts (Fraunces, IBM
    Plex Sans, IBM Plex Mono), the Open Graph card, and the desktop installer the
    appcast points at are referenced but not committed.

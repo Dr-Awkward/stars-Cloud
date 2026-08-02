@@ -51,7 +51,10 @@ namespace Nova.Server.NewGame
         // values are between 0 and 1
         private readonly double[,] density;
 
-        private readonly Random random = new Random();
+        // Supplied, never created here. Star positions and heights come from this
+        // stream, so it is the main thing standing between a galaxy seed and a
+        // reproducible galaxy (design Section A.4 item 4).
+        private readonly Random random;
 
         // List of stars positions int[2]; int[0] - x, int[1] - y
         private readonly List<int[]> stars = new List<int[]>();
@@ -71,8 +74,10 @@ namespace Nova.Server.NewGame
         /// </summary>
         /// <param name="mapWidth">Width of the map in ly.</param>
         /// <param name="mapHeight">Height of the map in ly.</param>
-        public StarMapGenerator(int mapWidth, int mapHeight, int starSeparation, int starDensity, int starUniformity)
+        /// <param name="random">The seeded stream star placement draws from.</param>
+        public StarMapGenerator(int mapWidth, int mapHeight, int starSeparation, int starDensity, int starUniformity, Random random)
         {
+            this.random = random ?? throw new ArgumentNullException(nameof(random));
             this.mapWidth = mapWidth;
             this.mapHeight = mapHeight;
 

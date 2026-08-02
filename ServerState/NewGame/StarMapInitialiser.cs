@@ -36,19 +36,34 @@ namespace Nova.Server.NewGame
     {
         private ServerData serverState;
         private StarMapGenerator map;
-        private NameGenerator nameGenerator = new NameGenerator();
+        private NameGenerator nameGenerator;
+
+        // One stream for the whole of galaxy creation, derived from the game's
+        // master seed. Every draw below used to come from its own unseeded Random,
+        // so the same seed and the same settings produced a different galaxy on
+        // every run. Design Section A.4 item 4 requires the opposite.
+        private readonly Random random;
         private Resources homeStarDefaultMineralConcentration = new Resources();
         private Resources homeStarDefaultSurfaceMinerals = new Resources();
         
         public StarMapinitializer(ServerData serverState)
         {
             this.serverState = serverState;
+
+            // Derived from the game's master seed, which Gameinitializer assigns
+            // before constructing this. A game restored mid-creation with seed 0
+            // would still generate, just not reproducibly, so this does not throw.
+            this.random = NovaRandom.ForSubsystem(serverState.MasterSeed, Global.StartingYear, "mapgen");
+            this.nameGenerator = new NameGenerator(
+                NovaRandom.ForSubsystem(serverState.MasterSeed, Global.StartingYear, "starnames"));
+
             this.map = new StarMapGenerator(
                 GameSettings.Data.MapWidth,
                 GameSettings.Data.MapHeight,
                 GameSettings.Data.StarSeparation,
                 GameSettings.Data.StarDensity,
-                GameSettings.Data.StarUniformity);
+                GameSettings.Data.StarUniformity,
+                NovaRandom.ForSubsystem(serverState.MasterSeed, Global.StartingYear, "starmap"));
         }
 
 
@@ -66,7 +81,6 @@ namespace Nova.Server.NewGame
         {
             map.Generate(serverState.AllPlayers.Count);
 
-            Random random = new Random(); // NB: do this outside the loop so that random is seeded only once.
             foreach (int[] starPosition in map.Stars)
             {
                 Star star = new Star();
@@ -304,7 +318,6 @@ namespace Nova.Server.NewGame
 
         private void PrepareResources()
         {
-            Random random = new Random();
 
             this.homeStarDefaultSurfaceMinerals.Boranium = random.Next(300, 500);
             this.homeStarDefaultSurfaceMinerals.Ironium = random.Next(300, 500);
@@ -326,8 +339,7 @@ namespace Nova.Server.NewGame
         {
             if (map.Homeworlds.Count > 0)
             {
-                Random random = new Random();
-                
+                    
                 int[] starPosition = map.Homeworlds[random.Next(map.Homeworlds.Count)];   
                 
                 Star star = new Star();
@@ -428,7 +440,6 @@ namespace Nova.Server.NewGame
         /// <param name="e">A <see cref="EventArgs"/> that contains the event data.</param>
         private void AllocateHomeStarResources(Star star, EmpireData empire)
         {
-            Random random = new Random();
 
             // Set the owner of the home star in order to obtain proper
             // starting resources.

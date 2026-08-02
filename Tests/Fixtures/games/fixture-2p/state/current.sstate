@@ -3,10 +3,10 @@
   <ServerState>
     <GameInProgress>True</GameInProgress>
     <TurnYear>2100</TurnYear>
-    <MasterSeed>0</MasterSeed>
+    <MasterSeed>471989777</MasterSeed>
     <FormatVersion>1</FormatVersion>
-    <GameFolder>/tmp/galaxies-fixturegen-wky2krpa.na4</GameFolder>
-    <StatePathName>/tmp/galaxies-fixturegen-wky2krpa.na4/fixture-2p.sstate</StatePathName>
+    <GameFolder>/tmp/galaxies-fixturegen-mxigykvg.24l</GameFolder>
+    <StatePathName>/tmp/galaxies-fixturegen-mxigykvg.24l/fixture-2p.sstate</StatePathName>
     <AllPlayers>
       <PlayerSettings>
         <RaceName>Humanoid</RaceName>
@@ -1903,12 +1903,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Crabby</Name>
+                <Name>Himshaw</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>295</X>
-                <Y>355</Y>
+                <X>224</X>
+                <Y>51</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -1928,12 +1928,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Nadir</Name>
+                <Name>Tank Top</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>221</X>
-                <Y>39</Y>
+                <X>345</X>
+                <Y>388</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -1953,12 +1953,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Bush</Name>
+                <Name>Mekbuda</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>191</X>
-                <Y>335</Y>
+                <X>297</X>
+                <Y>170</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -1978,12 +1978,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Neuronos</Name>
+                <Name>Nipso</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>189</X>
-                <Y>220</Y>
+                <X>274</X>
+                <Y>289</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2003,12 +2003,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Alsea</Name>
+                <Name>Corner</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>43</X>
-                <Y>30</Y>
+                <X>163</X>
+                <Y>275</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2028,12 +2028,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Barry</Name>
+                <Name>Trog</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>372</X>
-                <Y>390</Y>
+                <X>336</X>
+                <Y>46</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2053,37 +2053,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Romeo</Name>
+                <Name>Daily</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>377</X>
-                <Y>128</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Wumpus</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>73</X>
-                <Y>362</Y>
+                <X>88</X>
+                <Y>9</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2107,8 +2082,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>12</X>
-                <Y>392</Y>
+                <X>387</X>
+                <Y>335</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2128,12 +2103,112 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Gollum</Name>
+                <Name>Mandrake</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>398</X>
-                <Y>9</Y>
+                <X>23</X>
+                <Y>289</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>Marion</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>125</X>
+                <Y>163</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>Edasich</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>223</X>
+                <Y>390</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>Turing's World</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>5</X>
+                <Y>2</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>King</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>364</X>
+                <Y>4</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2157,8 +2232,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>143</X>
-                <Y>150</Y>
+                <X>11</X>
+                <Y>142</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2178,87 +2253,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Ursa Minor</Name>
+                <Name>Hindsight</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>397</X>
-                <Y>255</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Rake</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>339</X>
-                <Y>10</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Denikin</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>108</X>
-                <Y>39</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Greenbaum</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>9</X>
-                <Y>250</Y>
+                <X>398</X>
+                <Y>176</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2278,19 +2278,19 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>100000000</Key>
-                <Name>Tegmine</Name>
+                <Name>Juniper</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
             <MineralConcentration>
-              <Boranium>76</Boranium>
-              <Ironium>55</Ironium>
-              <Germanium>67</Germanium>
+              <Boranium>50</Boranium>
+              <Ironium>96</Ironium>
+              <Germanium>76</Germanium>
               <Energy>0</Energy>
             </MineralConcentration>
             <Gravity>50</Gravity>
@@ -2304,12 +2304,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Gertrude</Name>
+                <Name>Canis Major</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -2331,25 +2331,25 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>100000000</Key>
-                <Name>Tegmine</Name>
+                <Name>Juniper</Name>
                 <Type>Star</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
             <ProductionQueue />
             <MineralConcentration>
-              <Boranium>76</Boranium>
-              <Ironium>55</Ironium>
-              <Germanium>67</Germanium>
+              <Boranium>50</Boranium>
+              <Ironium>96</Ironium>
+              <Germanium>76</Germanium>
               <Energy>0</Energy>
             </MineralConcentration>
             <ResourcesOnHand>
-              <Boranium>512</Boranium>
-              <Ironium>507</Ironium>
-              <Germanium>497</Germanium>
+              <Boranium>435</Boranium>
+              <Ironium>518</Ironium>
+              <Germanium>566</Germanium>
               <Energy>35</Energy>
             </ResourcesOnHand>
             <HasFleetsInOrbit>False</HasFleetsInOrbit>
@@ -2379,8 +2379,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>FleetIntel</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
@@ -2405,8 +2405,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>FleetIntel</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
@@ -2427,12 +2427,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>100000003</Key>
-                <Name>Tegmine Starbase</Name>
+                <Name>Juniper Starbase</Name>
                 <Type>FleetIntel</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
@@ -2459,11 +2459,11 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>Fleet</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
-            <InOrbit>Tegmine</InOrbit>
+            <InOrbit>Juniper</InOrbit>
             <Bearing>0</Bearing>
             <FuelAvailable>200</FuelAvailable>
             <FuelCapacity>200</FuelCapacity>
@@ -2476,10 +2476,10 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
               <ColonistsInKilotons>0</ColonistsInKilotons>
             </Cargo>
             <Waypoint>
-              <Destination>Tegmine</Destination>
+              <Destination>Juniper</Destination>
               <Position>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Position>
               <WarpFactor>0</WarpFactor>
               <NoTask />
@@ -2500,11 +2500,11 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>Fleet</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
-            <InOrbit>Tegmine</InOrbit>
+            <InOrbit>Juniper</InOrbit>
             <Bearing>0</Bearing>
             <FuelAvailable>50</FuelAvailable>
             <FuelCapacity>50</FuelCapacity>
@@ -2517,10 +2517,10 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
               <ColonistsInKilotons>0</ColonistsInKilotons>
             </Cargo>
             <Waypoint>
-              <Destination>Tegmine</Destination>
+              <Destination>Juniper</Destination>
               <Position>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Position>
               <WarpFactor>0</WarpFactor>
               <NoTask />
@@ -2537,15 +2537,15 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>100000003</Key>
-                <Name>Tegmine Starbase</Name>
+                <Name>Juniper Starbase</Name>
                 <Type>Fleet</Type>
               </Item>
               <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
-            <InOrbit>Tegmine</InOrbit>
+            <InOrbit>Juniper</InOrbit>
             <Bearing>0</Bearing>
             <FuelAvailable>0</FuelAvailable>
             <FuelCapacity>0</FuelCapacity>
@@ -2558,10 +2558,10 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
               <ColonistsInKilotons>0</ColonistsInKilotons>
             </Cargo>
             <Waypoint>
-              <Destination>Tegmine</Destination>
+              <Destination>Juniper</Destination>
               <Position>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Position>
               <WarpFactor>0</WarpFactor>
               <NoTask />
@@ -3691,12 +3691,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Crabby</Name>
+                <Name>Himshaw</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>295</X>
-                <Y>355</Y>
+                <X>224</X>
+                <Y>51</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3716,12 +3716,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Nadir</Name>
+                <Name>Tank Top</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>221</X>
-                <Y>39</Y>
+                <X>345</X>
+                <Y>388</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3741,12 +3741,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Bush</Name>
+                <Name>Mekbuda</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>191</X>
-                <Y>335</Y>
+                <X>297</X>
+                <Y>170</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3766,12 +3766,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Neuronos</Name>
+                <Name>Nipso</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>189</X>
-                <Y>220</Y>
+                <X>274</X>
+                <Y>289</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3791,12 +3791,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Alsea</Name>
+                <Name>Corner</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>43</X>
-                <Y>30</Y>
+                <X>163</X>
+                <Y>275</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3816,12 +3816,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Barry</Name>
+                <Name>Trog</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>372</X>
-                <Y>390</Y>
+                <X>336</X>
+                <Y>46</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3841,37 +3841,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Romeo</Name>
+                <Name>Daily</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>377</X>
-                <Y>128</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Wumpus</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>73</X>
-                <Y>362</Y>
+                <X>88</X>
+                <Y>9</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3895,8 +3870,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>12</X>
-                <Y>392</Y>
+                <X>387</X>
+                <Y>335</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3916,12 +3891,112 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Gollum</Name>
+                <Name>Mandrake</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>398</X>
-                <Y>9</Y>
+                <X>23</X>
+                <Y>289</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>Marion</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>125</X>
+                <Y>163</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>Edasich</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>223</X>
+                <Y>390</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>Turing's World</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>5</X>
+                <Y>2</Y>
+              </Point>
+            </Mappable>
+            <Year>-10000</Year>
+            <MineralConcentration>
+              <Boranium>0</Boranium>
+              <Ironium>0</Ironium>
+              <Germanium>0</Germanium>
+              <Energy>0</Energy>
+            </MineralConcentration>
+            <Gravity>-10000</Gravity>
+            <Radiation>-10000</Radiation>
+            <Temperature>-10000</Temperature>
+            <Colonists>-10000</Colonists>
+            <HasFleetsInOrbit>False</HasFleetsInOrbit>
+          </StarIntel>
+          <StarIntel>
+            <Mappable>
+              <Item>
+                <Key>0</Key>
+                <Name>King</Name>
+                <Type>StarIntel</Type>
+              </Item>
+              <Point>
+                <X>364</X>
+                <Y>4</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3945,8 +4020,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>143</X>
-                <Y>150</Y>
+                <X>11</X>
+                <Y>142</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3966,12 +4041,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Ursa Minor</Name>
+                <Name>Hindsight</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>397</X>
-                <Y>255</Y>
+                <X>398</X>
+                <Y>176</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -3991,87 +4066,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>0</Key>
-                <Name>Rake</Name>
+                <Name>Juniper</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>339</X>
-                <Y>10</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Denikin</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>108</X>
-                <Y>39</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Greenbaum</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>9</X>
-                <Y>250</Y>
-              </Point>
-            </Mappable>
-            <Year>-10000</Year>
-            <MineralConcentration>
-              <Boranium>0</Boranium>
-              <Ironium>0</Ironium>
-              <Germanium>0</Germanium>
-              <Energy>0</Energy>
-            </MineralConcentration>
-            <Gravity>-10000</Gravity>
-            <Radiation>-10000</Radiation>
-            <Temperature>-10000</Temperature>
-            <Colonists>-10000</Colonists>
-            <HasFleetsInOrbit>False</HasFleetsInOrbit>
-          </StarIntel>
-          <StarIntel>
-            <Mappable>
-              <Item>
-                <Key>0</Key>
-                <Name>Tegmine</Name>
-                <Type>StarIntel</Type>
-              </Item>
-              <Point>
-                <X>21</X>
-                <Y>195</Y>
+                <X>49</X>
+                <Y>355</Y>
               </Point>
             </Mappable>
             <Year>-10000</Year>
@@ -4091,19 +4091,19 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>200000000</Key>
-                <Name>Gertrude</Name>
+                <Name>Canis Major</Name>
                 <Type>StarIntel</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
             <MineralConcentration>
-              <Boranium>88</Boranium>
-              <Ironium>75</Ironium>
-              <Germanium>83</Germanium>
+              <Boranium>77</Boranium>
+              <Ironium>85</Ironium>
+              <Germanium>90</Germanium>
               <Energy>0</Energy>
             </MineralConcentration>
             <Gravity>50</Gravity>
@@ -4119,25 +4119,25 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>200000000</Key>
-                <Name>Gertrude</Name>
+                <Name>Canis Major</Name>
                 <Type>Star</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
             <ProductionQueue />
             <MineralConcentration>
-              <Boranium>88</Boranium>
-              <Ironium>75</Ironium>
-              <Germanium>83</Germanium>
+              <Boranium>77</Boranium>
+              <Ironium>85</Ironium>
+              <Germanium>90</Germanium>
               <Energy>0</Energy>
             </MineralConcentration>
             <ResourcesOnHand>
-              <Boranium>484</Boranium>
-              <Ironium>481</Ironium>
-              <Germanium>464</Germanium>
+              <Boranium>410</Boranium>
+              <Ironium>387</Ironium>
+              <Germanium>345</Germanium>
               <Energy>35</Energy>
             </ResourcesOnHand>
             <HasFleetsInOrbit>False</HasFleetsInOrbit>
@@ -4167,8 +4167,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>FleetIntel</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
@@ -4193,8 +4193,8 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>FleetIntel</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
@@ -4215,12 +4215,12 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>200000003</Key>
-                <Name>Gertrude Starbase</Name>
+                <Name>Canis Major Starbase</Name>
                 <Type>FleetIntel</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
             <Year>2100</Year>
@@ -4247,11 +4247,11 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>Fleet</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
-            <InOrbit>Gertrude</InOrbit>
+            <InOrbit>Canis Major</InOrbit>
             <Bearing>0</Bearing>
             <FuelAvailable>200</FuelAvailable>
             <FuelCapacity>200</FuelCapacity>
@@ -4264,10 +4264,10 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
               <ColonistsInKilotons>0</ColonistsInKilotons>
             </Cargo>
             <Waypoint>
-              <Destination>Gertrude</Destination>
+              <Destination>Canis Major</Destination>
               <Position>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Position>
               <WarpFactor>0</WarpFactor>
               <NoTask />
@@ -4288,11 +4288,11 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
                 <Type>Fleet</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
-            <InOrbit>Gertrude</InOrbit>
+            <InOrbit>Canis Major</InOrbit>
             <Bearing>0</Bearing>
             <FuelAvailable>50</FuelAvailable>
             <FuelCapacity>50</FuelCapacity>
@@ -4305,10 +4305,10 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
               <ColonistsInKilotons>0</ColonistsInKilotons>
             </Cargo>
             <Waypoint>
-              <Destination>Gertrude</Destination>
+              <Destination>Canis Major</Destination>
               <Position>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Position>
               <WarpFactor>0</WarpFactor>
               <NoTask />
@@ -4325,15 +4325,15 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
             <Mappable>
               <Item>
                 <Key>200000003</Key>
-                <Name>Gertrude Starbase</Name>
+                <Name>Canis Major Starbase</Name>
                 <Type>Fleet</Type>
               </Item>
               <Point>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Point>
             </Mappable>
-            <InOrbit>Gertrude</InOrbit>
+            <InOrbit>Canis Major</InOrbit>
             <Bearing>0</Bearing>
             <FuelAvailable>0</FuelAvailable>
             <FuelCapacity>0</FuelCapacity>
@@ -4346,10 +4346,10 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
               <ColonistsInKilotons>0</ColonistsInKilotons>
             </Cargo>
             <Waypoint>
-              <Destination>Gertrude</Destination>
+              <Destination>Canis Major</Destination>
               <Position>
-                <X>263</X>
-                <Y>140</Y>
+                <X>73</X>
+                <Y>120</Y>
               </Position>
               <WarpFactor>0</WarpFactor>
               <NoTask />
@@ -4386,23 +4386,23 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
     </AllEmpires>
     <AllTechLevels />
     <AllStars>
-      <Star Key="Crabby">
+      <Star Key="Himshaw">
         <Mappable>
           <Item>
             <Key>0</Key>
-            <Name>Crabby</Name>
+            <Name>Himshaw</Name>
             <Type>Star</Type>
           </Item>
           <Point>
-            <X>295</X>
-            <Y>355</Y>
+            <X>224</X>
+            <Y>51</Y>
           </Point>
         </Mappable>
         <ProductionQueue />
         <MineralConcentration>
-          <Boranium>54</Boranium>
-          <Ironium>81</Ironium>
-          <Germanium>24</Germanium>
+          <Boranium>82</Boranium>
+          <Ironium>14</Ironium>
+          <Germanium>4</Germanium>
           <Energy>0</Energy>
         </MineralConcentration>
         <ResourcesOnHand>
@@ -4415,102 +4415,30 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
         <OnlyLeftover>False</OnlyLeftover>
         <DefenseType>None</DefenseType>
         <ScannerType>None</ScannerType>
-        <Gravity>17</Gravity>
-        <Radiation>71</Radiation>
-        <Temperature>78</Temperature>
-        <OriginalGravity>17</OriginalGravity>
-        <OriginalRadiation>71</OriginalRadiation>
-        <OriginalTemperature>78</OriginalTemperature>
-      </Star>
-      <Star Key="Nadir">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Nadir</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>221</X>
-            <Y>39</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>58</Boranium>
-          <Ironium>49</Ironium>
-          <Germanium>24</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>10</Gravity>
-        <Radiation>37</Radiation>
-        <Temperature>77</Temperature>
-        <OriginalGravity>10</OriginalGravity>
-        <OriginalRadiation>37</OriginalRadiation>
-        <OriginalTemperature>77</OriginalTemperature>
-      </Star>
-      <Star Key="Bush">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Bush</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>191</X>
-            <Y>335</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>29</Boranium>
-          <Ironium>65</Ironium>
-          <Germanium>36</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>79</Gravity>
+        <Gravity>24</Gravity>
         <Radiation>85</Radiation>
-        <Temperature>16</Temperature>
-        <OriginalGravity>79</OriginalGravity>
+        <Temperature>89</Temperature>
+        <OriginalGravity>24</OriginalGravity>
         <OriginalRadiation>85</OriginalRadiation>
-        <OriginalTemperature>16</OriginalTemperature>
+        <OriginalTemperature>89</OriginalTemperature>
       </Star>
-      <Star Key="Neuronos">
+      <Star Key="Tank Top">
         <Mappable>
           <Item>
             <Key>0</Key>
-            <Name>Neuronos</Name>
+            <Name>Tank Top</Name>
             <Type>Star</Type>
           </Item>
           <Point>
-            <X>189</X>
-            <Y>220</Y>
+            <X>345</X>
+            <Y>388</Y>
           </Point>
         </Mappable>
         <ProductionQueue />
         <MineralConcentration>
-          <Boranium>70</Boranium>
-          <Ironium>78</Ironium>
-          <Germanium>19</Germanium>
+          <Boranium>63</Boranium>
+          <Ironium>4</Ironium>
+          <Germanium>12</Germanium>
           <Energy>0</Energy>
         </MineralConcentration>
         <ResourcesOnHand>
@@ -4523,30 +4451,30 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
         <OnlyLeftover>False</OnlyLeftover>
         <DefenseType>None</DefenseType>
         <ScannerType>None</ScannerType>
-        <Gravity>8</Gravity>
-        <Radiation>10</Radiation>
-        <Temperature>3</Temperature>
-        <OriginalGravity>8</OriginalGravity>
-        <OriginalRadiation>10</OriginalRadiation>
-        <OriginalTemperature>3</OriginalTemperature>
+        <Gravity>75</Gravity>
+        <Radiation>63</Radiation>
+        <Temperature>97</Temperature>
+        <OriginalGravity>75</OriginalGravity>
+        <OriginalRadiation>63</OriginalRadiation>
+        <OriginalTemperature>97</OriginalTemperature>
       </Star>
-      <Star Key="Alsea">
+      <Star Key="Mekbuda">
         <Mappable>
           <Item>
             <Key>0</Key>
-            <Name>Alsea</Name>
+            <Name>Mekbuda</Name>
             <Type>Star</Type>
           </Item>
           <Point>
-            <X>43</X>
-            <Y>30</Y>
+            <X>297</X>
+            <Y>170</Y>
           </Point>
         </Mappable>
         <ProductionQueue />
         <MineralConcentration>
-          <Boranium>25</Boranium>
-          <Ironium>46</Ironium>
-          <Germanium>59</Germanium>
+          <Boranium>5</Boranium>
+          <Ironium>90</Ironium>
+          <Germanium>11</Germanium>
           <Energy>0</Energy>
         </MineralConcentration>
         <ResourcesOnHand>
@@ -4559,210 +4487,30 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
         <OnlyLeftover>False</OnlyLeftover>
         <DefenseType>None</DefenseType>
         <ScannerType>None</ScannerType>
-        <Gravity>59</Gravity>
-        <Radiation>21</Radiation>
-        <Temperature>44</Temperature>
-        <OriginalGravity>59</OriginalGravity>
-        <OriginalRadiation>21</OriginalRadiation>
-        <OriginalTemperature>44</OriginalTemperature>
+        <Gravity>64</Gravity>
+        <Radiation>38</Radiation>
+        <Temperature>10</Temperature>
+        <OriginalGravity>64</OriginalGravity>
+        <OriginalRadiation>38</OriginalRadiation>
+        <OriginalTemperature>10</OriginalTemperature>
       </Star>
-      <Star Key="Barry">
+      <Star Key="Nipso">
         <Mappable>
           <Item>
             <Key>0</Key>
-            <Name>Barry</Name>
+            <Name>Nipso</Name>
             <Type>Star</Type>
           </Item>
           <Point>
-            <X>372</X>
-            <Y>390</Y>
+            <X>274</X>
+            <Y>289</Y>
           </Point>
         </Mappable>
         <ProductionQueue />
         <MineralConcentration>
-          <Boranium>14</Boranium>
-          <Ironium>71</Ironium>
-          <Germanium>72</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>65</Gravity>
-        <Radiation>32</Radiation>
-        <Temperature>1</Temperature>
-        <OriginalGravity>65</OriginalGravity>
-        <OriginalRadiation>32</OriginalRadiation>
-        <OriginalTemperature>1</OriginalTemperature>
-      </Star>
-      <Star Key="Romeo">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Romeo</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>377</X>
-            <Y>128</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>40</Boranium>
-          <Ironium>52</Ironium>
-          <Germanium>26</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>60</Gravity>
-        <Radiation>87</Radiation>
-        <Temperature>7</Temperature>
-        <OriginalGravity>60</OriginalGravity>
-        <OriginalRadiation>87</OriginalRadiation>
-        <OriginalTemperature>7</OriginalTemperature>
-      </Star>
-      <Star Key="Wumpus">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Wumpus</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>73</X>
-            <Y>362</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>97</Boranium>
-          <Ironium>1</Ironium>
-          <Germanium>91</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>17</Gravity>
-        <Radiation>92</Radiation>
-        <Temperature>55</Temperature>
-        <OriginalGravity>17</OriginalGravity>
-        <OriginalRadiation>92</OriginalRadiation>
-        <OriginalTemperature>55</OriginalTemperature>
-      </Star>
-      <Star Key="Misery">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Misery</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>12</X>
-            <Y>392</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>62</Boranium>
-          <Ironium>92</Ironium>
-          <Germanium>60</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>48</Gravity>
-        <Radiation>13</Radiation>
-        <Temperature>79</Temperature>
-        <OriginalGravity>48</OriginalGravity>
-        <OriginalRadiation>13</OriginalRadiation>
-        <OriginalTemperature>79</OriginalTemperature>
-      </Star>
-      <Star Key="Gollum">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Gollum</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>398</X>
-            <Y>9</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>30</Boranium>
-          <Ironium>40</Ironium>
-          <Germanium>31</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>6</Gravity>
-        <Radiation>2</Radiation>
-        <Temperature>33</Temperature>
-        <OriginalGravity>6</OriginalGravity>
-        <OriginalRadiation>2</OriginalRadiation>
-        <OriginalTemperature>33</OriginalTemperature>
-      </Star>
-      <Star Key="Discovery">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Discovery</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>143</X>
-            <Y>150</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>83</Boranium>
-          <Ironium>68</Ironium>
-          <Germanium>32</Germanium>
+          <Boranium>74</Boranium>
+          <Ironium>14</Ironium>
+          <Germanium>44</Germanium>
           <Energy>0</Energy>
         </MineralConcentration>
         <ResourcesOnHand>
@@ -4776,29 +4524,389 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
         <DefenseType>None</DefenseType>
         <ScannerType>None</ScannerType>
         <Gravity>44</Gravity>
-        <Radiation>67</Radiation>
-        <Temperature>8</Temperature>
+        <Radiation>89</Radiation>
+        <Temperature>96</Temperature>
         <OriginalGravity>44</OriginalGravity>
-        <OriginalRadiation>67</OriginalRadiation>
-        <OriginalTemperature>8</OriginalTemperature>
+        <OriginalRadiation>89</OriginalRadiation>
+        <OriginalTemperature>96</OriginalTemperature>
       </Star>
-      <Star Key="Ursa Minor">
+      <Star Key="Corner">
         <Mappable>
           <Item>
             <Key>0</Key>
-            <Name>Ursa Minor</Name>
+            <Name>Corner</Name>
             <Type>Star</Type>
           </Item>
           <Point>
-            <X>397</X>
-            <Y>255</Y>
+            <X>163</X>
+            <Y>275</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>55</Boranium>
+          <Ironium>47</Ironium>
+          <Germanium>1</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>66</Gravity>
+        <Radiation>24</Radiation>
+        <Temperature>98</Temperature>
+        <OriginalGravity>66</OriginalGravity>
+        <OriginalRadiation>24</OriginalRadiation>
+        <OriginalTemperature>98</OriginalTemperature>
+      </Star>
+      <Star Key="Trog">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Trog</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>336</X>
+            <Y>46</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>48</Boranium>
+          <Ironium>42</Ironium>
+          <Germanium>98</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>10</Gravity>
+        <Radiation>49</Radiation>
+        <Temperature>75</Temperature>
+        <OriginalGravity>10</OriginalGravity>
+        <OriginalRadiation>49</OriginalRadiation>
+        <OriginalTemperature>75</OriginalTemperature>
+      </Star>
+      <Star Key="Daily">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Daily</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>88</X>
+            <Y>9</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>70</Boranium>
+          <Ironium>25</Ironium>
+          <Germanium>77</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>91</Gravity>
+        <Radiation>82</Radiation>
+        <Temperature>24</Temperature>
+        <OriginalGravity>91</OriginalGravity>
+        <OriginalRadiation>82</OriginalRadiation>
+        <OriginalTemperature>24</OriginalTemperature>
+      </Star>
+      <Star Key="Misery">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Misery</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>387</X>
+            <Y>335</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>67</Boranium>
+          <Ironium>59</Ironium>
+          <Germanium>55</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>26</Gravity>
+        <Radiation>53</Radiation>
+        <Temperature>31</Temperature>
+        <OriginalGravity>26</OriginalGravity>
+        <OriginalRadiation>53</OriginalRadiation>
+        <OriginalTemperature>31</OriginalTemperature>
+      </Star>
+      <Star Key="Mandrake">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Mandrake</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>23</X>
+            <Y>289</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>11</Boranium>
+          <Ironium>28</Ironium>
+          <Germanium>27</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>54</Gravity>
+        <Radiation>46</Radiation>
+        <Temperature>48</Temperature>
+        <OriginalGravity>54</OriginalGravity>
+        <OriginalRadiation>46</OriginalRadiation>
+        <OriginalTemperature>48</OriginalTemperature>
+      </Star>
+      <Star Key="Marion">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Marion</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>125</X>
+            <Y>163</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>63</Boranium>
+          <Ironium>91</Ironium>
+          <Germanium>69</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>31</Gravity>
+        <Radiation>6</Radiation>
+        <Temperature>76</Temperature>
+        <OriginalGravity>31</OriginalGravity>
+        <OriginalRadiation>6</OriginalRadiation>
+        <OriginalTemperature>76</OriginalTemperature>
+      </Star>
+      <Star Key="Edasich">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Edasich</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>223</X>
+            <Y>390</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>88</Boranium>
+          <Ironium>39</Ironium>
+          <Germanium>37</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>16</Gravity>
+        <Radiation>13</Radiation>
+        <Temperature>33</Temperature>
+        <OriginalGravity>16</OriginalGravity>
+        <OriginalRadiation>13</OriginalRadiation>
+        <OriginalTemperature>33</OriginalTemperature>
+      </Star>
+      <Star Key="Turing's World">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Turing's World</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>5</X>
+            <Y>2</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>97</Boranium>
+          <Ironium>54</Ironium>
+          <Germanium>80</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>67</Gravity>
+        <Radiation>35</Radiation>
+        <Temperature>39</Temperature>
+        <OriginalGravity>67</OriginalGravity>
+        <OriginalRadiation>35</OriginalRadiation>
+        <OriginalTemperature>39</OriginalTemperature>
+      </Star>
+      <Star Key="King">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>King</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>364</X>
+            <Y>4</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>31</Boranium>
+          <Ironium>91</Ironium>
+          <Germanium>22</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>23</Gravity>
+        <Radiation>20</Radiation>
+        <Temperature>83</Temperature>
+        <OriginalGravity>23</OriginalGravity>
+        <OriginalRadiation>20</OriginalRadiation>
+        <OriginalTemperature>83</OriginalTemperature>
+      </Star>
+      <Star Key="Discovery">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Discovery</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>11</X>
+            <Y>142</Y>
+          </Point>
+        </Mappable>
+        <ProductionQueue />
+        <MineralConcentration>
+          <Boranium>41</Boranium>
+          <Ironium>2</Ironium>
+          <Germanium>22</Germanium>
+          <Energy>0</Energy>
+        </MineralConcentration>
+        <ResourcesOnHand>
+          <Boranium>0</Boranium>
+          <Ironium>0</Ironium>
+          <Germanium>0</Germanium>
+          <Energy>0</Energy>
+        </ResourcesOnHand>
+        <HasFleetsInOrbit>False</HasFleetsInOrbit>
+        <OnlyLeftover>False</OnlyLeftover>
+        <DefenseType>None</DefenseType>
+        <ScannerType>None</ScannerType>
+        <Gravity>14</Gravity>
+        <Radiation>69</Radiation>
+        <Temperature>39</Temperature>
+        <OriginalGravity>14</OriginalGravity>
+        <OriginalRadiation>69</OriginalRadiation>
+        <OriginalTemperature>39</OriginalTemperature>
+      </Star>
+      <Star Key="Hindsight">
+        <Mappable>
+          <Item>
+            <Key>0</Key>
+            <Name>Hindsight</Name>
+            <Type>Star</Type>
+          </Item>
+          <Point>
+            <X>398</X>
+            <Y>176</Y>
           </Point>
         </Mappable>
         <ProductionQueue />
         <MineralConcentration>
           <Boranium>71</Boranium>
-          <Ironium>44</Ironium>
-          <Germanium>56</Germanium>
+          <Ironium>2</Ironium>
+          <Germanium>87</Germanium>
           <Energy>0</Energy>
         </MineralConcentration>
         <ResourcesOnHand>
@@ -4811,144 +4919,36 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
         <OnlyLeftover>False</OnlyLeftover>
         <DefenseType>None</DefenseType>
         <ScannerType>None</ScannerType>
-        <Gravity>76</Gravity>
-        <Radiation>25</Radiation>
-        <Temperature>87</Temperature>
-        <OriginalGravity>76</OriginalGravity>
-        <OriginalRadiation>25</OriginalRadiation>
-        <OriginalTemperature>87</OriginalTemperature>
+        <Gravity>85</Gravity>
+        <Radiation>51</Radiation>
+        <Temperature>17</Temperature>
+        <OriginalGravity>85</OriginalGravity>
+        <OriginalRadiation>51</OriginalRadiation>
+        <OriginalTemperature>17</OriginalTemperature>
       </Star>
-      <Star Key="Rake">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Rake</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>339</X>
-            <Y>10</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>66</Boranium>
-          <Ironium>38</Ironium>
-          <Germanium>52</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>57</Gravity>
-        <Radiation>46</Radiation>
-        <Temperature>94</Temperature>
-        <OriginalGravity>57</OriginalGravity>
-        <OriginalRadiation>46</OriginalRadiation>
-        <OriginalTemperature>94</OriginalTemperature>
-      </Star>
-      <Star Key="Denikin">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Denikin</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>108</X>
-            <Y>39</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>49</Boranium>
-          <Ironium>34</Ironium>
-          <Germanium>95</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>73</Gravity>
-        <Radiation>48</Radiation>
-        <Temperature>32</Temperature>
-        <OriginalGravity>73</OriginalGravity>
-        <OriginalRadiation>48</OriginalRadiation>
-        <OriginalTemperature>32</OriginalTemperature>
-      </Star>
-      <Star Key="Greenbaum">
-        <Mappable>
-          <Item>
-            <Key>0</Key>
-            <Name>Greenbaum</Name>
-            <Type>Star</Type>
-          </Item>
-          <Point>
-            <X>9</X>
-            <Y>250</Y>
-          </Point>
-        </Mappable>
-        <ProductionQueue />
-        <MineralConcentration>
-          <Boranium>3</Boranium>
-          <Ironium>14</Ironium>
-          <Germanium>30</Germanium>
-          <Energy>0</Energy>
-        </MineralConcentration>
-        <ResourcesOnHand>
-          <Boranium>0</Boranium>
-          <Ironium>0</Ironium>
-          <Germanium>0</Germanium>
-          <Energy>0</Energy>
-        </ResourcesOnHand>
-        <HasFleetsInOrbit>False</HasFleetsInOrbit>
-        <OnlyLeftover>False</OnlyLeftover>
-        <DefenseType>None</DefenseType>
-        <ScannerType>None</ScannerType>
-        <Gravity>88</Gravity>
-        <Radiation>43</Radiation>
-        <Temperature>81</Temperature>
-        <OriginalGravity>88</OriginalGravity>
-        <OriginalRadiation>43</OriginalRadiation>
-        <OriginalTemperature>81</OriginalTemperature>
-      </Star>
-      <Star Key="Tegmine">
+      <Star Key="Juniper">
         <Mappable>
           <Item>
             <Key>100000000</Key>
-            <Name>Tegmine</Name>
+            <Name>Juniper</Name>
             <Type>Star</Type>
           </Item>
           <Point>
-            <X>21</X>
-            <Y>195</Y>
+            <X>49</X>
+            <Y>355</Y>
           </Point>
         </Mappable>
         <ProductionQueue />
         <MineralConcentration>
-          <Boranium>76</Boranium>
-          <Ironium>55</Ironium>
-          <Germanium>67</Germanium>
+          <Boranium>50</Boranium>
+          <Ironium>96</Ironium>
+          <Germanium>76</Germanium>
           <Energy>0</Energy>
         </MineralConcentration>
         <ResourcesOnHand>
-          <Boranium>512</Boranium>
-          <Ironium>507</Ironium>
-          <Germanium>497</Germanium>
+          <Boranium>435</Boranium>
+          <Ironium>518</Ironium>
+          <Germanium>566</Germanium>
           <Energy>35</Energy>
         </ResourcesOnHand>
         <HasFleetsInOrbit>False</HasFleetsInOrbit>
@@ -4968,29 +4968,29 @@ This scanner is capable of determining planetary statistics whilst in orbit.</De
         <OriginalRadiation>50</OriginalRadiation>
         <OriginalTemperature>50</OriginalTemperature>
       </Star>
-      <Star Key="Gertrude">
+      <Star Key="Canis Major">
         <Mappable>
           <Item>
             <Key>200000000</Key>
-            <Name>Gertrude</Name>
+            <Name>Canis Major</Name>
             <Type>Star</Type>
           </Item>
           <Point>
-            <X>263</X>
-            <Y>140</Y>
+            <X>73</X>
+            <Y>120</Y>
           </Point>
         </Mappable>
         <ProductionQueue />
         <MineralConcentration>
-          <Boranium>88</Boranium>
-          <Ironium>75</Ironium>
-          <Germanium>83</Germanium>
+          <Boranium>77</Boranium>
+          <Ironium>85</Ironium>
+          <Germanium>90</Germanium>
           <Energy>0</Energy>
         </MineralConcentration>
         <ResourcesOnHand>
-          <Boranium>484</Boranium>
-          <Ironium>481</Ironium>
-          <Germanium>464</Germanium>
+          <Boranium>410</Boranium>
+          <Ironium>387</Ironium>
+          <Germanium>345</Germanium>
           <Energy>35</Energy>
         </ResourcesOnHand>
         <HasFleetsInOrbit>False</HasFleetsInOrbit>

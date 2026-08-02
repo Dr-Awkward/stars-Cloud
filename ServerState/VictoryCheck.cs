@@ -64,11 +64,7 @@ namespace Nova.Server
             if (remainingEmpires.Count == 1)
             {
                 EmpireData empire = serverState.AllEmpires[remainingEmpires[0]];
-                Message message = new Message();
-                message.Audience = Global.Everyone;
-                message.Text = "The " + empire.Race.PluralName +
-                                   " have won the game";
-                serverState.AllMessages.Add(message);
+                Declare(empire);
                 return;
             }
             else
@@ -96,15 +92,39 @@ namespace Nova.Server
                         targetsMet >= GameSettings.Data.TargetsToMeet)
                     {
                         messageSent = true;
-                        Message message = new Message();
-                        message.Audience = Global.Everyone;
-                        message.Text = "The " + empire.Race.PluralName +
-                                           " have won the game";
-                        serverState.AllMessages.Add(message);
+                        Declare(empire);
                         return;
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Announce a victor and record it in a form the host can read.
+        ///
+        /// Both win paths used to do nothing but append a Message, so the fact that
+        /// a game had been won existed only as English text inside a player's turn
+        /// report. Nothing upstream could see it, even though GenerationOutcome,
+        /// GenerationCommit.WinnerEmpireId, and the game-over summary route were all
+        /// written expecting a value.
+        ///
+        /// This does NOT end the game, which is deliberate and matches the original
+        /// Stars!: a winner is announced and play continues for anyone who wants to
+        /// finish. GameInProgress is untouched here. Closing a game is a lifecycle
+        /// decision owned by the control plane, and players may leave without
+        /// penalty once a victor stands.
+        ///
+        /// First victor wins: both callers return immediately, so a later empire
+        /// meeting the same conditions does not overwrite the recorded winner.
+        /// </summary>
+        private void Declare(EmpireData empire)
+        {
+            serverState.WinnerEmpireId = empire.Id;
+
+            Message message = new Message();
+            message.Audience = Global.Everyone;
+            message.Text = "The " + empire.Race.PluralName + " have won the game";
+            serverState.AllMessages.Add(message);
         }
 
         /// <summary>

@@ -109,16 +109,18 @@ gcloud run services get-iam-policy ai-nova-default --region=$REGION --format=jso
 
 Deploy order matters. The participant must exist before the runner is told its URL, and the runner must exist before Pub/Sub is pointed at it.
 
-1. `participants/nova-default` becomes `ai-nova-default`.
+1. `Participants/NovaDefault` becomes `ai-nova-default`.
 2. `galaxies-ai`.
 3. Redeploy `galaxies-api` so it carries the internal orders route with `API_AI_ORDERS_ENABLED=false`.
 4. `galaxies-turngen` is already deployed and already publishes `turn-generated` and `deadline-approaching`. Confirm, do not redeploy.
 
-Push each branch so its per-directory Cloud Build trigger fires, or build one by hand:
+Build each by hand. There are no per-directory Cloud Build triggers: `infra/terraform/`
+declares no `google_cloudbuild_trigger` resource, and `.github/workflows/build.yml` builds
+and tests but never pushes an image. Every deploy in this repo is a manual submit today.
 
 ```bash
-gcloud builds submit . --config=participants/nova-default/cloudbuild.yaml
-gcloud builds submit . --config=galaxies-ai/cloudbuild.yaml
+gcloud builds submit . --config=Participants/NovaDefault/cloudbuild.yaml
+gcloud builds submit . --config=AiService/cloudbuild.yaml
 ```
 
 Then `terraform apply` again with the new image tags so terraform state matches what is actually running.

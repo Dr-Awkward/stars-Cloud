@@ -315,7 +315,10 @@ namespace Nova.Server
                 empires[stack.Owner] = stack.Owner;
             }
 
-            SpaceAllocator spaceAllocator = new SpaceAllocator(empires.Count);
+            // Draws from this battle's seeded stream, so stack positioning
+            // reproduces with the rest of the turn. It used to create its own
+            // unseeded Random, which made every battle irreproducible.
+            SpaceAllocator spaceAllocator = new SpaceAllocator(empires.Count, this.random);
 
             // Ensure that we allocate enough space so that all race stacks are
             // out of weapons range (scaled).

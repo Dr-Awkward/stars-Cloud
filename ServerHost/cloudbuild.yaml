@@ -1,0 +1,143 @@
+# galaxies-turngen build and deploy (M0).
+#
+# The turn generator: takes a game from storage, advances it one year with the
+# headless engine, writes per-empire intel back. It is the only service that runs
+# the engine, and the only one that writes authoritative game state.
+#
+# Run it by hand from the repository root:
+#   gcloud builds submit . --config=ServerHost/cloudbuild.yaml
+#
+# There is no Cloud Build trigger for this. infra/terraform declares no
+# google_cloudbuild_trigger, and .github/workflows/build.yml builds and tests but
+# never pushes an image, so every deploy in this repo is a manual submit.
+#
+# Prefer Terraform for the first deploy of a service, because it owns the service
+# account, ingress, and IAM. Use this for a code-only redeploy afterwards. The two
+# paths must agree on port and concurrency or whichever ran last silently wins;
+# the values below match infra/terraform/main.tf deliberately.
+
+substitutions:
+  _REGION: "us-central1"
+  _SERVICE: "galaxies-turngen"
+  _RUNTIME_SA: "sa-turngen@roybot.iam.gserviceaccount.com"
+  _STATE_BUCKET: "roybot-galaxies-state"
+  _ORDERS_BUCKET: "roybot-galaxies-orders"
+  _INTEL_BUCKET: "roybot-galaxies-intel"
+  # ALL is not public: no allUsers invoker binding exists, so Cloud Run rejects
+  # unauthenticated calls at the edge. Narrow to "internal" once galaxies-api
+  # calls this from inside the VPC.
+  _INGRESS: "all"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitution_option: ALLOW_LOOSE
+
+timeout: 1800s
+
+images:
+  - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-turngen:$SHORT_SHA"
+  - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-turngen:latest"
+
+steps:
+  # ---------------------------------------------------------------------------
+  # 1. Refuse a deploy that cannot store anything.
+  #
+  # A bucket name that is empty is not a missing setting, it is a service that
+  # starts, accepts a generate request, and fails on the first object write. The
+  # host throws at startup when all three are blank, but an empty string reaching
+  # the GCS client is worse than a clear refusal here.
+  # ---------------------------------------------------------------------------
+  - id: guard
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        fail() { echo "REFUSING: $$1" >&2; exit 1; }
+
+        [ -n "${_STATE_BUCKET}" ]  || fail "_STATE_BUCKET is required."
+        [ -n "${_ORDERS_BUCKET}" ] || fail "_ORDERS_BUCKET is required."
+        [ -n "${_INTEL_BUCKET}" ]  || fail "_INTEL_BUCKET is required."
+
+        case "${_INGRESS}" in
+          all|internal|internal-and-cloud-load-balancing) ;;
+          *) fail "_INGRESS must be all, internal, or internal-and-cloud-load-balancing." ;;
+        esac
+
+        echo "Configuration is coherent."
+
+  # ---------------------------------------------------------------------------
+  # 2. Build. Context is the repository root, because Common.csproj and
+  #    Server.csproj both compile ../VersionInfo.cs by link and the Dockerfile has
+  #    to copy it. A context rooted at ServerHost/ cannot see it.
+  # ---------------------------------------------------------------------------
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - ServerHost/Dockerfile
+      - -t
+      - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-turngen:$SHORT_SHA"
+      - -t
+      - "us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-turngen:latest"
+      - .
+
+  # ---------------------------------------------------------------------------
+  # 3. Deploy.
+  #
+  # Concurrency 1 is not a tuning choice. The engine holds a large mutable object
+  # graph plus process-wide statics (AllComponents, GameSettings.Data), so two
+  # generations in one process would corrupt each other. Timeout 600s covers a
+  # large late-game turn.
+  #
+  # GALAXIES_LOCAL_ROOT is deliberately NOT set. Setting it switches the host to
+  # filesystem storage, and a container filesystem on Cloud Run is in-memory,
+  # per-instance, and destroyed at scale to zero, so every game would vanish.
+  # ---------------------------------------------------------------------------
+  - id: deploy
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        gcloud run deploy "${_SERVICE}" \
+          --image="us-central1-docker.pkg.dev/roybot/roybot-galaxies/galaxies-turngen:$SHORT_SHA" \
+          --region="${_REGION}" \
+          --platform=managed \
+          --ingress="${_INGRESS}" \
+          --no-allow-unauthenticated \
+          --service-account="${_RUNTIME_SA}" \
+          --port=8080 \
+          --min-instances=0 \
+          --max-instances=10 \
+          --concurrency=1 \
+          --timeout=600 \
+          --memory=1Gi \
+          --cpu=1 \
+          --set-env-vars="^@^GALAXIES_STATE_BUCKET=${_STATE_BUCKET}@GALAXIES_ORDERS_BUCKET=${_ORDERS_BUCKET}@GALAXIES_INTEL_BUCKET=${_INTEL_BUCKET}"
+
+  # ---------------------------------------------------------------------------
+  # 4. Prove the revision is actually serving.
+  #
+  # A Cloud Run deploy reports success once the revision is created. Ready is a
+  # different thing, and a container that listens on the wrong port fails only at
+  # the readiness probe, which is easy to miss in build output.
+  # ---------------------------------------------------------------------------
+  - id: verify
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -euo
+      - pipefail
+      - -c
+      - |
+        gcloud run services describe "${_SERVICE}" --region="${_REGION}" \
+          --format='value(status.conditions[0].type,status.conditions[0].status)'
+        echo "Environment on the deployed revision:"
+        gcloud run services describe "${_SERVICE}" --region="${_REGION}" \
+          --format='value(spec.template.spec.containers[0].env)' | tr ',' '\n' | grep -E 'BUCKET|ROOT' || true

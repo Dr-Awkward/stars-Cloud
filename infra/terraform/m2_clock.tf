@@ -100,6 +100,15 @@ resource "google_secret_manager_secret_iam_member" "api_reads_jwt_key" {
   member    = "serviceAccount:${google_service_account.api.email}"
 }
 
+# The matching grant for the Google client id. Its absence is why the secret was
+# declared but useless: a secret nobody may read cannot be mounted, and the mount
+# would have failed the revision even once it was added.
+resource "google_secret_manager_secret_iam_member" "api_reads_google_client_id" {
+  secret_id = google_secret_manager_secret.google_client_id.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.api.email}"
+}
+
 # ---- Cloud Tasks: per-game deadline queue (design B.2) ----------------------
 # One task per (gameId, turnYear), named so a second enqueue is deduped, firing
 # at the deadline into the API's /internal/deadline-fire with an OIDC token.
@@ -186,6 +195,15 @@ resource "google_cloud_run_v2_service" "api" {
     containers {
       image = var.api_image != "" ? var.api_image : var.turngen_image
 
+      # Cloud Run defaults the container port to 8080 when no ports block is
+      # given. galaxies-api listens on 8080 (ASPNETCORE_URLS in its Dockerfile), so
+      # without this the platform probes the wrong port and the revision never
+      # becomes ready. The cloudbuild path passed --port and worked; the
+      # Terraform path did not, and the two disagreed silently.
+      ports {
+        container_port = 8080
+      }
+
       resources {
         limits = {
           cpu    = "1"
@@ -221,6 +239,17 @@ resource "google_cloud_run_v2_service" "api" {
         name  = "GALAXIES_INVOKER_SA"
         value = google_service_account.invoker.email
       }
+      # Every Cloud Tasks deadline target is built from this. Nothing set it, so
+      # Api/Program.cs fell back to http://localhost and every deadline task was
+      # created pointing at the loopback address of whichever machine happened to
+      # run the API. No deadline was ever deliverable, and nothing complained,
+      # because a fallback string is a perfectly valid string.
+      #
+      # Two-phase: see variables.tf. The service cannot reference its own uri.
+      env {
+        name  = "GALAXIES_API_BASE_URL"
+        value = var.api_base_url
+      }
       # M3 gate on the internal AI orders route (see m3_ai.tf). Declared here
       # rather than set by hand at flip time, because an env var applied with
       # gcloud run services update is wiped by the next terraform apply, which
@@ -234,6 +263,20 @@ resource "google_cloud_run_v2_service" "api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.jwt_signing_key.secret_id
+            version = "latest"
+          }
+        }
+      }
+      # The google_client_id secret was created and then never granted and never
+      # mounted, so the API validated every Google ID token against the audience
+      # "unset.apps.googleusercontent.com" and no player could sign in. The API now
+      # refuses to start outside Development without this, which turns a silent
+      # authentication failure into a failed revision.
+      env {
+        name = "GALAXIES_GOOGLE_CLIENT_ID"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.google_client_id.secret_id
             version = "latest"
           }
         }

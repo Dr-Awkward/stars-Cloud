@@ -171,6 +171,15 @@ resource "google_cloud_run_v2_service" "ai" {
     containers {
       image = var.ai_image != "" ? var.ai_image : var.turngen_image
 
+      # Cloud Run defaults the container port to 8080 when no ports block is
+      # given. galaxies-ai listens on 8082 (ASPNETCORE_URLS in its Dockerfile), so
+      # without this the platform probes the wrong port and the revision never
+      # becomes ready. The cloudbuild path passed --port and worked; the
+      # Terraform path did not, and the two disagreed silently.
+      ports {
+        container_port = 8082
+      }
+
       resources {
         limits = {
           cpu    = "1"
@@ -252,13 +261,33 @@ resource "google_cloud_run_v2_service" "ai" {
         name  = "TASKS_QUEUE"
         value = google_cloud_tasks_queue.deadlines.name
       }
+      # These names must match AiService/Config.cs exactly. They did not: the
+      # config read GALAXIES_INVOKER_SA and DEFAULT_PARTICIPANT_URL while Terraform
+      # set TASKS_INVOKER_SA and PARTICIPANT_NOVA_DEFAULT_URL. Neither mismatch
+      # failed loudly, because every reader has a fallback: the invoker silently
+      # became galaxies-ai's own service account, so Cloud Tasks minted OIDC tokens
+      # as the wrong identity, and the participant URL stayed empty, so the dispatch
+      # runner had no AI to call and every seat would have held.
       env {
-        name  = "TASKS_INVOKER_SA"
+        name  = "GALAXIES_INVOKER_SA"
         value = google_service_account.invoker.email
       }
       env {
-        name  = "PARTICIPANT_NOVA_DEFAULT_URL"
+        name  = "DEFAULT_PARTICIPANT_URL"
         value = google_cloud_run_v2_service.ai_nova_default.uri
+      }
+      # Read by AiService/Config.cs as the Cloud Tasks target and OIDC audience when
+      # galaxies-ai enqueues dispatch work for itself. Nothing set it, so it stayed
+      # empty and dispatch had nowhere to go.
+      #
+      # It cannot be derived here: a service may not reference its own uri, that is
+      # a dependency cycle. So this is a two-phase input. Apply once with it empty,
+      # read `terraform output ai_url`, set var.ai_base_url, apply again. Leaving it
+      # empty is safe rather than silent: TaskEnqueuer refuses to enqueue against a
+      # blank target instead of creating tasks that go nowhere.
+      env {
+        name  = "GALAXIES_AI_URL"
+        value = var.ai_base_url
       }
       env {
         name  = "CONTRACT_VERSION"
@@ -325,6 +354,15 @@ resource "google_cloud_run_v2_service" "ai_nova_default" {
     containers {
       image = var.ai_nova_default_image != "" ? var.ai_nova_default_image : var.turngen_image
 
+      # Cloud Run defaults the container port to 8080 when no ports block is
+      # given. ai-nova-default listens on 8084 (ASPNETCORE_URLS in its Dockerfile), so
+      # without this the platform probes the wrong port and the revision never
+      # becomes ready. The cloudbuild path passed --port and worked; the
+      # Terraform path did not, and the two disagreed silently.
+      ports {
+        container_port = 8084
+      }
+
       resources {
         limits = {
           cpu    = "1"
@@ -337,9 +375,19 @@ resource "google_cloud_run_v2_service" "ai_nova_default" {
         name  = "CONTRACT_VERSION"
         value = var.ai_contract_version
       }
+      # Participants/NovaDefault/Program.cs reads PARTICIPANT_MAX_ORDERS, not
+      # MAX_ORDERS_PER_TURN. The old name set nothing, so the participant fell back
+      # to OrderMapper.DefaultMaxOrders and this variable did nothing at all.
       env {
-        name  = "MAX_ORDERS_PER_TURN"
+        name  = "PARTICIPANT_MAX_ORDERS"
         value = tostring(var.ai_max_orders_per_turn)
+      }
+      # The participant ships dark and the flip is a variable plus an apply, not a
+      # gcloud edit that the next apply would silently revert. Without this there is
+      # no Terraform lever at all and the image ENV default is the only control.
+      env {
+        name  = "PARTICIPANT_ENABLED"
+        value = tostring(var.participant_enabled)
       }
     }
   }
