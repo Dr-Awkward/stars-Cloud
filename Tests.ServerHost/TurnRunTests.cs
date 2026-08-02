@@ -237,6 +237,90 @@ namespace Galaxies.Tests.ServerHost
         }
 
         /// <summary>
+        /// The same turn, generated twice from the same input, must produce the same
+        /// bytes. This is the precondition for M0 exit criterion 4: a golden turn
+        /// comparison is meaningless if a single machine cannot reproduce itself.
+        ///
+        /// Two things broke this and neither was the game logic. The scratch
+        /// directory was named with a GUID and ServerData serializes GameFolder and
+        /// StatePathName into the save, so every run embedded a different path. And
+        /// RacialTraits enumerated a Hashtable, whose order .NET randomizes per
+        /// process, so the same lesser traits serialized in a different order.
+        ///
+        /// Both runs deliberately share one scratch root, which is how the service
+        /// actually runs, and which also exercises the stale-directory cleanup that a
+        /// derived directory name makes necessary.
+        /// </summary>
+        [Test]
+        public async Task TheSameTurnGeneratedTwiceIsByteIdentical()
+        {
+            string scratch = ScratchRoot();
+            string secondRoot = Path.Combine(Path.GetTempPath(), "galaxies-det-" + Path.GetRandomFileName());
+
+            try
+            {
+                CopyTree(FixturePaths.DeployedFixtureRoot(), secondRoot);
+
+                var first = new TurnService(new LocalGameStore(root), NullLogger<TurnService>.Instance, scratch);
+                TurnService.GenerationOutcome a = await first.GenerateTurnAsync(GameId);
+
+                var second = new TurnService(new LocalGameStore(secondRoot), NullLogger<TurnService>.Instance, scratch);
+                TurnService.GenerationOutcome b = await second.GenerateTurnAsync(GameId);
+
+                Assert.AreEqual(a.TurnYear, b.TurnYear, "The two runs did not generate the same turn.");
+
+                AssertSameBytes(
+                    Path.Combine(root, RelativeState(a.TurnYear)),
+                    Path.Combine(secondRoot, RelativeState(b.TurnYear)),
+                    "The generated state differs between two runs of the same turn.");
+
+                foreach (int empireId in a.EmpireIds)
+                {
+                    AssertSameBytes(
+                        Path.Combine(root, RelativeIntel(a.TurnYear, empireId)),
+                        Path.Combine(secondRoot, RelativeIntel(b.TurnYear, empireId)),
+                        $"Intel for empire {empireId} differs between two runs of the same turn.");
+                }
+            }
+            finally
+            {
+                foreach (string dir in new[] { secondRoot, scratch })
+                {
+                    if (Directory.Exists(dir))
+                    {
+                        Directory.Delete(dir, recursive: true);
+                    }
+                }
+            }
+        }
+
+        private static string RelativeState(int turnYear)
+            => $"games/{GameId}/state/{turnYear}.sstate".Replace('/', Path.DirectorySeparatorChar);
+
+        private static string RelativeIntel(int turnYear, int empireId)
+            => $"games/{GameId}/intel/{turnYear}/{empireId}.intel".Replace('/', Path.DirectorySeparatorChar);
+
+        private static void AssertSameBytes(string left, string right, string message)
+        {
+            Assert.IsTrue(File.Exists(left), $"Missing {left}");
+            Assert.IsTrue(File.Exists(right), $"Missing {right}");
+
+            byte[] a = File.ReadAllBytes(left);
+            byte[] b = File.ReadAllBytes(right);
+
+            // Compare lengths first so a size mismatch reports as a size mismatch
+            // rather than as an offset somewhere in the middle.
+            Assert.AreEqual(a.Length, b.Length, message + " (different lengths)");
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i])
+                {
+                    Assert.Fail($"{message} First difference at byte {i}.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Write an orders file in the engine's envelope, at the canonical path
         /// galaxies-api writes to. The path is a literal, copied from
         /// Api/Storage/ObjectStores.cs, for the reason given in GameStoreLayoutTests.

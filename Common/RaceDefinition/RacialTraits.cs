@@ -55,9 +55,38 @@ namespace Nova.Common
         public new IEnumerator GetEnumerator()
         {
             yield return this.primaryTrait;
+
+            // Lesser traits come out sorted by code, not in hash order.
+            //
+            // TraitList derives from DictionaryBase, which is backed by a
+            // Hashtable, and .NET randomizes string hashing per process. So
+            // Dictionary.Values enumerated in a different order on every run. That
+            // is invisible during play, because a race either has a trait or it does
+            // not, but it changes the byte layout of everything written from this
+            // loop: generating the same turn twice produced saved games whose <LRT>
+            // elements appeared in different positions.
+            //
+            // That matters for M0 exit criterion 4, which compares a generated turn
+            // against a committed golden BYTE FOR BYTE across .NET Framework 4.8 on
+            // Windows and net10.0 on Linux. An unstable order fails that comparison
+            // for a reason that has nothing to do with the engine, and the tempting
+            // response is to re-baseline the golden, which would mask exactly the
+            // cross-architecture divergence the check exists to catch.
+            //
+            // Sorting here rather than at each call site keeps every consumer
+            // order-stable, which is what design Section A.4 asks for. The list is
+            // at most a handful of entries, so the cost is not worth measuring.
+            List<TraitEntry> lesserTraits = new List<TraitEntry>();
             foreach (TraitEntry trait in Dictionary.Values)
             {
-                yield return (TraitEntry)trait;
+                lesserTraits.Add(trait);
+            }
+
+            lesserTraits.Sort((left, right) => string.CompareOrdinal(left.Code, right.Code));
+
+            foreach (TraitEntry trait in lesserTraits)
+            {
+                yield return trait;
             }
         }
 

@@ -54,6 +54,23 @@ namespace Nova.Server
 
         public bool GameInProgress      = false;
         public int TurnYear             = Global.StartingYear;
+
+        /// <summary>
+        /// The empire that has met a victory condition, or <see cref="Global.Nobody"/>
+        /// while none has.
+        ///
+        /// Declaring a victor does NOT end the game, which is deliberate and matches
+        /// the original Stars!: a winner is announced and play continues for anyone
+        /// who wants to finish. Ending a game is a lifecycle decision owned by the
+        /// control plane (the host closes it, or everyone leaves), not something the
+        /// engine does to players mid-session.
+        ///
+        /// This exists because VictoryCheck only ever appended a text Message, so
+        /// nothing machine-readable said a game had been won. GenerationOutcome,
+        /// GenerationCommit.WinnerEmpireId, and the game-over summary route all
+        /// needed a value the engine never produced.
+        /// </summary>
+        public int WinnerEmpireId       = Global.Nobody;
         public string GameFolder        = null; // The path&folder where client files are held.
         public string StatePathName     = null; // path&file name to the saved state data
 
@@ -112,11 +129,28 @@ namespace Nova.Server
                         case "formatversion":
                             FormatVersion = int.Parse(xmlnode.FirstChild.Value, System.Globalization.CultureInfo.InvariantCulture);
                             break;
+                        // Absent or empty means no victor, which is the normal case
+                        // for every game in progress and for every save written
+                        // before this field existed.
+                        case "winnerempireid":
+                            WinnerEmpireId = int.TryParse(
+                                xmlnode.FirstChild?.Value, System.Globalization.NumberStyles.Integer,
+                                System.Globalization.CultureInfo.InvariantCulture, out int winner)
+                                ? winner : Global.Nobody;
+                            break;
+
+                        // The three below read through FirstChild?.Value rather than
+                        // FirstChild.Value. An empty XML element has no FirstChild at
+                        // all, so the direct form throws a NullReferenceException and
+                        // takes the entire state load down with it. That is the same
+                        // trap that made ShipDesign unloadable during M3: an element
+                        // that is legitimately blank is not the same as one that is
+                        // absent, and a path field is blank often enough to matter.
                         case "gamefolder":
-                            GameFolder = xmlnode.FirstChild.Value;
-                            break;                        
+                            GameFolder = xmlnode.FirstChild?.Value ?? string.Empty;
+                            break;
                         case "statepathname":
-                            StatePathName = xmlnode.FirstChild.Value;
+                            StatePathName = xmlnode.FirstChild?.Value ?? string.Empty;
                             break;
                         
                         // The collections are retrieved via loops: we trust
@@ -230,6 +264,7 @@ namespace Nova.Server
                         AllMessages     = restoredState.AllMessages;
         
                         GameInProgress    = restoredState.GameInProgress;
+                        WinnerEmpireId    = restoredState.WinnerEmpireId;
                         TurnYear          = restoredState.TurnYear;
                         GameFolder        = restoredState.GameFolder; // The path&folder where client files are held.
                         StatePathName     = restoredState.StatePathName;
@@ -291,7 +326,20 @@ namespace Nova.Server
             // Global.SaveData(xmldoc, xmlelServerState, "FleetID", FleetID.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Global.SaveData(xmldoc, xmlelServerState, "TurnYear", TurnYear.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Global.SaveData(xmldoc, xmlelServerState, "MasterSeed", MasterSeed.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Global.SaveData(xmldoc, xmlelServerState, "WinnerEmpireId", WinnerEmpireId.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Global.SaveData(xmldoc, xmlelServerState, "FormatVersion", CurrentFormatVersion.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            // These are machine-local paths, and persisting them means a saved game
+            // carries wherever it was last written. That is upstream behaviour and it
+            // stays: the desktop console round trips both, and ServerStateTest
+            // asserts it.
+            //
+            // It does mean the caller controls whether a generated turn is
+            // reproducible, because whatever these hold ends up in the bytes. The
+            // cloud host therefore uses a scratch directory named deterministically
+            // from the game and turn rather than from a GUID; see
+            // ServerHost/Engine/TurnService.cs. Getting that wrong made the same turn
+            // serialize differently on every run, which would fail the golden turn
+            // comparison in M0 exit criterion 4 for a reason unrelated to the engine.
             Global.SaveData(xmldoc, xmlelServerState, "GameFolder", GameFolder);
             Global.SaveData(xmldoc, xmlelServerState, "StatePathName", StatePathName);
             

@@ -41,12 +41,25 @@ namespace Nova.Server.Host.Engine
         /// B.4): the new authoritative state path, who is in the game (for the
         /// turn-generated event), and whether the game ended.
         /// </summary>
+        /// <param name="GameEnded">
+        /// Whether the ENGINE considers the universe finished. This is not the same
+        /// as a game having a winner, and it is normally false even after a victory.
+        /// Galaxies declares a victor and lets play continue, matching the original
+        /// Stars!, so closing a game is a lifecycle decision the control plane makes
+        /// when the host closes it or everyone has left.
+        /// </param>
+        /// <param name="WinnerEmpireId">
+        /// The empire that has met a victory condition, or <see cref="Global.Nobody"/>
+        /// while none has. Once set it stays set: the first victor is the victor.
+        /// This is what the API commits and what the game-over summary reads.
+        /// </param>
         public sealed record GenerationOutcome(
             int TurnYear,
             string NewStatePath,
             int[] EmpireIds,
             int[] AiEmpireIds,
-            bool GameEnded);
+            bool GameEnded,
+            int WinnerEmpireId);
 
         /// <summary>
         /// Advance one game by one turn. Returns the new (advanced) turn year and
@@ -55,7 +68,34 @@ namespace Nova.Server.Host.Engine
         /// </summary>
         public async Task<GenerationOutcome> GenerateTurnAsync(string gameId, CancellationToken ct = default)
         {
-            string workingDir = Path.Combine(scratchRoot, "gen-" + gameId + "-" + Guid.NewGuid().ToString("N"));
+            // The working directory name is DERIVED, not random.
+            //
+            // ServerData serializes GameFolder and StatePathName into the saved game
+            // (upstream behaviour, and ServerStateTest depends on it), so whatever
+            // this directory is called ends up in the bytes of every turn generated
+            // in it. With a GUID here, generating the same turn twice produced two
+            // different files. M0 exit criterion 4 compares a generated turn against
+            // a committed golden BYTE FOR BYTE across .NET Framework 4.8 on Windows
+            // and net10.0 on Linux, and a random path in the payload defeats that
+            // before the engine is even considered, then invites a re-baseline that
+            // would mask the real cross-architecture divergence the check exists to
+            // find.
+            //
+            // Uniqueness is not lost. The name is unique per (game, turn), and the
+            // exactly-once generation lock (IControlPlane.TryClaimGenerationAsync)
+            // already guarantees a single worker per (gameId, turnYear), which is a
+            // stronger guarantee than a GUID gave. The gameId is sanitized because it
+            // is caller-supplied and contains colons in the roybot:game:hex form.
+            string safeGameId = string.Concat(gameId.Select(c => char.IsLetterOrDigit(c) || c == '-' ? c : '-'));
+            string workingDir = Path.Combine(scratchRoot, "gen-" + safeGameId);
+
+            // A deterministic name can collide with debris from a previous attempt at
+            // the same turn that died before its cleanup ran. Stale intel there would
+            // otherwise be uploaded as this turn's output, so start from empty.
+            if (Directory.Exists(workingDir))
+            {
+                Directory.Delete(workingDir, recursive: true);
+            }
             Directory.CreateDirectory(workingDir);
             try
             {
@@ -106,8 +146,20 @@ namespace Nova.Server.Host.Engine
                 bool gameEnded = !serverState.GameInProgress;
                 string newStatePath = GamePaths.StateForTurn(gameId, yearAfter);
 
+                if (serverState.WinnerEmpireId != Global.Nobody)
+                {
+                    // Logged every turn once a victor stands, not only on the turn it
+                    // happened, because the control plane may be catching up and the
+                    // declaration is a property of the game rather than of one turn.
+                    log.LogInformation(
+                        "Game {GameId} has a victor: empire {Winner}. Play continues until the game is closed.",
+                        gameId, serverState.WinnerEmpireId);
+                }
+
                 log.LogInformation("Generated turn for game {GameId}: {Before} to {After}", gameId, yearBefore, yearAfter);
-                return new GenerationOutcome(yearAfter, newStatePath, empireIds, System.Array.Empty<int>(), gameEnded);
+                return new GenerationOutcome(
+                    yearAfter, newStatePath, empireIds, System.Array.Empty<int>(),
+                    gameEnded, serverState.WinnerEmpireId);
             }
             finally
             {
